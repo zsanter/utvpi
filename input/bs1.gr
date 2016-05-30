@@ -1,0 +1,10 @@
+c full
+p sp
+a 23 345
+a
+a 23
+p sp 45
+p
+a 34 45 678
+p sp 34 78
+p sp 34 n89

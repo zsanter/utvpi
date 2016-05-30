@@ -1,0 +1,6 @@
+The following negative gray cycle was detected:
+-x4513 +x3928 <= 25
+-x3928 -x4613 <= -15
++x4613 -x4496 <= -10
++x4496 -x3606 <= -11
++x3606 +x4513 <= -3

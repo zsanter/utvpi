@@ -1,0 +1,8 @@
+/*
+ * swtest9.txt
+ * System which is infeasible due to conflicting absolute constraints.
+ */
+
+1 variables
+-x1 <= -1
+x1 <= 0

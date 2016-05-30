@@ -1,0 +1,4 @@
+The following negative gray cycle was detected:
++x782 -x780 <= -3
++x780 -x908 <= -4
++x908 -x782 <= -10

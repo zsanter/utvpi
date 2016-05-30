@@ -1,0 +1,7 @@
+The following negative gray cycle was detected:
+-x999 +x946 <= -9
+-x946 +x996 <= -4
+-x996 -x80 <= -10
++x80 +x997 <= -14
+-x997 -x488 <= -6
++x488 +x999 <= -14

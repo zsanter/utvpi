@@ -1,0 +1,5 @@
+The following negative gray cycle was detected:
++x8541 -x6513 <= 26
++x6513 +x6624 <= -5
+-x6624 -x10545 <= -15
++x10545 -x8541 <= -13

@@ -1,0 +1,14 @@
+/*
+ * swtest5.txt
+ * From Piotr's paper
+ * Example 11, pg 17
+ * Infeasible system
+ */
+
+4 variables
+x1 - x2 <= -3
+-x1 + x2 <= 4
+-x1 + x4 <= 1
+-x1 - x4 <= 1
+x2 + x3 <= 1
+x2 - x3 <= 1

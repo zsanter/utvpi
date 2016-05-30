@@ -1,0 +1,4 @@
+The following negative cost cycle was detected:
++x910 -x927 <= -6
++x978 -x910 <= -8
++x927 -x978 <= 6

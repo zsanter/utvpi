@@ -1,0 +1,16 @@
+/*
+ * swtest14.txt
+ * swtest3.txt
+ * From Piotr's paper
+ * pg 9
+ * At least linearly feasible
+ * With absolute constraints to set x1 = -6
+ */
+
+4 variables
+x1 + x3 <= 0
+x2 - x3 <= -7
+x4 - x2 <= 3
+-x1 - x4 <= 5
+x1 <= -6
+-x1 <= 6

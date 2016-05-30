@@ -1,0 +1,16 @@
+/*
+ * bftest3.txt
+ * From Introduction to Algorithms, 3rd Edition
+ * Problem 24.4-2, pg 669
+ */
+
+5 variables
+x1 - x2 <= 4
+x1 - x5 <= 5
+x2 - x4 <= -6
+x3 - x2 <= 1
+x4 - x1 <= 3
+x4 - x3 <= 5
+x4 - x5 <= 10
+x5 - x3 <= -4
+x5 - x4 <= -8

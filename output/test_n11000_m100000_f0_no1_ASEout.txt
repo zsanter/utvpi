@@ -1,0 +1,4 @@
+The following negative gray cycle was detected:
++x7151 +x6643 <= -14
+-x6643 +x5692 <= 9
+-x5692 -x7151 <= -11

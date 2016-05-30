@@ -1,0 +1,8 @@
+/*
+ * Testing identification of edges where both edges are the same.
+ */
+ 
+2 variables
+x1 + x1 <= 23
+x2 - x2 <= -11
+ 

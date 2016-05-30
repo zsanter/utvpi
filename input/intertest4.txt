@@ -1,0 +1,17 @@
+/*
+ * Testing modification to allow
+ * for inteerpretation of modified
+ * Stuckey .utv files.
+ */
+
+1000 variables
++ x_432 + x_590 <= 22
+  + x_504 + x_654 <= 92
+  - x_437 + x_726 <= 93
+  - x_298 + x_465 <= -2
+  - x_113 + x_497 <= 18
+  - x_256 + x_579 <= -7
+  + x_322 + x_207 <= 32
+  - x_750 + x_822 <= 36
+  - x_406 + x_603 <= 84
+  - x_110 + x_603 <= 44

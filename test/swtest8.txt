@@ -1,0 +1,14 @@
+/*
+ * swtest8.txt
+ * From Piotr's paper
+ * 9.3 An Illustrative Example, System (7), pg 60
+ * Probably the same as swtest6.txt
+ */
+
+4 variables
+x1 + x2 <= 2
+x1 - x2 <= 1
+x3 - x2 <= 1
+x4 - x2 <= 0
+-x3 - x4 <= -2
+-x1 <= -1
