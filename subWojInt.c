@@ -127,9 +127,7 @@ void initializeSystem(void * object, int n, Parser * parser){
       system->graph[i].L[j] = NULL;
       system->graph[i].D[j] = INT_MAX;
       system->graph[i].first[j] = NULL;
-      system->graph[i].first[j]->weight = INT_MAX;
       system->graph[i].edgeCount[j] = 0;
-      EdgeType reverseJ = reverseEdgeType(j);
     }
   }
 }
@@ -149,13 +147,13 @@ void addConstraint(void * object, Constraint * constraint, Parser * parser){
       addEdge( system, constraint );
       constraint->sign[1] = MINUS;
       addEdge( system, constraint );
-      //Calls to addEdgeHelper place the new edges at first[edgeType] for both vertices
+      //Calls to addEdge place the new edges at first[edgeType] for both vertices
       if( constraint->sign[0] == PLUS ){
         if( constraint->weight < system->graph[ constraint->index[0] ].D[WHITE] ){
           system->graph[ constraint->index[0] ].D[WHITE] = constraint->weight;
           system->graph[ constraint->index[0] ].L[WHITE] = system->graph[0].first[WHITE];
           system->graph[ constraint->index[0] ].D[GRAY_FORWARD] = constraint->weight;
-          system->graph[ constraint->index[0] ].L[GRAY_FORWARD] = system->graph[0].first[GRAY_FORWARD]; //.first[GRAY_REVERSE]; ?
+          system->graph[ constraint->index[0] ].L[GRAY_FORWARD] = system->graph[0].first[GRAY_FORWARD]; //.first[GRAY_REVERSE]; ? No.
         }
       }
       else{
@@ -163,7 +161,7 @@ void addConstraint(void * object, Constraint * constraint, Parser * parser){
           system->graph[ constraint->index[0] ].D[BLACK] = constraint->weight;
           system->graph[ constraint->index[0] ].L[BLACK] = system->graph[0].first[BLACK];
           system->graph[ constraint->index[0] ].D[GRAY_REVERSE] = constraint->weight;
-          system->graph[ constraint->index[0] ].L[GRAY_REVERSE] = system->graph[0].first[GRAY_REVERSE]; //.first[GRAY_FORWARD]; ?
+          system->graph[ constraint->index[0] ].L[GRAY_REVERSE] = system->graph[0].first[GRAY_REVERSE]; //.first[GRAY_FORWARD]; ? No.
         }
       }
     }
@@ -257,17 +255,7 @@ void finishSystemCreation(System * system){
             if( prior->weight <= edgeSortArray[k]->weight ){
               //puts("free 2 before");
               //fputEdge( edgeSortArray[k], stdout);
-              if( edgeSortArray[k]->inAllEdgeList == true ){
-                if( edgeSortArray[k]->allNext != NULL ){
-                  edgeSortArray[k]->allNext->allPrev = edgeSortArray[k]->allPrev;
-                }
-                if( edgeSortArray[k]->allPrev != NULL ){
-                  edgeSortArray[k]->allPrev->allNext = edgeSortArray[k]->allNext;
-                }
-                else{
-                  system->allEdgeFirst = edgeSortArray[k]->allNext;
-                }
-              }
+              removeFromAllEdgeList( system, edgeSortArray[k] );
               free( edgeSortArray[k] );
               //puts("free 2 after");
             }
@@ -279,17 +267,7 @@ void finishSystemCreation(System * system){
                 beforePrior->next = edgeSortArray[k];
               }
               //puts("free 3 before");
-              if( prior->inAllEdgeList == true ){
-                if( prior->allNext != NULL ){
-                  prior->allNext->allPrev = prior->allPrev;
-                }
-                if( prior->allPrev != NULL ){
-                  prior->allPrev->allNext = prior->allNext;
-                }
-                else{
-                  system->allEdgeFirst = prior->allNext;
-                }
-              }
+              removeFromAllEdgeList( system, prior );
               free( prior );
               //puts("free 3 after");
               prior = edgeSortArray[k];
@@ -304,17 +282,33 @@ void finishSystemCreation(System * system){
         }
         prior->next = NULL;
       }
+      /*
       Edge * edge = system->graph[i].first[j];
       while(edge != NULL){
         fputEdge(edge, stdout);
         edge = edge->next;
       }
+      */
     }
   }
 }
 
 int edgeCompare(const void * edge1, const void * edge2){
   return (*(Edge **)edge1)->head->index - (*(Edge **)edge2)->head->index;
+}
+
+void removeFromAllEdgeList(System * system, Edge * edge){
+  if( edge->inAllEdgeList == true ){
+    if( edge->allNext != NULL ){
+      edge->allNext->allPrev = edge->allPrev;
+    }
+    if( edge->allPrev != NULL ){
+      edge->allPrev->allNext = edge->allNext;
+    }
+    else{
+      system->allEdgeFirst = edge->allNext;
+    }
+  }
 }
 
 EdgeRefList * relaxNetwork(System * system){

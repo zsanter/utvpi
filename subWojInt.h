@@ -92,6 +92,7 @@ void addConstraint(void * object, Constraint * constraint, Parser * parser);
 void addEdge(Systen * system, Constraint * constraint);
 void finishSystemCreation(System * system);
 int edgeCompare(const void * edge1, const void * edge2);
+void removeFromAllEdgeList(System * system, Edge * edge);
 EdgeRefList * relaxNetwork(System * system);
 void relaxEdge(Edge * e);
 EdgeRefList * backtrack(Vertex * x_i, EdgeType t, Edge * e);
