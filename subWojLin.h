@@ -70,6 +70,6 @@ void finishSystemCreation(System * system);
 EdgeRefList * relaxNetwork(System * system);
 void relaxEdge(Edge * e);
 EdgeRefList * backtrack(Vertex * x_i, EdgeType t, Edge * e);
-void cleanup(System * system);
+void cleanupSystem(System * system);
 
 #endif

@@ -50,7 +50,7 @@ int main(int argc, char * argv[]){
   }
   fclose(output);
   time_t afterSolutionOutput = clock();
-  cleanup(&system);
+  cleanupSystem(&system);
   time_t afterCleanup = clock();
   printf("%f,", ((double)(afterSystemCreation - beginning))/CLOCKS_PER_SEC );
   printf("%f,,", ((double)(afterSolutionOutput - afterSystemCreation))/CLOCKS_PER_SEC );
@@ -507,7 +507,7 @@ EdgeRefList * backtrack(Vertex * x_i, EdgeType t, Edge * e){
   return R;
 }
 
-void cleanup(System * system){
+void cleanupSystem(System * system){
   for(EdgeType i = WHITE; i <= GRAY_REVERSE; i++){
     for(int j = 0; j < system->vertexCount; j++){
       Edge * e = system->graph[j].first[i];

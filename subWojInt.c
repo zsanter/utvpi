@@ -45,8 +45,24 @@ int main(int argc, char * argv[]){
       system.graph[i].a = intDivBy2ToHalfInt( system.graph[i].D[WHITE] - system.graph[i].D[BLACK] );
       fprintf(output, "x%i = %.1f\n", i, halfIntToDouble( system.graph[i].a ) );
     }
-    produceIntegerSolution(&system);
+    EdgeRefList * O = produceIntegerSolution(&system);
+    if(O != NULL){
+      fputs("\nSystem is not integrally feasible.\nProof:\n", output);
+      while( O != NULL ){
+        fputEdge(O->edge, output);
+        EdgeRefList * oldO = O;
+        O = O->next;
+        free(oldO);
+      }
+    }
+    else {
+      fputs("\nIntegral solution:\n", output);
+      for(int i = 1; i < system.vertexCount; i++){
+        fprintf(output, "x%i = %i\n", i, system.graph[i].Z );
+      }
+    }
   }
+  
   fclose(output);
   return 0;
 }
@@ -109,6 +125,7 @@ void initializeSystem(void * object, int n, Parser * parser){
   //system->graph[0].x = 0;
   system->graph[0].Z = 0;
   //system->graph[0].Z_T = 0;
+  system->graph[0].integerTreeVertex = NULL;
   for(EdgeType i = WHITE; i <= GRAY_REVERSE; i++){
     system->graph[0].L[i] = NULL;
     system->graph[0].D[i] = 0;
@@ -123,6 +140,7 @@ void initializeSystem(void * object, int n, Parser * parser){
     //system->graph[i].x = 0;
     system->graph[i].Z = INT_MAX;
     //system->graph[i].Z_T = 0;
+    system->graph[i].integerTreeVertex = NULL;
     for(EdgeType j = WHITE; j <= GRAY_REVERSE; j++){
       system->graph[i].L[j] = NULL;
       system->graph[i].D[j] = INT_MAX;
@@ -580,50 +598,194 @@ EdgeRefList * backtrack(Vertex * x_i, EdgeType t, Edge * e){
   return R;
 }
 
-void produceIntegerSolution(System * system){
+EdgeRefList * produceIntegerSolution(System * system){
+  
+  IntegerTreeVertex * x0Root = (IntegerTreeVertex *) malloc( sizeof(IntegerTreeVertex) );
+  x0Root->parent = NULL;
+  x0Root->nextSibling = NULL;
+  x0Root->firstChild = NULL;
+  x0Root->queueNext = NULL;
+  x0Root->firstEdge = NULL;
+  x0Root->graphVertex = &system->graph[0];
+  system->graph[0].integerTreeVertex = x0Root;
+  
+  IntegerTree T;
+  T.treeRoot = x0Root;
+  T.queueFirst = NULL;
+  T.queueLast = NULL;
+  T.type = X0;
+  
   for(int i = 1; i < system->vertexCount; i++){
     if( halfIntIsIntegral( system->graph[i].a ) ){
       system->graph[i].Z = halfIntToInt( system->graph[i].a );
     }
     else{
-      forcedRounding( &system->graph[i] );
-    }
-  }
-}
-
-void forcedRounding(Vertex * x_i){
-  Edge * whiteEdge = x_i->first[WHITE];
-  Edge * grayReverseEdge = x_i->first[GRAY_REVERSE];
-  while( whiteEdge != NULL && grayReverseEdge != NULL ){
-    while( grayReverseEdge != NULL && grayReverseEdge->head->index < whiteEdge->head->index ){
-      grayReverseEdge = grayReverseEdge->next;
-    }
-    if( grayReverseEdge != NULL ){
-      while( whiteEdge != NULL && whiteEdge->head->index < grayReverseEdge->head->index ){
-        whiteEdge = whiteEdge->next;
+      EdgeRefList * infeasibilityPrrof = forcedRounding( system, &system->graph[i], &T );
+      if( infeasibilityProof != NULL ){
+        return infeasibilityProof;
       }
     }
+  }
+  
+  while( T.queueLast != NULL ){
+    checkDependencies(system, T.queueLast->graphVertex, &T);
+    T.queueLast = T.queueLast->queueNext;
+  }
+  
+  return NULL;
+}
+
+EdgeRefList * forcedRounding(System * system, Vertex * x_i, IntegerTree * T){
+  bool forcedDown = false;
+  Edge * whiteEdge = x_i->first[WHITE];
+  Edge * grayReverseEdge = x_i->first[GRAY_REVERSE];
+  while( whiteEdge != NULL && grayReverseEdge != NULL && !forcedDown ){
     if( (grayReverseEdge->head->index == whiteEdge->head->index) 
         && (intToHalfInt( whiteEdge->weight ) == x_i->a + whiteEdge->head->a) 
         && (intToHalfInt( grayReverseEdge->weight ) == x_i->a - whiteEdge->head->a) ){
+      
       x_i->Z = halfIntToInt( halfIntFloor( x_i->a ) );
+      
+      Edge * newEdge = (Edge *) malloc( sizeof(Edge) );
+      newEdge->weight = x_i->Z;
+      newEdge->type = WHITE;
+      newEdge->tail = x_i;
+      newEdge->head = &system->graph[0];
+      newEdge->reverse = NULL;
+      newEdge->next = system->integerTreeAdditionsFirst;
+      system->integerTreeAdditionsFirst = newEdge;
+      newEdge->allNext = NULL;
+      newEdge->allPrev = NULL;
+      newEdge->inAllEdgeList = false;
+      
+      modifyIntegerTree( system, T, x_i, &system->graph[0], whiteEdge, grayReverseEdge, newEdge );
+      
+      forcedDown = true;
+      
     }
-  }
-  Edge * blackEdge = x_i->first[BLACK];
-  Edge * grayForwardEdge = x_i->first[GRAY_FORWARD];
-  while( blackEdge != NULL && grayForwardEdge != NULL ){
-    while( grayForwardEdge != NULL && grayForwardEdge->head->index < blackEdge->head->index ){
-      grayForwardEdge = grayForwardEdge->next;
-    }
-    if( grayForwardEdge != NULL ){
-      while( blackEdge != NULL && blackEdge->head->index < grayForwardEdge->head->index ){
-        blackEdge = blackEdge->next;
+    else {
+      while( grayReverseEdge != NULL && grayReverseEdge->head->index < whiteEdge->head->index ){
+        grayReverseEdge = grayReverseEdge->next;
+      }
+      if( grayReverseEdge != NULL ){
+        while( whiteEdge != NULL && whiteEdge->head->index < grayReverseEdge->head->index ){
+          whiteEdge = whiteEdge->next;
+        }
       }
     }
+  }
+  bool forcedUp = false;
+  Edge * blackEdge = x_i->first[BLACK];
+  Edge * grayForwardEdge = x_i->first[GRAY_FORWARD];
+  while( blackEdge != NULL && grayForwardEdge != NULL && !forcedUp ){
     if( (grayForwardEdge->head->index == blackEdge->head->index) 
         && (intToHalfInt( blackEdge->weight ) == -x_i->a - blackEdge->head->a) 
         && (intToHalfInt( grayForwardEdge->weight ) == -x_i->a + whiteEdge->head->a) ){
+      
       x_i->Z = halfIntToInt( halfIntCeil( x_i->a ) );
+      
+      Edge * newEdge = (Edge *) malloc( sizeof(Edge) );
+      newEdge->weight = -x_i->Z;
+      newEdge->type = BLACK;
+      newEdge->tail = x_i;
+      newEdge->head = &system->graph[0];
+      newEdge->reverse = NULL;
+      newEdge->next = system->integerTreeAdditionsFirst;
+      system->integerTreeAdditionsFirst = newEdge;
+      newEdge->allNext = NULL;
+      newEdge->allPrev = NULL;
+      newEdge->inAllEdgeList = false;
+      
+      modifyIntegerTree( system, T, x_i, &system->graph[0], blackEdge, grayForwardEdge, newEdge );
+      
+      forcedUp = true;
+      
+    }
+    else {
+      while( grayForwardEdge != NULL && grayForwardEdge->head->index < blackEdge->head->index ){
+        grayForwardEdge = grayForwardEdge->next;
+      }
+      if( grayForwardEdge != NULL ){
+        while( blackEdge != NULL && blackEdge->head->index < grayForwardEdge->head->index ){
+          blackEdge = blackEdge->next;
+        }
+      }
     }
   }
+  if( forcedDown && forcedUp ){
+    return copyTreeEdgesToList(NULL, x_i->integerTreeVertex);
+  }
+  return NULL;
+}
+
+void checkDependencies(System * system, Vertex * x_i, IntegerTree * T){
+  
+}
+
+void modifyIntegerTree(System * system, IntegerTree * T, Vertex * active, Vertex * parent, Edge * edge0, Edge * edge1, Edge * edge2){
+  
+  IntegerTreeVertex * itv = x_i->integerTreeVertex[T->type];
+  if( itv == NULL ){
+    itv = (IntegerTreeVertex *) malloc( sizeof(IntegerTreeVertex) );
+    itv->parent = parent->integerTreeVertex;
+    itv->nextSibling = itv->parent->firstChild;
+    itv->parent->firstChild = itv;
+    itv->firstChild = NULL;
+    itv->queueNext = NULL; //queueNext points at newer queue entries, as opposed to every other linked list used here.
+    if( T->queueFirst != NULL ){
+      T->queueFirst->queueNext = itv;
+    }
+    T->queueFirst = itv;
+    x_i->integerTreeVertex[T->type] = itv;
+  }
+  
+  if( edge0 != NULL ){
+    EdgeRefList * newEdgeRefList = (EdgeRefList *) malloc( sizeof(EdgeRefList) );
+    newEdgeRefList->edge = edge0;
+    newEdgeRefList->next = itv->firstEdge;
+    itv->firstEdge = newEdgeRefList;
+    if( edge1 != NULL ){
+      newEdgeRefList = (EdgeRefList *) malloc( sizeof(EdgeRefList) );
+      newEdgeRefList->edge = edge1;
+      newEdgeRefList->next = itv->firstEdge;
+      itv->firstEdge = newEdgeRefList;
+      if( edge2 != NULL ){
+        newEdgeReflist = (EdgeRefList *) malloc( sizeof(EdgeReflist) );
+        newEdgeRefList->edge = edge2;
+        newEdgeRefList->next = itv->firstEdge;
+        itv->firstEdge = newEdgeRefList;
+      }
+    }
+  }
+
+}
+
+EdgeRefList * copyTreeEdgesToList(EdgeRefList * list, IntegerTreeVertex * itv){
+  EdgeRefList * treeEdge = itv->firstEdge;
+  while( treeEdge != NULL ){
+    EdgeRefList * newEdgeRefList = (EdgeRefList *) malloc( sizeof(EdgeRefList) );
+    newEdgeRefList->edge = treeEdge->edge;
+    newEdgeRefList->next = list;
+    list = newEdgeRefList;
+    treeEdge = treeEdge->next;
+  }
+  return list;
+}
+
+void cleanupIntegerTree(IntegerTree * tree){
+  //Fill in later.
+}
+
+void cleanupSystem(System * system){
+  for(EdgeType i = WHITE; i <= GRAY_REVERSE; i++){
+    for(int j = 0; j < system->vertexCount; j++){
+      Edge * e = system->graph[j].first[i];
+      while(e != NULL){
+        Edge * oldE = e;
+        e = e->next;
+        free( oldE );
+      }
+    }
+  }
+  free( system->graph );
 }

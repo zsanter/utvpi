@@ -22,12 +22,20 @@ typedef enum BacktrackingCoefficient {
   POS_ONE,
 } BacktrackingCoefficient;
 
+#define INTEGER_TREE_TYPE_COUNT 3
+typedef enum IntegerTreeType {
+  X0,
+  LEFT,
+  RIGHT,
+} IntegerTreeType;
+
 typedef struct System System;
 typedef struct Vertex Vertex;
 typedef struct Edge Edge;
 typedef struct EdgeRefList EdgeRefList;
+typedef struct IntegerTree IntegerTree;
 typedef struct IntegerTreeVertex IntegerTreeVertex;
-typedef struct IntegerTreeEdge IntegerTreeEdge;
+//typedef struct IntegerTreeEdge IntegerTreeEdge;
 
 struct System {
   Vertex * graph;
@@ -35,9 +43,7 @@ struct System {
   int n;
   int C; //largestWeight
   Edge * allEdgeFirst;
-  IntegerTreeEdge * x0FirstChild;
-  IntegerTreeVertex * integerQueueFirst;
-  IntegerTreeVertex * integerQueueLast;
+  Edge * integerTreeAdditionsFirst;
 };
 
 struct Vertex {
@@ -48,9 +54,10 @@ struct Vertex {
   //half_int x; //May go unused
   half_int a; //This seems to stand in for x in the integer feasibility code.
   int Z;
-  //int Z_T;
+  int Z_T;
   Edge * first[EDGE_TYPE_COUNT];
   int edgeCount[EDGE_TYPE_COUNT];
+  IntegerTreeVertex * integerTreeVertex[INTEGER_TREE_TYPE_COUNT];
 };
 
 struct Edge {
@@ -70,20 +77,29 @@ struct EdgeRefList {
   EdgeRefList * next;
 };
 
+struct IntegerTree {
+  IntegerTreeVertex * treeRoot;
+  IntegerTreeVertex * queueFirst;
+  IntegerTreeVertex * queueLast;
+  IntegerTreeType type;
+}
+
 struct IntegerTreeVertex {
-  IntegerTreeEdge * parent;
-  IntegerTreeEdge * firstChild;
+  IntegerTreeVertex * parent;
+  IntegerTreeVertex * nextSibling;
+  IntegerTreeVertex * firstChild;
   IntegerTreeVertex * queueNext;
+  EdgeRefList * firstEdge;
   Vertex * graphVertex;
 };
-
+/*
 struct IntegerTreeEdge {
   IntegerTreeVertex * parent;
   IntegerTreeVertex * child;
   IntegerTreeEdge * nextSibling;
   Edge * graphEdge;
 }
-
+*/
 int main(int argc, char * argv[]);
 void fputEdge(Edge * edge, FILE * output);
 EdgeType reverseEdgeType(EdgeType input);
@@ -97,6 +113,10 @@ EdgeRefList * relaxNetwork(System * system);
 void relaxEdge(Edge * e);
 EdgeRefList * backtrack(Vertex * x_i, EdgeType t, Edge * e);
 void produceIntegerSolution(System * system);
-void forcedRounding(Vertex * x_i);
+void forcedRounding(System * system, Vertex * x_i, IntegerTree * T);
+void checkDependencies(System * system, Vertex * x_i, IntegerTree * T);
+void modifyIntegerTree(System * system, IntegerTree * T, Vertex * active, Vertex * parent, Edge * newEdge0, Edge * newEdge1, Edge * newEdge2);
+void cleanupIntegerTree(IntegerTree * integerTree);
+void cleanupSystem(System * system);
 
 #endif
