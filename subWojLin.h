@@ -17,11 +17,11 @@ typedef enum EdgeType {
   GRAY_REVERSE,
 } EdgeType;
 
-#define BACKTRACKING_COEFFICIENT_COUNT 2
-typedef enum BacktrackingCoefficient {
+#define BACKTRACKING_INDEX_COUNT 2
+typedef enum BacktrackingIndex {
   NEG_ONE,
   POS_ONE,
-} BacktrackingCoefficient;
+} BacktrackingIndex;
 
 typedef struct System System;
 typedef struct Vertex Vertex;
@@ -40,7 +40,7 @@ struct Vertex {
   int index;
   Edge * L[EDGE_TYPE_COUNT];
   int D[EDGE_TYPE_COUNT];
-  Edge * E[BACKTRACKING_COEFFICIENT_COUNT];
+  Edge * E[BACKTRACKING_INDEX_COUNT];
   half_int x;
   Edge * first[EDGE_TYPE_COUNT];
 };

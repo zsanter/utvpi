@@ -402,7 +402,7 @@ EdgeRefList * backtrack(Vertex * x_i, EdgeType t, Edge * e){
   Vertex * x_c = x_i;
   Edge * e_c = e;
   EdgeType t_c = t;
-  BacktrackingCoefficient a_c;
+  BacktrackingIndex a_c;
   switch(t_c){
   case WHITE:
   case GRAY_FORWARD:
@@ -469,7 +469,7 @@ EdgeRefList * backtrack(Vertex * x_i, EdgeType t, Edge * e){
     x_c = e_c->tail;
   }
   Vertex * x_f = x_c;
-  BacktrackingCoefficient a_f = a_c;
+  BacktrackingIndex a_f = a_c;
   EdgeRefList * R = (EdgeRefList *) malloc( sizeof(EdgeRefList) );
   R->edge = e_c;
   R->next = NULL;
