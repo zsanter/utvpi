@@ -22,11 +22,10 @@ typedef enum BacktrackingIndex {
   POS_ONE,
 } BacktrackingIndex;
 
-#define INTEGER_TREE_TYPE_COUNT 3
+#define INTEGER_TREE_TYPE_COUNT 2
 typedef enum IntegerTreeType {
-  X0,
-  LEFT,
-  RIGHT,
+  DOWN,
+  UP,
 } IntegerTreeType;
 
 #define INTEGER_TYPE_COUNT 2
@@ -49,7 +48,7 @@ struct System {
   int n;
   int C; //largestWeight
   Edge * allEdgeFirst;
-  Edge * integerTreeAdditionsFirst;
+  //Edge * integerTreeAdditionsFirst;
 };
 
 struct Vertex {
@@ -87,6 +86,7 @@ struct IntegerTree {
   IntegerTreeVertex * queueFirst;
   IntegerTreeVertex * queueLast;
   IntegerTreeType type;
+  Edge * additionsFirst;
 }
 
 struct IntegerTreeVertex {
@@ -117,11 +117,16 @@ void removeFromAllEdgeList(System * system, Edge * edge);
 EdgeRefList * relaxNetwork(System * system);
 void relaxEdge(Edge * e);
 EdgeRefList * backtrack(Vertex * x_i, EdgeType t, Edge * e);
-void produceIntegerSolution(System * system);
-void forcedRounding(System * system, IntegerTree * T, Vertex * x_i);
+EdgeRefList * produceIntegerSolution(System * system);
+EdgeRefList * forcedRounding(System * system, IntegerTree * T, Vertex * x_i);
+Edge * generateAbsoluteConstraint(System * system, IntegerTree * T, Vertex * x_i, int weight, EdgeType type);
+IntegerTree * generateIntegerTree(System * system, IntegerTreeType type);
+EdgeRefList * optionalRoundings(System * system, IntegerTree * T);
 void checkDependencies(System * system, IntegerTree * T, Vertex * x_i);
 void expandIntegerTree(System * system, IntegerTree * T, Vertex * active, Vertex * parent, Edge * newEdge0, Edge * newEdge1, Edge * newEdge2);
-void cleanupIntegerTree(IntegerTree * integerTree);
-void cleanupSystem(System * system);
+EdgeRefList * integerTreeBacktrack(EdgeRefList * list, IntegerTreeVertex * fromVertex, IntegerTreeVertex * toVertex);
+EdgeRefList * copyTreeEdgesToList(EdgeRefList * list, IntegerTreeVertex * itv);
+void freeIntegerTree(IntegerTree * integerTree);
+void freeSystem(System * system);
 
 #endif

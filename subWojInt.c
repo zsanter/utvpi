@@ -62,7 +62,7 @@ int main(int argc, char * argv[]){
       }
     }
   }
-  
+  freeSystem(&system);
   fclose(output);
   return 0;
 }
@@ -326,6 +326,9 @@ void removeFromAllEdgeList(System * system, Edge * edge){
     else{
       system->allEdgeFirst = edge->allNext;
     }
+    edge->allNext = NULL;
+    edge->allPrev = NULL;
+    edge->inAllEdgeList = false;
   }
 }
 
@@ -600,38 +603,64 @@ EdgeRefList * backtrack(Vertex * x_i, EdgeType t, Edge * e){
 
 EdgeRefList * produceIntegerSolution(System * system){
   
-  IntegerTreeVertex * x0Root = (IntegerTreeVertex *) malloc( sizeof(IntegerTreeVertex) );
-  x0Root->parent = NULL;
-  x0Root->nextSibling = NULL;
-  x0Root->firstChild = NULL;
-  x0Root->queueNext = NULL;
-  x0Root->firstEdge = NULL;
-  x0Root->graphVertex = &system->graph[0];
-  system->graph[0].integerTreeVertex = x0Root;
-  
-  IntegerTree T;
-  T.treeRoot = x0Root;
-  T.queueFirst = NULL;
-  T.queueLast = NULL;
-  T.type = X0;
+  IntegerTree * T = generateIntegerTree(system, DOWN);
   
   for(int i = 1; i < system->vertexCount; i++){
     if( halfIntIsIntegral( system->graph[i].a ) ){
       system->graph[i].Z = halfIntToInt( system->graph[i].a );
     }
     else{
-      EdgeRefList * infeasibilityPrrof = forcedRounding( system, &T, &system->graph[i] );
+      EdgeRefList * infeasibilityProof = forcedRounding( system, T, &system->graph[i] );
       if( infeasibilityProof != NULL ){
         return infeasibilityProof;
       }
     }
   }
   
-  while( T.queueLast != NULL ){
-    checkDependencies(system, &T, T.queueLast->graphVertex, FINAL);
-    T.queueLast = T.queueLast->queueNext;
+  while( T->queueLast != NULL ){
+    checkDependencies(system, T, T->queueLast->graphVertex, FINAL);
+    T->queueLast = T->queueLast->queueNext;
   }
-  T.queueFirst = NULL;
+  T->queueFirst = NULL;
+  
+  Edge * edge = system->allEdgeFirst;
+  while( edge != NULL ){
+    if( edge->tail->Z[FINAL] != INT_MAX && edge->head->Z[FINAL] != INT_MAX ){
+      bool feasible = true;
+      switch( edge->type ){
+      case WHITE:
+        if( edge->tail->Z[FINAL] + edge->head->Z[FINAL] > edge->weight ){
+          feasible = false;
+        }
+        break;
+      case BLACK:
+        if( -edge->tail->Z[FINAL] - edge->head->Z[FINAL] > edge->weight ){
+          feasible = false;
+        }
+        break;
+      case GRAY_FORWARD:
+        if( -edge->tail->Z[FINAL] + edge->head->Z[FINAL] > edge->weight ){
+          feasible = false;
+        }
+        break;
+      case GRAY_REVERSE:
+        if( edge->tail->Z[FINAL] + edge->head->Z[FINAL] > edge->weight ){
+          feasible = false;
+        }
+      }
+      if( !feasible ){
+        EdgeRefList * infeasibilityProof = (EdgeRefList *) malloc( sizeof( EdgeRefList ) );
+        infeasibilityProof->edge = edge;
+        infeasibilityProof->next = NULL;
+        infeasibilityProof = integerTreeBacktrack(infeasibilityProof, edge->tail->integerTreeVertex[DOWN], system->graph[0].integerTreeVertex[DOWN]);
+        infeasibilityProof = integerTreeBacktrack(infeasibilityProof, edge->head->integerTreeVertex[DOWN], system->graph[0].integerTreeVertex[DOWN]);
+        return infeasibilityProof;
+      }
+    }
+    edge = edge->allEdgeNext;
+  }
+  
+  freeIntegerTree(T);
   
   return NULL;
 }
@@ -646,23 +675,9 @@ EdgeRefList * forcedRounding(System * system, IntegerTree * T, Vertex * x_i){
         && (intToHalfInt( grayReverseEdge->weight ) == x_i->a - whiteEdge->head->a) ){
       
       x_i->Z[FINAL] = halfIntToInt( halfIntFloor( x_i->a ) );
-      
-      Edge * newEdge = (Edge *) malloc( sizeof(Edge) );
-      newEdge->weight = x_i->Z;
-      newEdge->type = WHITE;
-      newEdge->tail = x_i;
-      newEdge->head = &system->graph[0];
-      newEdge->reverse = NULL;
-      newEdge->next = system->integerTreeAdditionsFirst;
-      system->integerTreeAdditionsFirst = newEdge;
-      newEdge->allNext = NULL;
-      newEdge->allPrev = NULL;
-      newEdge->inAllEdgeList = false;
-      
+      Edge * newEdge = generateAbsoluteConstraint(system, T, x_i, x_i->Z, WHITE);
       expandIntegerTree( system, T, x_i, &system->graph[0], whiteEdge, grayReverseEdge, newEdge );
-      
       forcedDown = true;
-      
     }
     else {
       while( grayReverseEdge != NULL && grayReverseEdge->head->index < whiteEdge->head->index ){
@@ -681,26 +696,12 @@ EdgeRefList * forcedRounding(System * system, IntegerTree * T, Vertex * x_i){
   while( blackEdge != NULL && grayForwardEdge != NULL && !forcedUp ){
     if( (grayForwardEdge->head->index == blackEdge->head->index) 
         && (intToHalfInt( blackEdge->weight ) == -x_i->a - blackEdge->head->a) 
-        && (intToHalfInt( grayForwardEdge->weight ) == -x_i->a + whiteEdge->head->a) ){
+        && (intToHalfInt( grayForwardEdge->weight ) == -x_i->a + blackEdge->head->a) ){
       
       x_i->Z[FINAL] = halfIntToInt( halfIntCeil( x_i->a ) );
-      
-      Edge * newEdge = (Edge *) malloc( sizeof(Edge) );
-      newEdge->weight = -x_i->Z;
-      newEdge->type = BLACK;
-      newEdge->tail = x_i;
-      newEdge->head = &system->graph[0];
-      newEdge->reverse = NULL;
-      newEdge->next = system->integerTreeAdditionsFirst;
-      system->integerTreeAdditionsFirst = newEdge;
-      newEdge->allNext = NULL;
-      newEdge->allPrev = NULL;
-      newEdge->inAllEdgeList = false;
-      
+      Edge * newEdge = generateAbsoluteConstraint(system, T, x_i, -x_i->Z, BLACK);
       expandIntegerTree( system, T, x_i, &system->graph[0], blackEdge, grayForwardEdge, newEdge );
-      
       forcedUp = true;
-      
     }
     else {
       while( grayForwardEdge != NULL && grayForwardEdge->head->index < blackEdge->head->index ){
@@ -717,6 +718,51 @@ EdgeRefList * forcedRounding(System * system, IntegerTree * T, Vertex * x_i){
     return copyTreeEdgesToList(NULL, x_i->integerTreeVertex);
   }
   return NULL;
+}
+
+//type : WHITE or GRAY_REVERSE for positive variable coefficient
+//       BLACK or GRAY_FORWARD for negative variable coefficient
+Edge * generateAbsoluteConstraint(System * system, IntegerTree * T, Vertex * x_i, int weight, EdgeType type){
+  Edge * newEdge = (Edge *) malloc( sizeof(Edge) );
+  newEdge->weight = weight;
+  newEdge->type = type;
+  newEdge->tail = x_i;
+  newEdge->head = &system->graph[0];
+  newEdge->reverse = NULL;
+  newEdge->next = T->additionsFirst;
+  T->additionsFirst = newEdge;
+  newEdge->allNext = NULL;
+  newEdge->allPrev = NULL;
+  newEdge->inAllEdgeList = false;
+  return newEdge;
+}
+
+IntegerTree * generateIntegerTree(System * system, IntegerTreeType type){
+  
+  IntegerTreeVertex * x0Root = (IntegerTreeVertex *) malloc( sizeof(IntegerTreeVertex) );
+  x0Root->parent = NULL;
+  x0Root->nextSibling = NULL;
+  x0Root->firstChild = NULL;
+  x0Root->queueNext = NULL;
+  x0Root->firstEdge = NULL;
+  x0Root->graphVertex = &system->graph[0];
+  system->graph[0].integerTreeVertex[type] = x0Root;
+  
+  IntegerTree * T = (IntegerTree *) malloc( sizeof(IntegerTree) );
+  T->treeRoot = x0Root;
+  T->queueFirst = NULL;
+  T->queueLast = NULL;
+  T->type = type;
+  
+  return T;
+}
+
+EdgeRefList * optionalRoundings(System * system){
+  IntegerTree * T[INTEGER_TREE_TYPE_COUNT];
+  T[DOWN] = generateIntegerTree(system, DOWN);
+  T[UP] = generateIntegerTree(system, UP);
+  EdgeRefList * Q = NULL;
+  
 }
 
 void checkDependencies(System * system, IntegerTree * T, Vertex * x_i, IntegerType integerType){
@@ -799,6 +845,17 @@ void expandIntegerTree(System * system, IntegerTree * T, Vertex * active, Vertex
 
 }
 
+EdgeRefList * integerTreeBacktrack(EdgeRefList * list, IntegerTreeVertex * fromVertex, IntegerTreeVertex * toVertex){
+  if( fromVertex != NULL ){ //Think this over better
+    while( fromVertex != toVertex ){
+      list = copyTreeEdgesToList(list, fromVertex);
+      fromVertex = fromVertex->parent;
+    }
+    list = copyTreeEdgesToList(list, fromVertex);
+  }
+  return list;
+}
+
 EdgeRefList * copyTreeEdgesToList(EdgeRefList * list, IntegerTreeVertex * itv){
   EdgeRefList * treeEdge = itv->firstEdge;
   while( treeEdge != NULL ){
@@ -811,11 +868,41 @@ EdgeRefList * copyTreeEdgesToList(EdgeRefList * list, IntegerTreeVertex * itv){
   return list;
 }
 
-void cleanupIntegerTree(IntegerTree * tree){
-  //Fill in later.
+void freeIntegerTree(IntegerTree * tree){
+  IntegerTreeVertex * itv = tree->treeRoot;
+  while( itv != NULL ){
+    IntegerTreeVertex * parent = NULL; //initialization unnecessary, but compiler might require it
+    while( itv != NULL ){
+      while( itv->firstChild != NULL ){
+        itv = itv->firstChild;
+      }
+      parent = itv->parent;
+      EdgeRefList * erl = itv->firstEdge;
+      while( erl != NULL ){
+        EdgeRefList * oldERL = erl;
+        erl = erl->next;
+        free(oldERL);
+      }
+      itv->graphVertex->integerTreeVertex[ tree->type ] = NULL;
+      IntegerTreeVertex * priorSibling = itv;
+      itv = itv->nextSibling;
+      free(priorSibling);
+    }
+    itv = parent;    
+    if( itv != NULL ){
+      itv->firstChild = NULL; //So we don't try to go back down the tree over nodes we've already freed
+    }
+  }
+  Edge * edge = tree->additionsFirst;
+  while( edge != NULL ){
+    Edge * oldEdge = edge;
+    edge = edge->next;
+    free(oldEdge);
+  }
+  free(tree);
 }
 
-void cleanupSystem(System * system){
+void freeSystem(System * system){
   Edge * e;
   for(EdgeType i = WHITE; i <= GRAY_REVERSE; i++){
     for(int j = 0; j < system->vertexCount; j++){
@@ -828,10 +915,4 @@ void cleanupSystem(System * system){
     }
   }
   free( system->graph );
-  e = system->integerTreeAdditionsFirst;
-  while( e != NULL ){
-    Edge * oldE = e;
-    e = e->next;
-    free( oldE );
-  }
 }
