@@ -118,6 +118,7 @@ EdgeRefList * relaxNetwork(System * system);
 void relaxEdge(Edge * e);
 EdgeRefList * backtrack(Vertex * x_i, EdgeType t, Edge * e);
 EdgeRefList * produceIntegerSolution(System * system);
+bool constraintIsFeasible(Edge * edge);
 EdgeRefList * forcedRounding(System * system, IntegerTree * T, Vertex * x_i);
 Edge * generateAbsoluteConstraint(System * system, IntegerTree * T, Vertex * x_i, int weight, EdgeType type);
 IntegerTree * generateIntegerTree(System * system, IntegerTreeType type);

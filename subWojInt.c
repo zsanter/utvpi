@@ -612,6 +612,7 @@ EdgeRefList * produceIntegerSolution(System * system){
     else{
       EdgeRefList * infeasibilityProof = forcedRounding( system, T, &system->graph[i] );
       if( infeasibilityProof != NULL ){
+        freeIntegerTree(T);
         return infeasibilityProof;
       }
     }
@@ -623,46 +624,62 @@ EdgeRefList * produceIntegerSolution(System * system){
   }
   T->queueFirst = NULL;
   
-  Edge * edge = system->allEdgeFirst;
-  while( edge != NULL ){
-    if( edge->tail->Z[FINAL] != INT_MAX && edge->head->Z[FINAL] != INT_MAX ){
-      bool feasible = true;
-      switch( edge->type ){
-      case WHITE:
-        if( edge->tail->Z[FINAL] + edge->head->Z[FINAL] > edge->weight ){
-          feasible = false;
-        }
-        break;
-      case BLACK:
-        if( -edge->tail->Z[FINAL] - edge->head->Z[FINAL] > edge->weight ){
-          feasible = false;
-        }
-        break;
-      case GRAY_FORWARD:
-        if( -edge->tail->Z[FINAL] + edge->head->Z[FINAL] > edge->weight ){
-          feasible = false;
-        }
-        break;
-      case GRAY_REVERSE:
-        if( edge->tail->Z[FINAL] + edge->head->Z[FINAL] > edge->weight ){
-          feasible = false;
-        }
-      }
-      if( !feasible ){
-        EdgeRefList * infeasibilityProof = (EdgeRefList *) malloc( sizeof( EdgeRefList ) );
-        infeasibilityProof->edge = edge;
-        infeasibilityProof->next = NULL;
-        infeasibilityProof = integerTreeBacktrack(infeasibilityProof, edge->tail->integerTreeVertex[DOWN], system->graph[0].integerTreeVertex[DOWN]);
-        infeasibilityProof = integerTreeBacktrack(infeasibilityProof, edge->head->integerTreeVertex[DOWN], system->graph[0].integerTreeVertex[DOWN]);
-        return infeasibilityProof;
-      }
-    }
-    edge = edge->allEdgeNext;
+  EdgeRefList * infeasibilityProof = checkAllConstraints(NULL, system, &system->graph[0], FINAL. DOWN);
+  freeIntegerTree(T);
+  if( infeasibilityProof != NULL ){
+    return infeasibilityProof;
   }
   
-  freeIntegerTree(T);
+  for(int i = 0; i < system->vertexCount; i++){
+    for(EdgeType j = WHITE; j <= GRAY_REVERSE; j++){
+      Edge * prior = NULL;
+      Edge * edge = system->graph[i].first[j];
+      while( edge != NULL ){
+        if( edge->tail->Z[FINAL] == MAX_INT && edge->head->Z[FINAL] == MAX_INT ){
+          if( prior == NULL ){
+            system->graph[i].first[j] = edge;
+          }
+          else {
+            prior->next = edge;
+          }
+          prior = edge;
+        }
+        else {
+          removeFromAllEdgeList(system, edge);
+          free(edge);
+        }
+      }
+    }
+  }
+  
+  EdgeRefList * infeasibilityProof = optionalRoundings(system);
   
   return NULL;
+}
+
+bool constraintIsFeasible(Edge * edge){
+  switch( edge->type ){
+  case WHITE:
+    if( edge->tail->Z[FINAL] + edge->head->Z[FINAL] > edge->weight ){
+      return false;
+    }
+    break;
+  case BLACK:
+    if( -edge->tail->Z[FINAL] - edge->head->Z[FINAL] > edge->weight ){
+      return false;
+    }
+    break;
+  case GRAY_FORWARD:
+    if( -edge->tail->Z[FINAL] + edge->head->Z[FINAL] > edge->weight ){
+      return false;
+    }
+    break;
+  case GRAY_REVERSE:
+    if( edge->tail->Z[FINAL] + edge->head->Z[FINAL] > edge->weight ){
+      return false;
+    }
+  }
+  return true;
 }
 
 EdgeRefList * forcedRounding(System * system, IntegerTree * T, Vertex * x_i){
@@ -759,10 +776,57 @@ IntegerTree * generateIntegerTree(System * system, IntegerTreeType type){
 
 EdgeRefList * optionalRoundings(System * system){
   IntegerTree * T[INTEGER_TREE_TYPE_COUNT];
-  T[DOWN] = generateIntegerTree(system, DOWN);
-  T[UP] = generateIntegerTree(system, UP);
-  EdgeRefList * Q = NULL;
   
+  for(int i = 0; i < system->vertexCount; i++){
+    if( system->graph[i].Z[FINAL] == MAX_INT ){
+      T[DOWN] = generateIntegerTree(system, DOWN);
+      T[UP] = generateIntegerTree(system, UP);
+      EdgeRefList * Q = NULL;
+      
+      for(int j = 0; j < system->vertexCount; j++){
+        system->graph[j].Z[TEMP] = MAX_INT;
+      }
+      
+      system->graph[i].Z[TEMP] = halfIntToInt( halfIntFloor( system->graph[i].a ) );
+      Edge * newEdge = generateAbsoluteConstraint(system, T[DOWN], &system->graph[i], system->graph[i].Z[TEMP], WHITE);
+      expandIntegerTree(system, T[DOWN], &system->graph[i], &system->graph[0], newEdge, NULL, NULL);
+      
+      while( T[DOWN]->queueLast != NULL ){
+        checkDependencies(system, T[DOWN], T[DOWN]->queueLast->graphVertex, TEMP);
+        T[DOWN]->queueLast = T[DONW]->queueLast->queueNext;
+      }
+      T[DOWN]->queueFirst = NULL;
+      
+      EdgeRefList * oldQ = Q;
+      EdgeRefList * Q = checkAllConstraints(Q, system, &system->graph[i], TEMP. DOWN);
+      if( oldQ != Q ){ //infeasible constraint found -- Really need to think about adding an outer struct for EdgeRefLists like with trees
+        
+      }
+      
+      
+      freeIntegerTree(T[DOWN]);
+      freeIntegerTree(T[UP]);
+      freeEdgeRefLiat(Q);
+    }
+  }
+  
+}
+
+EdgeRefList * checkAllConstraints(EdgeRefList * list, System * system, Vertex * toVertex, IntegerType integerType. IntegerTreeType integerTreeType){
+  Edge * edge = system->allEdgeFirst;
+  while( edge != NULL ){
+    if( edge->tail->Z[integerType] != INT_MAX && edge->head->Z[integerType] != INT_MAX ){
+      if( !constraintIsFeasible(edge) ){
+        EdgeRefList * newERL = (EdgeRefList *) malloc( sizeof( EdgeRefList ) );
+        newERL->edge = edge;
+        newERL->next = list;
+        list = newERL;
+        list = integerTreeBacktrack(list, edge->tail->integerTreeVertex[integerTreeType], toVertex->integerTreeVertex[integerTreeType]);
+        list = integerTreeBacktrack(list, edge->head->integerTreeVertex[integerTreeType], toVertex->integerTreeVertex[integerTreeType]);
+      }
+    }
+    edge = edge->allEdgeNext;
+  }
 }
 
 void checkDependencies(System * system, IntegerTree * T, Vertex * x_i, IntegerType integerType){
@@ -866,6 +930,14 @@ EdgeRefList * copyTreeEdgesToList(EdgeRefList * list, IntegerTreeVertex * itv){
     treeEdge = treeEdge->next;
   }
   return list;
+}
+
+void freeEdgeRefList(EdgeRefList * erl){
+  while( erl != NULL ){
+    EdgeRefList * oldERL = erl;
+    erl = erl->next;
+    free(oldERL);
+  }
 }
 
 void freeIntegerTree(IntegerTree * tree){
