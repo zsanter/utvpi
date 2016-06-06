@@ -7,6 +7,7 @@ if [[ ! -f "${program}" ]] ; then
   echo "Specified program, ${program}, not found."
   exit 1
 fi
+programNoExt="${program%%.*}"
 modify="${2}"
 if [[ "${modify}" != "variables" && "${modify}" != "constraints" ]] ; then
   echo "Element to be modified must be either \"variables\" or \"constraints\"."
@@ -20,7 +21,7 @@ fi
 
 DATE=`date +%Y-%m-%d`
 
-csvFile="empirical/${program}_Stuckey_${f}_${modify}_${DATE}.csv"
+csvFile="empirical/${programNoExt}_Stuckey_${f}_${modify}_${DATE}.csv"
 echo "input file,variables,constraints,setup,linear,integer,cleanup,total,user,system,maximum resident set size (kb)" > "${csvFile}"
 
 if [[ "${modify}" = "variables" ]] ; then
@@ -30,7 +31,7 @@ if [[ "${modify}" = "variables" ]] ; then
       inputFile="input/test_n${variables}_m${constraints}_${f}_no${number}.utv"
       if [[ -f "${inputFile}" ]] ; then
         echo "Processing ${inputFile}"
-        outputFile="output/test_n${variables}_m${constraints}_${f}_no${number}_${DATE}_out.txt"
+        outputFile="output/${programNoExt}_test_n${variables}_m${constraints}_${f}_no${number}_${DATE}_out.txt"
         echo -n "${inputFile},${variables},${constraints}," >> "${csvFile}"
         (/usr/bin/time -f "%U,%S,%M" ./${program} "${inputFile}" "${outputFile}") &>> "${csvFile}" 
       fi
@@ -43,7 +44,7 @@ elif [[ "${modify}" = "constraints" ]] ; then
       inputFile="input/test_n${variables}_m${constraints}_${f}_no${number}.utv"
       if [[ -f "${inputFile}" ]] ; then
         echo "Processing ${inputFile}"
-        outputFile="output/test_n${variables}_m${constraints}_${f}_no${number}_${DATE}_out.txt"
+        outputFile="output/${programNoExt}_test_n${variables}_m${constraints}_${f}_no${number}_${DATE}_out.txt"
         echo -n "${inputFile},${variables},${constraints}," >> "${csvFile}"
         (/usr/bin/time -f "%U,%S,%M" ./${program} "${inputFile}" "${outputFile}") &>> "${csvFile}" 
       fi
