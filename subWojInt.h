@@ -38,6 +38,7 @@ typedef struct System System;
 typedef struct Vertex Vertex;
 typedef struct Edge Edge;
 typedef struct EdgeRefList EdgeRefList;
+typedef struct EdgeRefListNode EdgeRefListNode;
 typedef struct IntegerTree IntegerTree;
 typedef struct IntegerTreeVertex IntegerTreeVertex;
 //typedef struct IntegerTreeEdge IntegerTreeEdge;
@@ -48,7 +49,8 @@ struct System {
   int n;
   int C; //largestWeight
   Edge * allEdgeFirst;
-  //Edge * integerTreeAdditionsFirst;
+  EdgeRefList * infeasibilityProof;
+  IntegerTree * T[INTEGER_TREE_TYPE_COUNT];
 };
 
 struct Vertex {
@@ -56,8 +58,7 @@ struct Vertex {
   Edge * L[EDGE_TYPE_COUNT];
   int D[EDGE_TYPE_COUNT];
   Edge * E[BACKTRACKING_INDEX_COUNT];
-  //half_int x; //May go unused
-  half_int a; //This seems to stand in for x in the integer feasibility code.
+  half_int a;
   int Z[INTEGER_TYPE_COUNT];
   Edge * first[EDGE_TYPE_COUNT];
   int edgeCount[EDGE_TYPE_COUNT];
@@ -77,8 +78,13 @@ struct Edge {
 };
 
 struct EdgeRefList {
+  EdgeRefListNode * first;
+  EdgeRefListNode * last;
+};
+
+struct EdgeRefListNode {
   Edge * edge;
-  EdgeRefList * next;
+  EdgeRefListNode * next;
 };
 
 struct IntegerTree {
@@ -94,7 +100,7 @@ struct IntegerTreeVertex {
   IntegerTreeVertex * nextSibling;
   IntegerTreeVertex * firstChild;
   IntegerTreeVertex * queueNext;
-  EdgeRefList * firstEdge;
+  EdgeRefList * graphEdges;
   Vertex * graphVertex;
 };
 /*
@@ -106,28 +112,34 @@ struct IntegerTreeEdge {
 }
 */
 int main(int argc, char * argv[]);
-void fputEdge(Edge * edge, FILE * output);
 EdgeType reverseEdgeType(EdgeType input);
+void fputEdge(Edge * edge, FILE * output);
 void initializeSystem(void * object, int n, Parser * parser);
-void addConstraint(void * object, Constraint * constraint, Parser * parser);
+void addConstraint(void * object, Constraint * constraint, Parser * parser)
 void addEdge(Systen * system, Constraint * constraint);
 void finishSystemCreation(System * system);
 int edgeCompare(const void * edge1, const void * edge2);
 void removeFromAllEdgeList(System * system, Edge * edge);
-EdgeRefList * relaxNetwork(System * system);
+bool relaxNetwork(System * system);
 void relaxEdge(Edge * e);
-EdgeRefList * backtrack(Vertex * x_i, EdgeType t, Edge * e);
-EdgeRefList * produceIntegerSolution(System * system);
-bool constraintIsFeasible(Edge * edge);
-EdgeRefList * forcedRounding(System * system, IntegerTree * T, Vertex * x_i);
+bool backtrack(System * system, Vertex * x_i, EdgeType t, Edge * e);
+bool produceIntegerSolution(System * system);
+bool constraintIsFeasible(Edge * edge, IntegerType integerType)
+void forcedRounding(System * system, IntegerTree * T, Vertex * x_i);
 Edge * generateAbsoluteConstraint(System * system, IntegerTree * T, Vertex * x_i, int weight, EdgeType type);
+bool optionalRoundings(System * system)
+bool checkAllConstraints(System * system, EdgeRefList * list, Vertex * toVertex, IntegerType integerType. IntegerTreeType integerTreeType);
+void checkDependencies(System * system, IntegerTree * T, Vertex * x_i, IntegerType integerType);
 IntegerTree * generateIntegerTree(System * system, IntegerTreeType type);
-EdgeRefList * optionalRoundings(System * system, IntegerTree * T);
-void checkDependencies(System * system, IntegerTree * T, Vertex * x_i);
-void expandIntegerTree(System * system, IntegerTree * T, Vertex * active, Vertex * parent, Edge * newEdge0, Edge * newEdge1, Edge * newEdge2);
-EdgeRefList * integerTreeBacktrack(EdgeRefList * list, IntegerTreeVertex * fromVertex, IntegerTreeVertex * toVertex);
-EdgeRefList * copyTreeEdgesToList(EdgeRefList * list, IntegerTreeVertex * itv);
-void freeIntegerTree(IntegerTree * integerTree);
+Vertex * pollIntegerTreeQueue(IntegerTree * tree);
+void expandIntegerTree(System * system, IntegerTree * T, Vertex * active, Vertex * parent, Edge * edge0, Edge * edge1, Edge * edge2)
+void integerTreeBacktrack(EdgeRefList * list, IntegerTreeVertex * fromVertex, IntegerTreeVertex * toVertex)
+void copyTreeEdgesToList(EdgeRefList * list, IntegerTreeVertex * itv);
+void freeIntegerTree(IntegerTree * tree);
+EdgeRefList * generateEdgeRefList();
+void addEdgeToEdgeRefList(EdgeRefList * erl, Edge * edge){
+void freeEdgeRefList(EdgeRefList * erl);
 void freeSystem(System * system);
+
 
 #endif
