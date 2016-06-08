@@ -603,10 +603,10 @@ bool produceIntegerSolution(System * system){
   
   for(int i = 1; i < system->vertexCount; i++){
     if( halfIntIsIntegral( system->graph[i].a ) ){
-      system->graph[i].Z = halfIntToInt( system->graph[i].a );
+      system->graph[i].Z[FINAL] = halfIntToInt( system->graph[i].a );
     }
     else{
-      integrallyFeasible = forcedRounding( system, system->T[DOWN], &system->graph[i] );
+      integrallyFeasible = forcedRounding( system, &system->graph[i] );
       if( !integrallyFeasible ){
         return false;
       }
@@ -619,7 +619,7 @@ bool produceIntegerSolution(System * system){
     vertex = pollIntegerTreeQueue( system->T[DOWN] );
   }
   
-  integrallyFeasible = checkAllConstraints(system, system->infeasibilityProof, &system->graph[0], FINAL. DOWN);
+  integrallyFeasible = checkAllConstraints(system, &system->graph[0], FINAL. DOWN);
   if( !integrallyFeasible ){
     return false;
   }
@@ -654,53 +654,33 @@ bool produceIntegerSolution(System * system){
   return integrallyFeasible;
 }
 
-bool constraintIsFeasible(Edge * edge, IntegerType integerType){
-  switch( edge->type ){
-  case WHITE:
-    if( edge->tail->Z[integerType] + edge->head->Z[integerType] > edge->weight ){
-      return false;
-    }
-    break;
-  case BLACK:
-    if( -edge->tail->Z[integerType] - edge->head->Z[integerType] > edge->weight ){
-      return false;
-    }
-    break;
-  case GRAY_FORWARD:
-    if( -edge->tail->Z[integerType] + edge->head->Z[integerType] > edge->weight ){
-      return false;
-    }
-    break;
-  case GRAY_REVERSE:
-    if( edge->tail->Z[integerType] - edge->head->Z[integerType] > edge->weight ){
-      return false;
-    }
-  }
-  return true;
-}
-
-void forcedRounding(System * system, IntegerTree * T, Vertex * x_i){
+void forcedRounding(System * system, Vertex * x_i){
   bool forcedDown = false;
   Edge * whiteEdge = x_i->first[WHITE];
   Edge * grayReverseEdge = x_i->first[GRAY_REVERSE];
   while( whiteEdge != NULL && grayReverseEdge != NULL && !forcedDown ){
-    if( (grayReverseEdge->head->index == whiteEdge->head->index) 
-        && (intToHalfInt( whiteEdge->weight ) == x_i->a + whiteEdge->head->a) 
-        && (intToHalfInt( grayReverseEdge->weight ) == x_i->a - whiteEdge->head->a) ){
+    if( grayReverseEdge->head->index == whiteEdge->head->index ){
+      if( (intToHalfInt( whiteEdge->weight ) == x_i->a + whiteEdge->head->a) 
+          && (intToHalfInt( grayReverseEdge->weight ) == x_i->a - whiteEdge->head->a) ){
       
-      x_i->Z[FINAL] = halfIntToInt( halfIntFloor( x_i->a ) );
-      Edge * newEdge = generateAbsoluteConstraint(system, T, x_i, x_i->Z[FINAL], WHITE);
-      expandIntegerTree( system, T, x_i, &system->graph[0], whiteEdge, grayReverseEdge, newEdge );
-      forcedDown = true;
+        x_i->Z[FINAL] = halfIntToInt( halfIntFloor( x_i->a ) );
+        Edge * newEdge = generateAbsoluteConstraint(system, system->T[DOWN], x_i, x_i->Z[FINAL], WHITE);
+        expandIntegerTree( system, system->T[DOWN], x_i, &system->graph[0], whiteEdge, grayReverseEdge, newEdge );
+        forcedDown = true;
+      }
+      else {
+        whiteEdge = whiteEdge->next;
+        grayReverseEdge = grayReverseEdge->next;
+      }
     }
-    else {
+    if( whiteEdge != NULL ){
       while( grayReverseEdge != NULL && grayReverseEdge->head->index < whiteEdge->head->index ){
         grayReverseEdge = grayReverseEdge->next;
       }
-      if( grayReverseEdge != NULL ){
-        while( whiteEdge != NULL && whiteEdge->head->index < grayReverseEdge->head->index ){
-          whiteEdge = whiteEdge->next;
-        }
+    }
+    if( grayReverseEdge != NULL ){
+      while( whiteEdge != NULL && whiteEdge->head->index < grayReverseEdge->head->index ){
+        whiteEdge = whiteEdge->next;
       }
     }
   }
@@ -708,29 +688,192 @@ void forcedRounding(System * system, IntegerTree * T, Vertex * x_i){
   Edge * blackEdge = x_i->first[BLACK];
   Edge * grayForwardEdge = x_i->first[GRAY_FORWARD];
   while( blackEdge != NULL && grayForwardEdge != NULL && !forcedUp ){
-    if( (grayForwardEdge->head->index == blackEdge->head->index) 
-        && (intToHalfInt( blackEdge->weight ) == -x_i->a - blackEdge->head->a) 
-        && (intToHalfInt( grayForwardEdge->weight ) == -x_i->a + blackEdge->head->a) ){
+    if( grayForwardEdge->head->index == blackEdge->head->index ){ 
+      if( (intToHalfInt( blackEdge->weight ) == -x_i->a - blackEdge->head->a) 
+          && (intToHalfInt( grayForwardEdge->weight ) == -x_i->a + blackEdge->head->a) ){
       
-      x_i->Z[FINAL] = halfIntToInt( halfIntCeil( x_i->a ) );
-      Edge * newEdge = generateAbsoluteConstraint(system, T, x_i, -x_i->Z, BLACK);
-      expandIntegerTree( system, T, x_i, &system->graph[0], blackEdge, grayForwardEdge, newEdge );
-      forcedUp = true;
+        x_i->Z[FINAL] = halfIntToInt( halfIntCeil( x_i->a ) );
+        Edge * newEdge = generateAbsoluteConstraint(system, system->T[DOWN], x_i, -x_i->Z[FINAL], BLACK);
+        expandIntegerTree( system, system->T[DOWN], x_i, &system->graph[0], blackEdge, grayForwardEdge, newEdge );
+        forcedUp = true;
+      }
+      else {
+        blackEdge = blackEdge->next;
+        grayForwardEdge = grayForwardEdge->next;
+      }
     }
-    else {
+    if( blackEdge != NULL ){
       while( grayForwardEdge != NULL && grayForwardEdge->head->index < blackEdge->head->index ){
         grayForwardEdge = grayForwardEdge->next;
       }
-      if( grayForwardEdge != NULL ){
-        while( blackEdge != NULL && blackEdge->head->index < grayForwardEdge->head->index ){
-          blackEdge = blackEdge->next;
-        }
+    }
+    if( grayForwardEdge != NULL ){
+      while( blackEdge != NULL && blackEdge->head->index < grayForwardEdge->head->index ){
+        blackEdge = blackEdge->next;
       }
     }
   }
   if( forcedDown && forcedUp ){
-    copyTreeEdgesToList(system->infeasibilityProof, x_i->integerTreeVertex[T->type]);
+    copyTreeEdgesToList(system->infeasibilityProof, x_i->integerTreeVertex[DOWN]);
     return false
+  }
+  return true;
+}
+
+bool optionalRoundings(System * system){  
+  for(int i = 1; i < system->vertexCount; i++){
+    if( system->graph[i].Z[FINAL] == MAX_INT ){
+      system->T[DOWN] = generateIntegerTree(system, DOWN);
+      system->T[UP] = generateIntegerTree(system, UP);
+      system->infeasibilityProof = generateEdgeRefList();
+      Edge * newEdge;
+      Vertex * vertex;
+      
+      for(int j = 1; j < system->vertexCount; j++){
+        system->graph[j].Z[TEMP] = MAX_INT;
+      }
+      
+      system->graph[i].Z[TEMP] = halfIntToInt( halfIntFloor( system->graph[i].a ) );
+      newEdge = generateAbsoluteConstraint(system, system->T[DOWN], &system->graph[i], system->graph[i].Z[TEMP], WHITE);
+      expandIntegerTree(system, system->T[DOWN], &system->graph[i], &system->graph[0], newEdge, NULL, NULL);
+      
+      vertex = pollIntegerTreeQueue( system->T[DOWN] );
+      while( vertex != NULL ){
+        checkDependencies(system, system->T[DOWN], vertex, TEMP);
+        vertex = pollIntegerTreeQueue( system->T[DOWN] );
+      }
+      
+      bool floorFeasible = checkAllConstraints(system, &system->graph[i], TEMP, DOWN);
+      
+      if( floorFeasible ){
+        for(int j = 1; j < system->vertexCount; j++){
+          if( system->graph[j].Z[TEMP] != MAX_INT ){
+            system->graph[j].Z[FINAL] = system->graph[j].Z[TEMP];
+          }
+        }  
+      }
+      else {
+
+        for(int j = 1; j < system->vertexCount; j++){
+          system->graph[j].Z[TEMP] = MAX_INT;
+        }
+      
+        system->graph[i].Z[TEMP] = halfIntToInt( halfIntCeil( system->graph[i].a ) );
+        newEdge = generateAbsoluteConstraint( system, system->T[UP], &system->graph[i], -system->graph[i].Z[TEMP], BLACK );
+        expandIntegerTree( system, system->T[UP], &system->graph[i], &system->graph[0], newEdge, NULL, NULL);
+      
+        vertex = pollIntegerTreeQueue( system->T[UP] );
+        while( vertex != NULL ){
+          checkDependencies( system, system->T[UP], vertex, TEMP );
+          vertex = pollIntegerTreeQueue( system->T[UP] );
+        }
+        
+        bool ceilFeasible = checkAllConstraints(system, &system->graph[i], TEMP, UP );
+        
+        if( ceilFeasible ){
+          for(int j = 1; j < system->vertexCount; j++){
+            if( system->graph[j].Z[TEMP] != MAX_INT ){
+              system->graph[j].Z[FINAL] = system->graph[j].Z[TEMP];
+            }
+          }
+        }
+        else {
+          return false;
+        }
+      
+      }
+      
+      freeIntegerTree(system->T[DOWN]);
+      freeIntegerTree(system->T[UP]);
+      freeEdgeRefLiat(system->infeasibilityProof);
+    }
+  }
+  system->T[DOWN] = NULL;
+  system->T[UP] = NULL;
+  system->infeasibilityProof = NULL;
+  return true;
+}
+
+void checkDependencies(System * system, IntegerTree * T, Vertex * x_i, IntegerType integerType){
+  if( x_i->Z[integerType] == halfIntToInt( halfIntFloor( x_i->a ) ) ){
+    Edge * grayForwardEdge = x_i->first[GRAY_FORWARD];
+    while( grayForwardEdge != NULL ){
+      if( intToHalfInt( grayForwardEdge->weight ) == -x_i->a + grayForwardEdge->head->a 
+          && grayForwardEdge->head->Z[integerType] == MAX_INT ){
+        grayForwardEdge->head->Z[integerType] = halfIntToInt( halfIntFloor( grayForwardEdge->head->a ) );
+        expandIntegerTree(system, T, grayForwardEdge->head, x_i, grayForwardEdge, NULL, NULL);
+      }
+      grayForwardEdge = grayForwardEdge->next;
+    }
+    Edge * blackEdge = x_i->first[BLACK];
+    while( blackEdge != NULL ){
+      if( intToHalfInt( blackEdge->weight ) == -x_i->a - blackEdge->head->a 
+          && blackEdge->head->Z[integerType] == MAX_INT ){
+        blackEdge->head-Z[integerType] = halfIntToInt( halfIntCeil( blackEdge->head->a ) );
+        expandIntegerTree(system, T, blackEdge->head, x_i, blackEdge, NULL, NULL);
+      }
+      blackEdge = blackEdge->next;
+    }
+  }
+  else if( x_i->Z[integerType] == halfIntToInt( halfIntCeil( x_i->a ) ) ){
+    Edge * whiteEdge = x_i->first[WHITE];
+    while( whiteEdge != NULL ){
+      if( intToHalfInt( whiteEdge->weight ) == x_i->a + whiteEdge->head->a 
+          && whiteEdge->head->Z[integerType] == MAX_INT ){
+        whiteEdge->head->Z[integerType] = halfIntToInt( halfIntFloor( whiteEdge->head->a ) );
+        expandIntegerTree(system, T, whiteEdge->head, x_i, whiteEdge, NULL, NULL);
+      }
+      whiteEdge = whiteEdge->next;
+    }
+    Edge * grayReverseEdge = x_i->first[GRAY_REVERSE];
+    while( grayReverseEdge != NULL ){
+      if( intToHalfInt( grayReverseEdge->weight ) == x_i->a - grayReverseEdge->head->a 
+          && grayReverseEdge->head->Z[integerType] == MAX_INT ){
+        grayReverseEdge->head->Z[integerType] = halfIntToInt( halfIntCeil( grayReverseEdge->head->a ) );
+        expandIntegerTree(system, T, grayReverseEdge->head, x_i, grayReverseEdge, NULL, NULL);
+      }
+      grayReverseEdge = grayReverseEdge->next;
+    }
+  }
+  else {
+    fputs("Bad bad bad. checkDependencies()\n", stderr );
+  }
+}
+
+bool checkAllConstraints(System * system, Vertex * toVertex, IntegerType integerType. IntegerTreeType integerTreeType){
+  Edge * edge = system->allEdgeFirst;
+  while( edge != NULL ){
+    if( edge->tail->Z[integerType] != INT_MAX && edge->head->Z[integerType] != INT_MAX ){
+      bool feasible = true;
+      switch( edge->type ){
+      case WHITE:
+        if( edge->tail->Z[integerType] + edge->head->Z[integerType] > edge->weight ){
+          feasible = false;
+        }
+        break;
+      case BLACK:
+        if( -edge->tail->Z[integerType] - edge->head->Z[integerType] > edge->weight ){
+          feasible = false;
+        }
+        break;
+      case GRAY_FORWARD:
+        if( -edge->tail->Z[integerType] + edge->head->Z[integerType] > edge->weight ){
+          feasible = false;
+        }
+        break;
+      case GRAY_REVERSE:
+        if( edge->tail->Z[integerType] - edge->head->Z[integerType] > edge->weight ){
+          feasible = false;
+        }
+      }
+      if( !feasible ){
+        addEdgeToEdgeRefList(system->infeasibilityProof, edge);
+        integerTreeBacktrack(system->infeasibilityProof, edge->tail->integerTreeVertex[integerTreeType], toVertex->integerTreeVertex[integerTreeType]);
+        integerTreeBacktrack(system->infeasibilityProof, edge->head->integerTreeVertex[integerTreeType], toVertex->integerTreeVertex[integerTreeType]);
+        return false;
+      }
+    }
+    edge = edge->allEdgeNext;
   }
   return true;
 }
@@ -752,111 +895,21 @@ Edge * generateAbsoluteConstraint(System * system, IntegerTree * T, Vertex * x_i
   return newEdge;
 }
 
-bool optionalRoundings(System * system){  
-  for(int i = 0; i < system->vertexCount; i++){
-    if( system->graph[i].Z[FINAL] == MAX_INT ){
-      system->T[DOWN] = generateIntegerTree(system, DOWN);
-      system->T[UP] = generateIntegerTree(system, UP);
-      system->infeasibilityProof = generateEdgeRefList();
-      
-      for(int j = 0; j < system->vertexCount; j++){
-        system->graph[j].Z[TEMP] = MAX_INT;
-      }
-      
-      system->graph[i].Z[TEMP] = halfIntToInt( halfIntFloor( system->graph[i].a ) );
-      Edge * newEdge = generateAbsoluteConstraint(system, system->T[DOWN], &system->graph[i], system->graph[i].Z[TEMP], WHITE);
-      expandIntegerTree(system, system->T[DOWN], &system->graph[i], &system->graph[0], newEdge, NULL, NULL);
-      
-      Vertex * vertex = pollIntegerTreeQueue( system->T[DOWN] );
-      while( vertex != NULL ){
-        checkDependencies(system, system->T[DOWN], vertex, TEMP);
-        vertex = pollIntegerTreeQueue( system->T[DOWN] );
-      }
-      
-      bool floorFeasible = checkAllConstraints(system, system->infeasibilityProof, &system->graph[i], TEMP. DOWN);
-
-      
-      
-      freeIntegerTree(system->T[DOWN]);
-      freeIntegerTree(system->T[UP]);
-      freeEdgeRefLiat(system->infeasibilityProof);
-    }
-  }
-}
-
-bool checkAllConstraints(System * system, EdgeRefList * list, Vertex * toVertex, IntegerType integerType. IntegerTreeType integerTreeType){
-  Edge * edge = system->allEdgeFirst;
-  while( edge != NULL ){
-    if( edge->tail->Z[integerType] != INT_MAX && edge->head->Z[integerType] != INT_MAX ){
-      if( !constraintIsFeasible(edge, integerType) ){
-        addEdgeToEdgeRefList(list, edge);
-        integerTreeBacktrack(list, edge->tail->integerTreeVertex[integerTreeType], toVertex->integerTreeVertex[integerTreeType]);
-        integerTreeBacktrack(list, edge->head->integerTreeVertex[integerTreeType], toVertex->integerTreeVertex[integerTreeType]);
-        return false;
-      }
-    }
-    edge = edge->allEdgeNext;
-  }
-  return true;
-}
-
-void checkDependencies(System * system, IntegerTree * T, Vertex * x_i, IntegerType integerType){
-  if( x_i->Z[integerType] == halfIntToInt( halfIntFloor( x_i->a ) ) ){
-    Edge * grayForwardEdge = x_i->first[GRAY_FORWARD];
-    while( grayForwardEdge != NULL ){
-      if( intToHalfInt( grayForwardEdge->weight ) == -x_i->a + grayForwardEdge->head->a && grayForwardEdge->head->Z[integerType] == MAX_INT ){
-        grayForwardEdge->head->Z[integerType] = halfIntToInt( halfIntFloor( grayForwardEdge->head->a ) );
-        expandIntegerTree(system, T, grayForwardEdge->head, x_i, grayForwardEdge, NULL, NULL);
-      }
-      grayForwardEdge = grayForwardEdge->next;
-    }
-    Edge * blackEdge = x_i->first[BLACK];
-    while( blackEdge != NULL ){
-      if( intToHalfInt( blackEdge->weight ) == -x_i->a - blackEdge->head->a && blackEdge->head->Z[integerType] == MAX_INT ){
-        blackEdge->head-Z[integerType] = halfIntToInt( halfIntCeil( blackEdge->head->a ) );
-        expandIntegerTree(system, T, blackEdge->head, x_i, blackEdge, NULL, NULL);
-      }
-      blackEdge = blackEdge->next;
-    }
-  }
-  else if( x_i->Z[integerType] == halfIntToInt( halfIntCeil( x_i->a ) ) ){
-    Edge * whiteEdge = x_i->first[WHITE];
-    while( whiteEdge != NULL ){
-      if( intToHalfInt( whiteEdge->weight ) == x_i->a + whiteEdge->head->a && whiteEdge->head->Z[integerType] == MAX_INT ){
-        whiteEdge->head->Z[integerType] = halfIntToInt( halfIntFloor( whiteEdge->head->a ) );
-        expandIntegerTree(system, T, whiteEdge->head, x_i, whiteEdge, NULL, NULL);
-      }
-      whiteEdge = whiteEdge->next;
-    }
-    Edge * grayReverseEdge = x_i->first[GRAY_REVERSE];
-    while( grayReverseEdge != NULL ){
-      if( intToHalfInt( grayReverseEdge->weight ) == x_i->a - grayReverseEdge->head->a && grayReverseEdge->head->Z[integerType] == MAX_INT ){
-        grayReverseEdge->head->Z[integerType] = halfIntToInt( halfIntCeil( grayReverseEdge->head->a ) );
-        expandIntegerTree(system, T, grayReverseEdge->head, x_i, grayReverseEdge, NULL, NULL);
-      }
-      grayReverseEdge = grayReverseEdge->next;
-    }
-  }
-  else {
-    fputs("Bad bad bad. checkDependencies()\n", stderr );
-  }
-}
-
 IntegerTree * generateIntegerTree(System * system, IntegerTreeType type){
   
   IntegerTreeVertex * x0Root = (IntegerTreeVertex *) malloc( sizeof(IntegerTreeVertex) );
   x0Root->parent = NULL;
   x0Root->nextSibling = NULL;
   x0Root->firstChild = NULL;
-  x0Root->queueNext = NULL;
+  x0Root->queueNewer = NULL;
   x0Root->graphEdges = NULL;
   x0Root->graphVertex = &system->graph[0];
   system->graph[0].integerTreeVertex[type] = x0Root;
   
   IntegerTree * T = (IntegerTree *) malloc( sizeof(IntegerTree) );
   T->treeRoot = x0Root;
-  T->queueFirst = NULL;
-  T->queueLast = NULL;
+  T->queueNewest = NULL;
+  T->queueOldest = NULL;
   T->type = type;
   
   return T;
@@ -864,11 +917,11 @@ IntegerTree * generateIntegerTree(System * system, IntegerTreeType type){
 
 Vertex * pollIntegerTreeQueue(IntegerTree * tree){
   Vertex * output = NULL;
-  if( tree->queueLast != NULL ){
-    output = tree->queueLast->graphVertex;
-    tree->queueLast = tree->queueLast->queueNext;
-    if( tree->queueLast == NULL ){
-      tree->queueFirst = NULL;
+  if( tree->queueOldest != NULL ){
+    output = tree->queueOldest->graphVertex;
+    tree->queueOldest = tree->queueOldest->queueNewer;
+    if( tree->queueOldest == NULL ){
+      tree->queueNewest = NULL;
     }
   }
   return output;
@@ -879,15 +932,15 @@ void expandIntegerTree(System * system, IntegerTree * T, Vertex * active, Vertex
   IntegerTreeVertex * itv = active->integerTreeVertex[T->type];
   if( itv == NULL ){
     itv = (IntegerTreeVertex *) malloc( sizeof(IntegerTreeVertex) );
-    itv->parent = parent->integerTreeVertex;
+    itv->parent = parent->integerTreeVertex[T->type];
     itv->nextSibling = itv->parent->firstChild;
     itv->parent->firstChild = itv;
     itv->firstChild = NULL;
-    itv->queueNext = NULL;
-    if( T->queueFirst != NULL ){
-      T->queueFirst->queueNext = itv;
+    itv->queueNewer = NULL;
+    if( T->queueNewest != NULL ){
+      T->queueNewest->queueNewer = itv;
     }
-    T->queueFirst = itv;
+    T->queueNewest = itv;
     T->graphEdges = generateEdgeRefList();
     T->graphVertex = active;
     active->integerTreeVertex[T->type] = itv;
@@ -906,7 +959,7 @@ void expandIntegerTree(System * system, IntegerTree * T, Vertex * active, Vertex
 }
 
 void integerTreeBacktrack(EdgeRefList * list, IntegerTreeVertex * fromVertex, IntegerTreeVertex * toVertex){
-  if( fromVertex != NULL ){ //Think this over better
+  if( fromVertex != NULL ){ //== NULL probably impossible
     while( fromVertex != toVertex ){
       copyTreeEdgesToList(list, fromVertex);
       fromVertex = fromVertex->parent;
@@ -924,32 +977,34 @@ void copyTreeEdgesToList(EdgeRefList * list, IntegerTreeVertex * itv){
 }
 
 void freeIntegerTree(IntegerTree * tree){
-  IntegerTreeVertex * itv = tree->treeRoot;
-  while( itv != NULL ){
-    IntegerTreeVertex * parent = NULL; //initialization unnecessary, but compiler might require it
+  if( tree != NULL ){
+    IntegerTreeVertex * itv = tree->treeRoot;
     while( itv != NULL ){
-      while( itv->firstChild != NULL ){
-        itv = itv->firstChild;
+      IntegerTreeVertex * parent = NULL; //initialization unnecessary, but compiler might require it
+      while( itv != NULL ){
+        while( itv->firstChild != NULL ){
+          itv = itv->firstChild;
+        }
+        parent = itv->parent;
+        freeEdgeRefList( itv->graphEdges );
+        itv->graphVertex->integerTreeVertex[ tree->type ] = NULL;
+        IntegerTreeVertex * priorSibling = itv;
+        itv = itv->nextSibling;
+        free(priorSibling);
       }
-      parent = itv->parent;
-      freeEdgeRefList( itv->graphEdges );
-      itv->graphVertex->integerTreeVertex[ tree->type ] = NULL;
-      IntegerTreeVertex * priorSibling = itv;
-      itv = itv->nextSibling;
-      free(priorSibling);
+      itv = parent;    
+      if( itv != NULL ){
+        itv->firstChild = NULL; //So we don't try to go back down the tree over nodes we've already freed
+      }
     }
-    itv = parent;    
-    if( itv != NULL ){
-      itv->firstChild = NULL; //So we don't try to go back down the tree over nodes we've already freed
+    Edge * edge = tree->additionsFirst;
+    while( edge != NULL ){
+      Edge * oldEdge = edge;
+      edge = edge->next;
+      free(oldEdge);
     }
+    free(tree);
   }
-  Edge * edge = tree->additionsFirst;
-  while( edge != NULL ){
-    Edge * oldEdge = edge;
-    edge = edge->next;
-    free(oldEdge);
-  }
-  free(tree);
 }
 
 EdgeRefList * generateEdgeRefList(){
@@ -973,20 +1028,21 @@ void addEdgeToEdgeRefList(EdgeRefList * erl, Edge * edge){
 }
 
 void freeEdgeRefList(EdgeRefList * erl){
-  EdgeRefListNode * erln = erl->first;
-  while( erln != NULL ){
-    EdgeRefListNode * oldERLN = erln;
-    erln = erln->next;
-    free(oldERLN);
+  if( erl != NULL ){
+    EdgeRefListNode * erln = erl->first;
+    while( erln != NULL ){
+      EdgeRefListNode * oldERLN = erln;
+      erln = erln->next;
+      free(oldERLN);
+    }
+    free(erl);
   }
-  free(erl);
 }
 
 void freeSystem(System * system){
-  Edge * e;
   for(EdgeType i = WHITE; i <= GRAY_REVERSE; i++){
     for(int j = 0; j < system->vertexCount; j++){
-      e = system->graph[j].first[i];
+      Edge * e = system->graph[j].first[i];
       while(e != NULL){
         Edge * oldE = e;
         e = e->next;
@@ -994,14 +1050,8 @@ void freeSystem(System * system){
       }
     }
   }
-  if( system->infeasibilityProof != NULL ){
-    freeEdgeRefList( system->infeasibilityProof );
-  }
-  if( system->T[DOWN] != NULL ){
-    freeIntegerTree( system->T[DOWN] );
-  }
-  if( system->T[UP] != NULL ){
-    freeIntegerTree( system->T[UP] );
-  }
+  freeEdgeRefList( system->infeasibilityProof );
+  freeIntegerTree( system->T[DOWN] );
+  freeIntegerTree( system->T[UP] );
   free( system->graph );
 }

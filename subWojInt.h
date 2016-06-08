@@ -41,13 +41,12 @@ typedef struct EdgeRefList EdgeRefList;
 typedef struct EdgeRefListNode EdgeRefListNode;
 typedef struct IntegerTree IntegerTree;
 typedef struct IntegerTreeVertex IntegerTreeVertex;
-//typedef struct IntegerTreeEdge IntegerTreeEdge;
 
 struct System {
   Vertex * graph;
   int vertexCount;
   int n;
-  int C; //largestWeight
+  int C;
   Edge * allEdgeFirst;
   EdgeRefList * infeasibilityProof;
   IntegerTree * T[INTEGER_TREE_TYPE_COUNT];
@@ -89,8 +88,8 @@ struct EdgeRefListNode {
 
 struct IntegerTree {
   IntegerTreeVertex * treeRoot;
-  IntegerTreeVertex * queueFirst;
-  IntegerTreeVertex * queueLast;
+  IntegerTreeVertex * queueNewest;
+  IntegerTreeVertex * queueOldest;
   IntegerTreeType type;
   Edge * additionsFirst;
 }
@@ -99,18 +98,11 @@ struct IntegerTreeVertex {
   IntegerTreeVertex * parent;
   IntegerTreeVertex * nextSibling;
   IntegerTreeVertex * firstChild;
-  IntegerTreeVertex * queueNext;
+  IntegerTreeVertex * queueNewer;
   EdgeRefList * graphEdges;
   Vertex * graphVertex;
 };
-/*
-struct IntegerTreeEdge {
-  IntegerTreeVertex * parent;
-  IntegerTreeVertex * child;
-  IntegerTreeEdge * nextSibling;
-  Edge * graphEdge;
-}
-*/
+
 int main(int argc, char * argv[]);
 EdgeType reverseEdgeType(EdgeType input);
 void fputEdge(Edge * edge, FILE * output);
@@ -124,11 +116,10 @@ bool relaxNetwork(System * system);
 void relaxEdge(Edge * e);
 bool backtrack(System * system, Vertex * x_i, EdgeType t, Edge * e);
 bool produceIntegerSolution(System * system);
-bool constraintIsFeasible(Edge * edge, IntegerType integerType)
-void forcedRounding(System * system, IntegerTree * T, Vertex * x_i);
+void forcedRounding(System * system, Vertex * x_i);
 Edge * generateAbsoluteConstraint(System * system, IntegerTree * T, Vertex * x_i, int weight, EdgeType type);
 bool optionalRoundings(System * system)
-bool checkAllConstraints(System * system, EdgeRefList * list, Vertex * toVertex, IntegerType integerType. IntegerTreeType integerTreeType);
+bool checkAllConstraints(System * system, Vertex * toVertex, IntegerType integerType. IntegerTreeType integerTreeType);
 void checkDependencies(System * system, IntegerTree * T, Vertex * x_i, IntegerType integerType);
 IntegerTree * generateIntegerTree(System * system, IntegerTreeType type);
 Vertex * pollIntegerTreeQueue(IntegerTree * tree);
