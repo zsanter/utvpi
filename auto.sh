@@ -29,7 +29,7 @@ fi
 
 date=`date +%Y-%m-%d`
 
-csvFile="empirical/${date}_${programNoExt}_Stuckey_${f}_${modify}.csv"
+csvFile="empirical/${date}_${programNoExt}_Stuckey_${modify}_${f}.csv"
 echo "input file,variables,constraints,setup,linear,integer,cleanup,total,user,system,maximum resident set size (kb)" > "${csvFile}"
 
 for variables in "${variablesArray[@]}" ; do
@@ -37,7 +37,7 @@ for variables in "${variablesArray[@]}" ; do
     for number in {1..3} ; do
       inputFile="input/test_n${variables}_m${constraints}_${f}_no${number}.utv"
       if [[ -f "${inputFile}" ]] ; then
-        echo "Processing ${inputFile}"
+        echo "${programNoExt} ${modify} ${f} processing ${inputFile}"
         outputFile="output/${date}_${programNoExt}_test_n${variables}_m${constraints}_${f}_no${number}_out.txt"
         echo -n "${inputFile},${variables},${constraints}," >> "${csvFile}"
         (/usr/bin/time -f "%U,%S,%M" ./${program} "${inputFile}" "${outputFile}") &>> "${csvFile}" 
@@ -45,3 +45,4 @@ for variables in "${variablesArray[@]}" ; do
     done
   done
 done
+echo "${programNoExt} ${modify} ${f} complete"
