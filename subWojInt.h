@@ -128,7 +128,8 @@ void integerTreeBacktrack(EdgeRefList * list, IntegerTreeVertex * fromVertex, In
 void copyTreeEdgesToList(EdgeRefList * list, IntegerTreeVertex * itv);
 void freeIntegerTree(IntegerTree * tree);
 EdgeRefList * generateEdgeRefList();
-void addEdgeToEdgeRefList(EdgeRefList * erl, Edge * edge);
+void addEdgeToEdgeRefListEnd(EdgeRefList * erl, Edge * edge);
+void addEdgeToEdgeRefListBeginning(EdgeRefList * erl, Edge * edge);
 void freeEdgeRefList(EdgeRefList * erl);
 void freeSystem(System * system);
 

@@ -30,7 +30,7 @@ fi
 date=`date +%Y-%m-%d`
 
 csvFile="empirical/${date}_${programNoExt}_Stuckey_${modify}_${f}.csv"
-echo "input file,variables,constraints,setup,linear,integer,cleanup,total,user,system,maximum resident set size (kb)" > "${csvFile}"
+echo "input file,variables,constraints,f,setup,linear,integer,cleanup,total,user,system,maximum resident set size (kb)" > "${csvFile}"
 
 for variables in "${variablesArray[@]}" ; do
   for constraints in "${constraintsArray[@]}" ; do
