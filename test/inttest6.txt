@@ -1,0 +1,13 @@
+/*
+ * inttest6.txt
+ * Fails optional rounding on x1
+ * Linear solution from our algorithm is (1/2,1/2,1/2,1/2)
+ * No integer solution
+ */
+
+4 variables
+x1 + x2 <= 1
+x1 - x2 <= 0
+-x1 - x3 <= -1
+-x1 - x4 <= -1
+x4 + x3 <= 1
