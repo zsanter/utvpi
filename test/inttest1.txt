@@ -1,0 +1,11 @@
+/*
+ * inttest1.txt
+ * Needs forced rounding on x1
+ * Linear solution from our algorithm is (-11/2,1/2)
+ * Integer solutions of (-6,0) and (-6,1)
+ */
+
+2 variables
+x1 + x2 <= -5
+x1 - x2 <= -6
+-x1 <= 6

@@ -1,0 +1,12 @@
+/*
+ * inttest2.txt
+ * Needs forced rounding on both x1 and x2
+ * Linear solution from our algorithm is (7/2,1/2)
+ * Integer solution is (4,0)
+ */
+
+2 variables
+x1 + x2 <= 4
+x1 - x2 <= 4
+-x1 + x2 <= -3
+-x1 - x2 <= -4
