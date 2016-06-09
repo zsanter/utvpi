@@ -92,7 +92,7 @@ struct IntegerTree {
   IntegerTreeVertex * queueOldest;
   IntegerTreeType type;
   Edge * additionsFirst;
-}
+};
 
 struct IntegerTreeVertex {
   IntegerTreeVertex * parent;
@@ -107,8 +107,8 @@ int main(int argc, char * argv[]);
 EdgeType reverseEdgeType(EdgeType input);
 void fputEdge(Edge * edge, FILE * output);
 void initializeSystem(void * object, int n, Parser * parser);
-void addConstraint(void * object, Constraint * constraint, Parser * parser)
-void addEdge(Systen * system, Constraint * constraint);
+void addConstraint(void * object, Constraint * constraint, Parser * parser);
+void addEdge(System * system, Constraint * constraint);
 void finishSystemCreation(System * system);
 int edgeCompare(const void * edge1, const void * edge2);
 void removeFromAllEdgeList(System * system, Edge * edge);
@@ -116,19 +116,19 @@ bool relaxNetwork(System * system);
 void relaxEdge(Edge * e);
 bool backtrack(System * system, Vertex * x_i, EdgeType t, Edge * e);
 bool produceIntegerSolution(System * system);
-void forcedRounding(System * system, Vertex * x_i);
+bool forcedRounding(System * system, Vertex * x_i);
 Edge * generateAbsoluteConstraint(System * system, IntegerTree * T, Vertex * x_i, int weight, EdgeType type);
-bool optionalRoundings(System * system)
-bool checkAllConstraints(System * system, Vertex * toVertex, IntegerType integerType. IntegerTreeType integerTreeType);
+bool optionalRoundings(System * system);
+bool checkAllConstraints(System * system, Vertex * toVertex, IntegerType integerType, IntegerTreeType integerTreeType);
 void checkDependencies(System * system, IntegerTree * T, Vertex * x_i, IntegerType integerType);
 IntegerTree * generateIntegerTree(System * system, IntegerTreeType type);
 Vertex * pollIntegerTreeQueue(IntegerTree * tree);
-void expandIntegerTree(System * system, IntegerTree * T, Vertex * active, Vertex * parent, Edge * edge0, Edge * edge1, Edge * edge2)
-void integerTreeBacktrack(EdgeRefList * list, IntegerTreeVertex * fromVertex, IntegerTreeVertex * toVertex)
+void expandIntegerTree(System * system, IntegerTree * T, Vertex * active, Vertex * parent, Edge * edge0, Edge * edge1, Edge * edge2);
+void integerTreeBacktrack(EdgeRefList * list, IntegerTreeVertex * fromVertex, IntegerTreeVertex * toVertex, bool includeToVertex);
 void copyTreeEdgesToList(EdgeRefList * list, IntegerTreeVertex * itv);
 void freeIntegerTree(IntegerTree * tree);
 EdgeRefList * generateEdgeRefList();
-void addEdgeToEdgeRefList(EdgeRefList * erl, Edge * edge){
+void addEdgeToEdgeRefList(EdgeRefList * erl, Edge * edge);
 void freeEdgeRefList(EdgeRefList * erl);
 void freeSystem(System * system);
 
