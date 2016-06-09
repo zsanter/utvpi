@@ -1,0 +1,15 @@
+/*
+ * inttest7.txt
+ * Fails forced roundings on x1 and x_5
+ * Linear solution from our algorithm is (1/2,1/2,1/2,1/2,1/2,1/2)
+ * No integer solution
+ */
+
+6 variables
+x1 + x2 <= 1
+x1 - x2 <= 0
+-x1 - x3 <= -1
+x3 + x4 <= 1
+-x4 - x5 <= -1
+x5 + x6 <= 1
+x5 - x6 <= 0
