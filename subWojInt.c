@@ -632,28 +632,7 @@ bool produceIntegerSolution(System * system){
   freeEdgeRefList( system->infeasibilityProof );
   freeIntegerTree( system->T[DOWN] );
 
-  for(int i = 0; i < system->vertexCount; i++){
-    for(EdgeType j = WHITE; j <= GRAY_REVERSE; j++){
-      Edge * prior = NULL;
-      Edge * edge = system->graph[i].first[j];
-      while( edge != NULL ){
-        if( edge->tail->Z[FINAL] == INT_MAX && edge->head->Z[FINAL] == INT_MAX ){
-          if( prior == NULL ){
-            system->graph[i].first[j] = edge;
-          }
-          else {
-            prior->next = edge;
-          }
-          prior = edge;
-        }
-        else {
-          removeFromAllEdgeList(system, edge);
-          free(edge);
-        }
-	edge = edge->next;
-      }
-    }
-  }
+  systemSubset( system );
 
   integrallyFeasible = optionalRoundings(system);
   
@@ -881,6 +860,38 @@ bool checkAllConstraints(System * system, Vertex * toVertex, IntegerType integer
     edge = edge->allNext;
   }
   return true;
+}
+
+void systemSubset(System * system){
+  for(int i = 0; i < system->vertexCount; i++){
+    for(EdgeType j = WHITE; j <= GRAY_REVERSE; j++){
+      Edge * prior = NULL;
+      Edge * edge = system->graph[i].first[j];
+      while( edge != NULL ){
+	Edge * next = edge->next;
+        if( edge->tail->Z[FINAL] == INT_MAX && edge->head->Z[FINAL] == INT_MAX ){
+          if( prior == NULL ){
+            system->graph[i].first[j] = edge;
+          }
+          else {
+            prior->next = edge;
+          }
+          prior = edge;
+        }
+        else {
+          removeFromAllEdgeList(system, edge);
+          free(edge);
+        }
+	edge = next;
+      }
+      if( prior == NULL ){
+	system->graph[i].first[j] = NULL;
+      }
+      else {
+	prior->next = NULL;
+      }
+    }
+  }
 }
 
 //type : WHITE or GRAY_REVERSE for positive variable coefficient
