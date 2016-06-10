@@ -140,8 +140,7 @@ void initializeSystem(void * object, int n, Parser * parser){
   system->graph[0].a = 0;
   system->graph[0].Z[FINAL] = 0;
   system->graph[0].Z[TEMP] = 0;
-  system->graph[0].integerTreeVertex[DOWN] = NULL;
-  system->graph[0].integerTreeVertex[UP] = NULL;
+  system->graph[0].integerTreeVertex = NULL;
   for(EdgeType i = WHITE; i <= GRAY_REVERSE; i++){
     system->graph[0].L[i] = NULL;
     system->graph[0].D[i] = 0;
@@ -155,8 +154,7 @@ void initializeSystem(void * object, int n, Parser * parser){
     system->graph[i].a = 0;
     system->graph[i].Z[FINAL] = INT_MAX;
     system->graph[i].Z[TEMP] = INT_MAX;
-    system->graph[i].integerTreeVertex[DOWN] = NULL;
-    system->graph[i].integerTreeVertex[UP] = NULL;
+    system->graph[i].integerTreeVertex = NULL;
     for(EdgeType j = WHITE; j <= GRAY_REVERSE; j++){
       system->graph[i].L[j] = NULL;
       system->graph[i].D[j] = INT_MAX;
@@ -738,7 +736,8 @@ bool optionalRoundings(System * system){
       else {
         
         freeIntegerTree( system->T );
-        
+	system->T = generateIntegerTree( system );
+	
         for(int j = 1; j < system->vertexCount; j++){
           system->graph[j].Z[TEMP] = INT_MAX;
         }
@@ -1006,7 +1005,7 @@ void freeIntegerTree(IntegerTree * tree){
         }
         parent = itv->parent;
         freeEdgeRefList( itv->graphEdges );
-        itv->graphVertex->integerTreeVertex[ tree->type ] = NULL;
+        itv->graphVertex->integerTreeVertex = NULL;
         IntegerTreeVertex * priorSibling = itv;
         itv = itv->nextSibling;
         free(priorSibling);
@@ -1080,7 +1079,6 @@ void freeSystem(System * system){
     }
   }
   freeEdgeRefList( system->infeasibilityProof );
-  freeIntegerTree( system->T[DOWN] );
-  freeIntegerTree( system->T[UP] );
+  freeIntegerTree( system->T );
   free( system->graph );
 }
