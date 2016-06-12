@@ -89,8 +89,6 @@ struct IntegerTree {
 
 struct IntegerTreeVertex {
   IntegerTreeVertex * parent;
-  IntegerTreeVertex * nextSibling;
-  IntegerTreeVertex * firstChild;
   IntegerTreeVertex * queueNewer;
   EdgeRefList * graphEdges;
   Vertex * graphVertex;
@@ -122,8 +120,8 @@ void integerTreeBacktrack(EdgeRefList * list, IntegerTreeVertex * fromVertex, In
 void copyTreeEdgesToList(EdgeRefList * list, IntegerTreeVertex * itv);
 void freeIntegerTree(IntegerTree * tree);
 EdgeRefList * generateEdgeRefList();
-void addEdgeToEdgeRefListEnd(EdgeRefList * erl, Edge * edge);
-void addEdgeToEdgeRefListBeginning(EdgeRefList * erl, Edge * edge);
+void edgeRefListAppend(EdgeRefList * erl, Edge * edge);
+void edgeRefListPrepend(EdgeRefList * erl, Edge * edge);
 void freeEdgeRefList(EdgeRefList * erl);
 void freeSystem(System * system);
 

@@ -567,7 +567,7 @@ bool backtrack(System * system, Vertex * x_i, EdgeType t, Edge * e){
   Vertex * x_f = x_c;
   BacktrackingIndex a_f = a_c;
   system->infeasibilityProof = generateEdgeRefList();
-  addEdgeToEdgeRefListEnd( system->infeasibilityProof, e_c );
+  edgeRefListAppend( system->infeasibilityProof, e_c );
   switch(e_c->type){
   case WHITE:
   case GRAY_FORWARD:
@@ -580,7 +580,7 @@ bool backtrack(System * system, Vertex * x_i, EdgeType t, Edge * e){
   }
   x_c = e_c->head;
   while(a_c != a_f || x_c != x_f){
-    addEdgeToEdgeRefListEnd( system->infeasibilityProof, x_c->E[a_c] );
+    edgeRefListAppend( system->infeasibilityProof, x_c->E[a_c] );
     Vertex * x_c_next = x_c->E[a_c]->head;
     switch( x_c->E[a_c]->type ){
     case WHITE:
@@ -736,7 +736,7 @@ bool optionalRoundings(System * system){
       else {
         
         freeIntegerTree( system->T );
-	system->T = generateIntegerTree( system );
+        system->T = generateIntegerTree( system );
 	
         for(int j = 1; j < system->vertexCount; j++){
           system->graph[j].Z[TEMP] = INT_MAX;
@@ -848,7 +848,7 @@ bool checkAllConstraints(System * system, Vertex * toVertex, IntegerType integer
         }
       }
       if( !feasible ){
-        addEdgeToEdgeRefListBeginning(system->infeasibilityProof, edge);
+        edgeRefListPrepend(system->infeasibilityProof, edge);
         integerTreeBacktrack(system->infeasibilityProof, edge->tail->integerTreeVertex, toVertex->integerTreeVertex, false);
         integerTreeBacktrack(system->infeasibilityProof, edge->head->integerTreeVertex, toVertex->integerTreeVertex, true);
         return false;
@@ -912,8 +912,6 @@ IntegerTree * generateIntegerTree(System * system){
   
   IntegerTreeVertex * x0Root = (IntegerTreeVertex *) malloc( sizeof(IntegerTreeVertex) );
   x0Root->parent = NULL;
-  x0Root->nextSibling = NULL;
-  x0Root->firstChild = NULL;
   x0Root->queueNewer = NULL;
   x0Root->graphEdges = generateEdgeRefList();
   x0Root->graphVertex = &system->graph[0];
@@ -921,7 +919,7 @@ IntegerTree * generateIntegerTree(System * system){
   
   IntegerTree * T = (IntegerTree *) malloc( sizeof(IntegerTree) );
   T->treeRoot = x0Root;
-  T->queueNewest = NULL;
+  T->queueNewest = x0Root;
   T->queueOldest = NULL;
   T->additionsFirst = NULL;
   
@@ -929,13 +927,13 @@ IntegerTree * generateIntegerTree(System * system){
 }
 
 Vertex * pollIntegerTreeQueue(IntegerTree * tree){
-  Vertex * output = NULL;
+  Vertex * output;
   if( tree->queueOldest != NULL ){
     output = tree->queueOldest->graphVertex;
     tree->queueOldest = tree->queueOldest->queueNewer;
-    if( tree->queueOldest == NULL ){
-      tree->queueNewest = NULL;
-    }
+  }
+  else {
+    output = NULL;
   }
   return output;
 }
@@ -946,28 +944,23 @@ void expandIntegerTree(IntegerTree * T, Vertex * active, Vertex * parent, Edge *
   if( itv == NULL ){
     itv = (IntegerTreeVertex *) malloc( sizeof(IntegerTreeVertex) );
     itv->parent = parent->integerTreeVertex;
-    itv->nextSibling = itv->parent->firstChild;
-    itv->parent->firstChild = itv;
-    itv->firstChild = NULL;
     itv->queueNewer = NULL;
-    if( T->queueNewest != NULL ){
-      T->queueNewest->queueNewer = itv;
-    }
-    else {
+    T->queueNewest->queueNewer = itv;
+    T->queueNewest = itv;
+    if( T->queueOldest == NULL ){
       T->queueOldest = itv;
     }
-    T->queueNewest = itv;
     itv->graphEdges = generateEdgeRefList();
     itv->graphVertex = active;
     active->integerTreeVertex = itv;
   }
   
   if( edge0 != NULL ){
-    addEdgeToEdgeRefListEnd( itv->graphEdges, edge0 );
+    edgeRefListAppend( itv->graphEdges, edge0 );
     if( edge1 != NULL ){
-      addEdgeToEdgeRefListEnd( itv->graphEdges, edge1 );
+      edgeRefListAppend( itv->graphEdges, edge1 );
       if( edge2 != NULL ){
-        addEdgeToEdgeRefListEnd( itv->graphEdges, edge2 );
+        edgeRefListAppend( itv->graphEdges, edge2 );
       }
     }
   }
@@ -989,7 +982,7 @@ void integerTreeBacktrack(EdgeRefList * list, IntegerTreeVertex * fromVertex, In
 void copyTreeEdgesToList(EdgeRefList * list, IntegerTreeVertex * itv){
   EdgeRefListNode * treeEdge = itv->graphEdges->first;
   while( treeEdge != NULL ){
-    addEdgeToEdgeRefListBeginning( list, treeEdge->edge );
+    edgeRefListPrepend( list, treeEdge->edge );
     treeEdge = treeEdge->next;
   }
 }
@@ -998,22 +991,11 @@ void freeIntegerTree(IntegerTree * tree){
   if( tree != NULL ){
     IntegerTreeVertex * itv = tree->treeRoot;
     while( itv != NULL ){
-      IntegerTreeVertex * parent = NULL; //initialization unnecessary, but compiler might require it
-      while( itv != NULL ){
-        while( itv->firstChild != NULL ){
-          itv = itv->firstChild;
-        }
-        parent = itv->parent;
-        freeEdgeRefList( itv->graphEdges );
-        itv->graphVertex->integerTreeVertex = NULL;
-        IntegerTreeVertex * priorSibling = itv;
-        itv = itv->nextSibling;
-        free(priorSibling);
-      }
-      itv = parent;    
-      if( itv != NULL ){
-        itv->firstChild = NULL; //So we don't try to go back down the tree over nodes we've already freed
-      }
+      freeEdgeRefList( itv->graphEdges );
+      itv->graphVertex->integerTreeVertex = NULL;
+      IntegerTreeVertex * oldITV = itv;
+      itv = itv->queueNewer;
+      free( oldITV );
     }
     Edge * edge = tree->additionsFirst;
     while( edge != NULL ){
@@ -1032,7 +1014,7 @@ EdgeRefList * generateEdgeRefList(){
   return newERL;
 }
 
-void addEdgeToEdgeRefListEnd(EdgeRefList * erl, Edge * edge){
+void edgeRefListAppend(EdgeRefList * erl, Edge * edge){
   EdgeRefListNode * newERLN = (EdgeRefListNode *) malloc( sizeof(EdgeRefListNode) );
   newERLN->edge = edge;
   newERLN->next = NULL;
@@ -1045,7 +1027,7 @@ void addEdgeToEdgeRefListEnd(EdgeRefList * erl, Edge * edge){
   erl->last = newERLN;
 }
 
-void addEdgeToEdgeRefListBeginning(EdgeRefList * erl, Edge * edge){
+void edgeRefListPrepend(EdgeRefList * erl, Edge * edge){
   EdgeRefListNode * newERLN = (EdgeRefListNode *) malloc( sizeof(EdgeRefListNode) );
   newERLN->edge = edge;
   newERLN->next = erl->first;
