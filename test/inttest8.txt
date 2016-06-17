@@ -1,0 +1,12 @@
+/*
+ * inttest8.txt
+ * From Lahiri, Fig. 3.2
+ * Satisfiable in Q, but not in Z
+ */
+
+3 variables
+x3 + x2 <= -5
+x1 - x2 <= 4
+-x1 - x2 <= 3
+x3 - x2 <= 2
+-x3 - x2 <= 1
