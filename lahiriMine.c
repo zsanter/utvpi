@@ -380,8 +380,25 @@ void johnsonAllPairs(System * system){
   for(VertexSign i = POSITIVE; i <= NEGATIVE; i++){
     for(int j = 0; j < system->n; j++){
       dijkstra( &copy, &copy->graph[i][j] );
+      Vertex * copyHead = &copy->graph[!i][j];
+      int weight = copyHead->D;
+      if( weight != INT_MAX ){
+        if( weight % 2 != 0 ){
+          weight--;
+        }
+        Vertex * systemHead = &system->graph[!i][j];
+        Vertex * systemTail = &system->graph[i][j];
+        Edge * newEdge = (Edge *) malloc( sizeof(Edge) );
+        newEdge->weight = weight;
+        newEdge->head = systemHead;
+        newEdge->tail = systemTail;
+        newEdge->next = systemTail->first;
+        systemTail->first = newEdge;
+        newEdge->backtrackSeen = false;
+      }
     }
   }
+  
 }
 
 //Doesn't copy Vertex elements L, D, x, dfsColor, discoveryTime, finishingTime, sccNumber, or h, 
@@ -410,9 +427,198 @@ void dijkstra(System * system, Vertex * vertex){
   for(VertexSign i = POSITIVE; i <= NEGATIVE; i++){
     for(int j = 0; j < system->n; j++){
       system->graph[i][j].D = INT_MAX;
+      system->graph[i][j].dijkstraFinalized = false;
+    }
+  }
+  vertex->D = 0;
+  
+  FibHeap pQueue;
+  pQueue.min = NULL;
+  pQueue.n = 0;
+  
+  fibHeapInsert( &pQueue, vertex );
+  while( pQueue.n > 0 ){
+    Vertex * current = fibHeapExtractMin( &pQueue );
+    current->finalized = true;
+    Edge * outbound = current->first;
+    while( outbound != NULL ){
+      if( outbound->head->finalized == false 
+          && outbound->head->D > outbound->tail->D + outbound->weight ){
+        outbound->head->D = ooutbound->tail->D + outbound->weight;
+        if( outbound->head->fibHeapNode == NULL ){
+          fibHeapInsert( &pQueue, outbound->head );
+        }
+        else {
+          fibHeapDecreaseKey( &pQueue, outbound->head->fibHeapNode );
+        }
+      }
+      outbound = outbound->next;
     }
   }
   
+}
+
+void fibHeapInsert(FibHeap * fibHeap, Vertex * vertex){
+  FibHeapNode * newFHN = (FibHeapNode *) malloc( sizeof(FibHeapNode) );
+  newFHN->degree = 0;
+  newFHN->parent = NULL;
+  newFHN->child = NULL;
+  newFHN->mark = false;
+  newFHN->vertex = vertex;
+  vertex->fibHeapNode = newFHN;
+  if( fibHeap->min == NULL ){
+    newFHN->right = newFHN;
+    newFHN->left = newFHN;
+    fibHeap->min = newFHN;
+  }
+  else {
+    fibHeap->min->right->left = newFHN;
+    newFHN->right = fibHeap->min->right;
+    fibHeap->min->right = newFHN;
+    newFHN->left = fibHeap->min;
+    if( vertex->D < fibHeap->min->vertex->D ){
+      fibHeap->min = newFHN;
+    }
+  }
+  fibHeap->n++;
+}
+
+Vertex * fibHeapExtractMin(FibHeap * fibHeap){
+  Vertex * output;
+  if( fibHeap->min != NULL ){
+    output = fibHeap->min->vertex;
+    FibHeapNode * oldFHN = fibHeap->min;
+    if( fibHeap->min->child != NULL ){
+      FibHeapNode * fhn = fibHeap->min->child;
+      while( fhn->parent != NULL ){
+        fhn->parent == NULL;
+        fhn = fhn->left;
+      }
+      if( fibHeap->min->right != fibHeap->min ){
+        fibHeap->min->right->left = fibHeap->min->child;
+        fibHeap->min->child->right->left = fibHeap->min->left;
+        fibHeap->min->left->right = fibHeap->min->child->right;
+        fibHeap->min->child->right = fibheap->min->right;
+      }
+      fibHeap->min = fibHeap->min->child;
+    }
+    else if( fibHeap->min->right != fibHeap->min ){
+      fibHeap->min == fibHeap->min->right;
+    }
+    else {
+      fibHeap->min = NULL;
+    }
+    free( oldFHN );
+    fibHeap->n--;
+    output->fibHeapNode = NULL;
+    if( fibHeap->min != NULL ){
+      fibHeapConsolidate( fibHeap );
+    }
+  }
+  else {
+    output = NULL;
+  }
+  return output;
+}
+
+void fibHeapConsolidate(FibHeap * fibHeap){
+  double phi = (1.0 + sqrt( 5.0 ) )/2.0;
+  int Alength = ((int)( log(n)/log(phi) )) + 1;
+  FibHeapNode * A[ Alength ];
+  for(int i = 0; i < Alength; i++){
+    A[i] = NULL;
+  }
+  FibHeapNode * w = fibHeap->min;
+  do {
+    FibHeapNode * x = w;
+    int d = x->degree;
+    while( A[d] != NULL ){
+      FibHeapNode * y = A[d];
+      if( x->vertex->D > y->vertex->D ){
+        FibHeapNode * temp = y;
+        y = x;
+        x = temp;
+      }
+      fibHeapLink(fibHeap, y, x);
+      A[d] = NULL;
+      d++;
+    }
+    A[d] = x;
+    w = w->left;
+  } while( w != fibHeap->min );
+  fibHeap->min = NULL;
+  for(int i = 0; i < Alength; i++){
+    if( A[i] != NULL ){
+      if( fibHeap->min == NULL ){
+        A[i]->parent = NULL;
+        A[i]->left = A[i];
+        A[i]->right = A[i];
+        fibHeap->min = A[i];
+      }
+      else {
+        fibHeap->min->right->left = A[i];
+        A[i]->right = fibHeap->min->right;
+        fibHeap->min->right = A[i];
+        A[i]->left = fibHeap->min;
+        if( A[i]->vertex->D < fibHeap->min->vertex->D ){
+          fibHeap->min = A[i];
+        }
+      }
+    }
+  }
+}
+
+void fibHeapLink(FibHeap * fibHeap, FibHeapNode * y, FibHeapNode * x){
+  y->left->right = y->right;
+  y->right->left = y->left;
+  y->right = x->child->right;
+  x->child->right->left = y;
+  y->left = x->child;
+  x->child->right = y;
+  x->degree++;
+  y->mark = false;
+}
+
+void fibHeapDecreaseKey(FibHeap * fibHeap, FibHeapNode * x){
+  FibHeapNode * y = x->parent;
+  if( y != NULL && x->vertex->D < y->vertex->D ){
+    fibHeapCut(fibHeap, x, y);
+    fibHeapCascadingCut(fibHeap, y);
+  }
+  if( x->vertex->D < fibHeap->min->vretex->D ){
+    fibHeap->min = x;
+  }
+}
+
+void fibHeapCut(FibHeap * fibHeap, FibHeapNode * x, FibHeapNode * y){
+  if( y->child == y->child->right ){
+    y->child == NULL;
+  }
+  else if( y->child == x ){
+    y->child = y->child->right;
+  }
+  x->left->right = x->right;
+  x->right->left = x->left;
+  x->right = fibHeap->min->right;
+  fibHeap->min->right->left = x;
+  x->left = fibHeap->min;
+  fibHeap->min->right = x;
+  y->degree--;
+  x->parent = NULL;
+  x->mark = false;
+}
+
+void fibHeapCascadingCut(FibHeap * fibHeap, FibHeapNode * y){
+  FibHeapNode * z = y->parent;
+  if( z != NULL ){
+    if( y->mark == false ){
+      y->mark = true;
+    }
+    else {
+      fibHeapCut(fibHeap. y, z);
+      fibHeapCascadingCut(fibHeap, z);
+    }
+  }
 }
 
 void freeSystem(System * system){

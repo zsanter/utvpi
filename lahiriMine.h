@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <limits.h>
+#include <math.h>
 #include <time.h>
 #include "UTVPIinterpreter.h"
 #include "halfint.h"
@@ -24,6 +25,8 @@ typedef enum DFScolor {
 typedef struct System System;
 typedef struct Vertex Vertex;
 typedef struct Edge Edge;
+typedef struct FibHeap FibHeap;
+typedef struct FibHeapNode FibHeapNode;
 
 struct System {
   Vertex * graph[VERTEX_SIGN_COUNT];
@@ -43,6 +46,8 @@ struct Vertex {
   int finishingTime;
   int sccNumber;
   int h;
+  bool dijkstraFinalized;
+  FibHeapNode * fibHeapNode;
 };
 
 struct Edge {
@@ -51,6 +56,21 @@ struct Edge {
   Vertex * tail;
   Edge * next;
   bool backtrackSeen;
+};
+
+struct FibHeap {
+  FibHeapNode * min;
+  int n;
+};
+
+struct FibHeapNode {
+  FibHeapNode * parent;
+  FibHeapNode * left;
+  FibHeapNode * right;
+  FibHeapNode * child;
+  Vertex * vertex;
+  int degree;
+  bool mark;
 };
 
 int main(int argc, char * argv[]);
