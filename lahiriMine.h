@@ -8,7 +8,6 @@
 #include <math.h>
 #include <time.h>
 #include "UTVPIinterpreter.h"
-#include "halfint.h"
 
 #define VERTEX_SIGN_COUNT 2
 typedef enum VertexSign {
@@ -39,8 +38,7 @@ struct Vertex {
   Edge * L;
   int D;
   Edge * first;
-  half_int x;
-  //int rho;
+  int rho;
   DFScolor dfsColor;
   int discoveryTime;
   int finishingTime;
