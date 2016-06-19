@@ -3,7 +3,7 @@
  * From Piotr's paper
  * System 1, pg 5
  * Linear solution
- * No integer solution
+ * No integer solution, at forcedRounding step
  */
 
 2 variables
