@@ -69,6 +69,7 @@ struct FibHeapNode {
   Vertex * vertex;
   int degree;
   bool mark;
+  bool rootListTraverseSeen;
 };
 
 int main(int argc, char * argv[]);
@@ -82,7 +83,7 @@ int lahiri(System * Gphi);
 void onlySlacklessEdges(System * original, System * subgraph);
 void stronglyConnectedComponents(System * system);
 void dfsVisit(Vertex * vertex, int * time, int sccNumber);
-void transpose(System * original, System * transpose);
+void transposeSystem(System * original, System * transpose);
 int vertexCompareFinishingTimes(const void * vertex1, const void * vertex2);
 void johnsonAllPairs(System * system);
 void copySystem(System * original, System * copy);
