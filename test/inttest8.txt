@@ -4,9 +4,9 @@
  * Satisfiable in Q, but not in Z
  */
 
-3 variables
+4 variables
 x3 + x2 <= -5
 x1 - x2 <= 4
 -x1 - x2 <= 3
-x3 - x2 <= 2
--x3 - x2 <= 1
+x4 - x3 <= 2
+-x4 - x3 <= 1
