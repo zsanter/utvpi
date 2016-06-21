@@ -637,11 +637,11 @@ void vertexLine(Vertex * vertex, int level){
   for(int i = 0; i < level; i++){
     putchar(' ');
   }
-  printf("%cx%d - \n", (fhn->vertex->sign == POSITIVE) ? '+' : '-' , fhn->vertex->index, fhn->vertex->D);
+  printf("%cx%d - %d\n", (vertex->sign == POSITIVE) ? '+' : '-' , vertex->index, vertex->D);
 }
 
 void fibHeapVisualize(FibHeap * fibHeap){
-  char entry[10];
+  /*char entry[10];
   puts("visualize? y/*");
   fgets(entry, 10, stdin);
   if( entry[0] == 'y' ){
@@ -650,20 +650,22 @@ void fibHeapVisualize(FibHeap * fibHeap){
       int level = 0;
       FibHeapNode * fhn = fibHeap->min;
       while( fhn != NULL ){
-        do {
+	FibHeapNode * firstFHN = fhn;
+	do {
           vertexLine( fhn->vertex, level );
           while( fhn->child != NULL ){
             level++;
             fhn = fhn->child;
+	    firstFHN = fhn;
             vertexLine( fhn->vertex, level );
           }
           fhn = fhn->right;
-        } while( fhn != fhn->parent->child );
+        } while( fhn != firstFHN );
         level--;
         fhn = fhn->parent;
       }
     }
-  }
+  }*/
   
 }
 
@@ -700,7 +702,7 @@ Vertex * fibHeapExtractMin(FibHeap * fibHeap){
   //int i1;
   if( fibHeap->min != NULL ){
     output = fibHeap->min->vertex;
-    //FibHeapNode * oldFHN = fibHeap->min;
+    FibHeapNode * oldFHN = fibHeap->min;
     printf("fibHeapExtractMin() extracting %cx%d - %p\n", (oldFHN->vertex->sign == POSITIVE) ? '+' : '-' , oldFHN->vertex->index , output );
     /*FibHeapNode * fhn = fibHeap->min;
     puts("original main heap list:");
@@ -718,7 +720,7 @@ Vertex * fibHeapExtractMin(FibHeap * fibHeap){
       //puts("5.2.3.1");
       while( fhn->parent != NULL ){
         //printf("%cx%d - %p > ", (fhn->vertex->sign == POSITIVE) ? '+' : '-' , fhn->vertex->index , fhn );
-        fhn->parent == NULL;
+        fhn->parent = NULL;
         fhn = fhn->left;
       }
       /*putchar('\n');
@@ -736,8 +738,8 @@ Vertex * fibHeapExtractMin(FibHeap * fibHeap){
       fibHeap->min = fibHeap->min->child;
     }
     else if( fibHeap->min->right != fibHeap->min ){
-      /*puts("else if( fibHeap->min->right != fibHeap->min )");
-      printf("fibHeap->min = %cx%d\n", (fibHeap->min->vertex->sign == POSITIVE) ? '+' : '-' , fibHeap->min->vertex->index);
+      puts("else if( fibHeap->min->right != fibHeap->min )");
+      /*printf("fibHeap->min = %cx%d\n", (fibHeap->min->vertex->sign == POSITIVE) ? '+' : '-' , fibHeap->min->vertex->index);
       printf("fibHeap->min->right = %cx%d\n", (fibHeap->min->right->vertex->sign == POSITIVE) ? '+' : '-' , fibHeap->min->right->vertex->index);
       printf("fibHeap->min->left = %cx%d\n", (fibHeap->min->left->vertex->sign == POSITIVE) ? '+' : '-' , fibHeap->min->left->vertex->index);
       printf("fibHeap->min->right->left = %cx%d\n", (fibHeap->min->right->left->vertex->sign == POSITIVE) ? '+' : '-' , fibHeap->min->right->left->vertex->index);
@@ -876,6 +878,7 @@ void fibHeapLink(FibHeap * fibHeap, FibHeapNode * y, FibHeapNode * x){
     y->left = y;
     x->child = y;
   }
+  y->parent = x;
   x->degree++;
   y->mark = false;
 }
@@ -888,6 +891,9 @@ void fibHeapDecreaseKey(FibHeap * fibHeap, Vertex * vertex){
   printf("fibHeapDecreaseKey() decreasing key of %cx%d - %p\n", /*vertex->sign*/ (vertex->sign == POSITIVE) ? '+' : '-' , vertex->index, vertex );
   FibHeapNode * x = vertex->fibHeapNode;
   FibHeapNode * y = x->parent;
+  if( y == NULL ){
+    puts( "x->parent == NULL");
+  }
   if( y != NULL && x->vertex->D < y->vertex->D ){
     fibHeapCut(fibHeap, x, y);
     fibHeapCascadingCut(fibHeap, y);
@@ -899,6 +905,13 @@ void fibHeapDecreaseKey(FibHeap * fibHeap, Vertex * vertex){
 }
 
 void fibHeapCut(FibHeap * fibHeap, FibHeapNode * x, FibHeapNode * y){
+  fputs("y->child = ", stdout); vertexLine(y->child->vertex, 0);
+  fputs("y->child->right = ", stdout); vertexLine(y->child->right->vertex, 0);
+  fputs("x = ", stdout); vertexLine( x->vertex, 0);
+  fputs("x->right = ", stdout); vertexLine( x->right->vertex, 0);
+  fputs("x->left = ", stdout); vertexLine( x->left->vertex, 0);
+  fputs("fibHeap->min->right = ", stdout); vertexLine( fibHeap->min->right->vertex, 0);
+  fputs("fibHeap->min = ", stdout); vertexLine( fibHeap->min->vertex, 0);
   if( y->child == y->child->right ){
     y->child = NULL;
   }
