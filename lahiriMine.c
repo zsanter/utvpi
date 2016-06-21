@@ -481,9 +481,9 @@ void johnsonAllPairs(System * system){
       Edge * edge = copy.graph[i][j].first;
       while( edge != NULL ){
         edge->weight += edge->tail->h - edge->head->h;
-	if( edge->weight < 0 ){
-	  fputEdge( edge, stdout );
-	}
+        if( edge->weight < 0 ){
+          fputEdge( edge, stdout );
+        }
         edge = edge->next;
       }
     }
@@ -571,15 +571,15 @@ void dijkstra(System * system, Vertex * vertex){
           && outbound->head->D > outbound->tail->D + outbound->weight ){
         outbound->head->D = outbound->tail->D + outbound->weight;
         if( outbound->head->fibHeapNode == NULL ){
-	  //puts("5.2.5");
-	  fibHeapInsert( &pQueue, outbound->head );
-	  //puts("5.2.6");
+          //puts("5.2.5");
+          fibHeapInsert( &pQueue, outbound->head );
+          //puts("5.2.6");
         }
         else {
-	  //puts("5.2.7");
+          //puts("5.2.7");
           fibHeapDecreaseKey( &pQueue, outbound->head );
-	  //puts("5.2.8");
-	}
+          //puts("5.2.8");
+        }
       }
       outbound = outbound->next;
     }
@@ -633,6 +633,40 @@ void testFibHeap(){
   puts("Sure hope this accomplished something.");
 }
 
+void vertexLine(Vertex * vertex, int level){
+  for(int i = 0; i < level; i++){
+    putchar(' ');
+  }
+  printf("%cx%d - \n", (fhn->vertex->sign == POSITIVE) ? '+' : '-' , fhn->vertex->index, fhn->vertex->D);
+}
+
+void fibHeapVisualize(FibHeap * fibHeap){
+  char entry[10];
+  puts("visualize? y/*");
+  fgets(entry, 10, stdin);
+  if( entry[0] == 'y' ){
+
+    if( fibHeap->min != NULL ){
+      int level = 0;
+      FibHeapNode * fhn = fibHeap->min;
+      while( fhn != NULL ){
+        do {
+          vertexLine( fhn->vertex, level );
+          while( fhn->child != NULL ){
+            level++;
+            fhn = fhn->child;
+            vertexLine( fhn->vertex, level );
+          }
+          fhn = fhn->right;
+        } while( fhn != fhn->parent->child );
+        level--;
+        fhn = fhn->parent;
+      }
+    }
+  }
+  
+}
+
 void fibHeapInsert(FibHeap * fibHeap, Vertex * vertex){
   printf("fibHeapInsert() inserting %cx%d - %p\n", /*vertex->sign*/ (vertex->sign == POSITIVE) ? '+' : '-' , vertex->index, vertex );
   FibHeapNode * newFHN = (FibHeapNode *) malloc( sizeof(FibHeapNode) );
@@ -658,16 +692,17 @@ void fibHeapInsert(FibHeap * fibHeap, Vertex * vertex){
     }
   }
   fibHeap->n++;
+  fibHeapVisualize( fibHeap );
 }
 
 Vertex * fibHeapExtractMin(FibHeap * fibHeap){
   Vertex * output;
-  int i1;
+  //int i1;
   if( fibHeap->min != NULL ){
     output = fibHeap->min->vertex;
-    FibHeapNode * oldFHN = fibHeap->min;
-    printf("fibHeapExtractMin() extracting %cx%d - %p\n", /*oldFHN->vertex->sign*/(oldFHN->vertex->sign == POSITIVE) ? '+' : '-' , oldFHN->vertex->index , output );
-    FibHeapNode * fhn = fibHeap->min;
+    //FibHeapNode * oldFHN = fibHeap->min;
+    printf("fibHeapExtractMin() extracting %cx%d - %p\n", (oldFHN->vertex->sign == POSITIVE) ? '+' : '-' , oldFHN->vertex->index , output );
+    /*FibHeapNode * fhn = fibHeap->min;
     puts("original main heap list:");
     i1 = 0;
     do {
@@ -675,24 +710,24 @@ Vertex * fibHeapExtractMin(FibHeap * fibHeap){
       fhn = fhn->left;
       i1++;
     } while( fhn != fibHeap->min && i1 < 20 );
-    putchar('\n');
+    putchar('\n');*/
     if( fibHeap->min->child != NULL ){
       puts("if( fibHeap->min->child != NULL )");
       FibHeapNode * fhn = fibHeap->min->child;
-      puts("original child list:");
-      puts("5.2.3.1");
+      //puts("original child list:");
+      //puts("5.2.3.1");
       while( fhn->parent != NULL ){
-	printf("%cx%d - %p > ", (fhn->vertex->sign == POSITIVE) ? '+' : '-' , fhn->vertex->index , fhn );
+        //printf("%cx%d - %p > ", (fhn->vertex->sign == POSITIVE) ? '+' : '-' , fhn->vertex->index , fhn );
         fhn->parent == NULL;
         fhn = fhn->left;
       }
-      putchar('\n');
+      /*putchar('\n');
       if( i1 >= 20 ){
-	exit(1);
+        exit(1);
       }
-      puts("5.2.3.2");
+      puts("5.2.3.2");*/
       if( fibHeap->min->right != fibHeap->min ){
-	puts("if( fibHeap->min->right != fibHeap->min )");
+        puts("if( fibHeap->min->right != fibHeap->min )");
         fibHeap->min->right->left = fibHeap->min->child;
         fibHeap->min->child->right->left = fibHeap->min->left;
         fibHeap->min->left->right = fibHeap->min->child->right;
@@ -720,31 +755,33 @@ Vertex * fibHeapExtractMin(FibHeap * fibHeap){
     }
     output->fibHeapNode = NULL;
     if( fibHeap->min != NULL ){
-      i1 = 0;
+      //i1 = 0;
       puts("before consolidate main heap list:");
-      fhn = fibHeap->min;
+      fibHeapVisualize( fibHeap );
+      /*fhn = fibHeap->min;
       do {
-	printf("%cx%d - %p > ", (fhn->vertex->sign == POSITIVE) ? '+' : '-' , fhn->vertex->index , fhn );
-	fhn = fhn->left;
-	i1++;
+        printf("%cx%d - %p > ", (fhn->vertex->sign == POSITIVE) ? '+' : '-' , fhn->vertex->index , fhn );
+        fhn = fhn->left;
+        i1++;
       } while( fhn != fibHeap->min && i1 < 20 );
       putchar('\n');
       if( i1 >= 20 ){
-	exit(1);
-      }
+        exit(1);
+      }*/
       fibHeapConsolidate( fibHeap );
-      i1 = 0;
+      //i1 = 0;
       puts("after consolidate main heap list:");
-      fhn = fibHeap->min;
+      fibHeapVisualize( fibHeap );
+      /*fhn = fibHeap->min;
       do {
-	printf("%cx%d - %p > ", (fhn->vertex->sign == POSITIVE) ? '+' : '-' , fhn->vertex->index , fhn );
-	fhn = fhn->left;
-	i1++;
+        printf("%cx%d - %p > ", (fhn->vertex->sign == POSITIVE) ? '+' : '-' , fhn->vertex->index , fhn );
+        fhn = fhn->left;
+        i1++;
       } while( fhn != fibHeap->min && i1 < 20 );
       putchar('\n');
       if( i1 >= 20 ){
-	exit(1);
-      }
+        exit(1);
+      }*/
     }
     free( oldFHN );
     fibHeap->n--;
@@ -764,19 +801,19 @@ void fibHeapConsolidate(FibHeap * fibHeap){
     A[i] = NULL;
   }
   FibHeapNode * w = fibHeap->min;
-  puts("5.2.3.2.1");
-  int i2 = 0;
+  //puts("5.2.3.2.1");
+  //int i2 = 0;
   do {
-    printf("%cx%d - %p > ", (w->vertex->sign == POSITIVE) ? '+' : '-' , w->vertex->index , w );
+    //printf("%cx%d - %p > ", (w->vertex->sign == POSITIVE) ? '+' : '-' , w->vertex->index , w );
     w->rootListTraverseSeen = false;
     w = w->left;
-    i2++;
-  } while( w != fibHeap->min && i2 < 20 );
-  if( i2 >= 20 ){
+    //i2++;
+  } while( w != fibHeap->min /*&& i2 < 20*/ );
+  /*if( i2 >= 20 ){
     exit(1);
   }
   putchar('\n');
-  puts("5.2.3.2.2");
+  puts("5.2.3.2.2");*/
   while( w->rootListTraverseSeen == false ){
     w->rootListTraverseSeen = true;
     FibHeapNode * nextW = w->left;
@@ -796,7 +833,7 @@ void fibHeapConsolidate(FibHeap * fibHeap){
     A[d] = x;
     w = nextW;
   }
-  puts("5.2.3.2.3");
+  //puts("5.2.3.2.3");
   fibHeap->min = NULL;
   for(int i = 0; i < Alength; i++){
     if( A[i] != NULL ){
@@ -821,7 +858,7 @@ void fibHeapConsolidate(FibHeap * fibHeap){
     puts("fibHeap->min == NULL at end of consolidate()");
     exit(9);
   }
-  puts("5.2.3.2.4");
+  //puts("5.2.3.2.4");
 }
 
 void fibHeapLink(FibHeap * fibHeap, FibHeapNode * y, FibHeapNode * x){
@@ -848,6 +885,7 @@ void fibHeapLink(FibHeap * fibHeap, FibHeapNode * y, FibHeapNode * x){
  * This scenario can cause the heap to violate the min-heap property, making it useless. 
  */
 void fibHeapDecreaseKey(FibHeap * fibHeap, Vertex * vertex){
+  printf("fibHeapDecreaseKey() decreasing key of %cx%d - %p\n", /*vertex->sign*/ (vertex->sign == POSITIVE) ? '+' : '-' , vertex->index, vertex );
   FibHeapNode * x = vertex->fibHeapNode;
   FibHeapNode * y = x->parent;
   if( y != NULL && x->vertex->D < y->vertex->D ){
@@ -857,6 +895,7 @@ void fibHeapDecreaseKey(FibHeap * fibHeap, Vertex * vertex){
   if( x->vertex->D < fibHeap->min->vertex->D ){
     fibHeap->min = x;
   }
+  fibHeapVisualize( fibHeap );  
 }
 
 void fibHeapCut(FibHeap * fibHeap, FibHeapNode * x, FibHeapNode * y){
