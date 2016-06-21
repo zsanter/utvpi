@@ -2,6 +2,8 @@
 #include <string.h>
 
 void testFibHeap();
+void fibHeapVisualize(FibHeap * fibHeap);
+void vertexLine(Vertex * vertex, int level);
 
 int main(int argc, char * argv[]){
   //printf("NEGATIVE = %d, POSITIVE = %d, !NEGATIVE = %d , !POSITIVE = %d\n", NEGATIVE, POSITIVE, !NEGATIVE, !POSITIVE );
@@ -275,13 +277,16 @@ int lahiri(System * Gphi){
   johnsonAllPairs( Gphi );
   //puts("6");
   noHeadIndicesHigherThanTailIndeces( Gphi );
-  //puts("7");
+  puts("lahiri considers:");
   for(int j = 0; j < Gphi->n; j++){
     int upperBound = INT_MAX;
     int lowerBound = INT_MIN;
     for(VertexSign i = POSITIVE; i <= NEGATIVE; i++){
+      vertexLine( &Gphi->graph[i][j], 0 );
       Edge * edge = Gphi->graph[i][j].first;
       while( edge != NULL ){
+	vertexLine( edge->head, 2 );
+	fputEdge( edge, stdout );
         int potentialNewUpperBound = INT_MAX;
         int potentialNewLowerBound = INT_MIN;
         if( edge->tail->index == edge->head->index ){
@@ -327,6 +332,12 @@ int lahiri(System * Gphi){
           }
           //fprintf(output, "%cx%d %cx%d <= %d\n", sign[0], edge->tail->index, sign[1], edge->head->index, edge->weight);
         }
+        if( potentialNewUpperBound != INT_MAX ){
+	  printf("potentialNewUpperBound = %d\n", potentialNewUpperBound );
+	}
+	if( potentialNewLowerBound != INT_MIN ){
+	  printf("potentialNewLowerBound = %d\n", potentialNewLowerBound );
+	}
         if( potentialNewUpperBound < upperBound ){
           upperBound = potentialNewUpperBound;
         }
@@ -337,6 +348,7 @@ int lahiri(System * Gphi){
         edge = edge->next;
       }  
     }
+    printf("upperBound = %d, lowerBound = %d\n", upperBound, lowerBound );
     int solution;
     if( upperBound == INT_MAX && lowerBound == INT_MIN ){
       solution = 0;
@@ -348,8 +360,9 @@ int lahiri(System * Gphi){
       solution = upperBound;
     }
     else {
-      solution = upperBound/2 + lowerBound/2;
+      solution = (upperBound + lowerBound)/2;
     }
+    printf("rho = %d\n", solution);
     Gphi->graph[POSITIVE][j].rho = solution;
     Gphi->graph[NEGATIVE][j].rho = solution;
   }
@@ -488,12 +501,14 @@ void johnsonAllPairs(System * system){
       }
     }
   }
-  //puts("5.2");
+  puts("Dijkstra covers:");
   for(VertexSign i = POSITIVE; i <= NEGATIVE; i++){
     for(int j = 0; j < system->n; j++){
       Vertex * copyTail = &copy.graph[i][j];
       Vertex * copyHead = &copy.graph[!i][j];
       dijkstra( &copy, copyTail );
+      fputs("tail: ", stdout); vertexLine(copyTail, 0);
+      fputs("head: ", stdout); vertexLine(copyHead, 0);
       int weight = copyHead->D;
       if( weight != INT_MAX ){
         weight += copyHead->h - copyTail->h;
@@ -509,6 +524,7 @@ void johnsonAllPairs(System * system){
         newEdge->next = systemTail->first;
         systemTail->first = newEdge;
         newEdge->backtrackSeen = false;
+	fputEdge( newEdge, stdout );
       }
     }
   }
@@ -554,10 +570,10 @@ void dijkstra(System * system, Vertex * vertex){
   //puts("5.2.1");
   fibHeapInsert( &pQueue, vertex );
   //puts("5.2.2");
-  int i3 = 0;
+  //int i3 = 0;
   while( pQueue.n > 0 ){
-    printf("i3 = %d, pQueue.n = %d\n", i3, pQueue.n );
-    i3++;
+    //printf("i3 = %d, pQueue.n = %d\n", i3, pQueue.n );
+    //i3++;
     //puts("5.2.3");
     Vertex * current = fibHeapExtractMin( &pQueue );
     if( current == NULL ){
@@ -567,9 +583,11 @@ void dijkstra(System * system, Vertex * vertex){
     current->dijkstraFinalized = true;
     Edge * outbound = current->first;
     while( outbound != NULL ){
-      if( outbound->head->dijkstraFinalized == false 
-          && outbound->head->D > outbound->tail->D + outbound->weight ){
-        outbound->head->D = outbound->tail->D + outbound->weight;
+      if( outbound->head->D > outbound->tail->D + outbound->weight ){
+	if( outbound->head->dijkstraFinalized == true ){
+	  fputs("pQueue failure ", stdout); vertexLine( outbound->head, 0 );
+	}
+	outbound->head->D = outbound->tail->D + outbound->weight;
         if( outbound->head->fibHeapNode == NULL ){
           //puts("5.2.5");
           fibHeapInsert( &pQueue, outbound->head );
@@ -670,7 +688,7 @@ void fibHeapVisualize(FibHeap * fibHeap){
 }
 
 void fibHeapInsert(FibHeap * fibHeap, Vertex * vertex){
-  printf("fibHeapInsert() inserting %cx%d - %p\n", /*vertex->sign*/ (vertex->sign == POSITIVE) ? '+' : '-' , vertex->index, vertex );
+  //printf("fibHeapInsert() inserting %cx%d - %p\n", /*vertex->sign*/ (vertex->sign == POSITIVE) ? '+' : '-' , vertex->index, vertex );
   FibHeapNode * newFHN = (FibHeapNode *) malloc( sizeof(FibHeapNode) );
   newFHN->degree = 0;
   newFHN->parent = NULL;
@@ -703,7 +721,7 @@ Vertex * fibHeapExtractMin(FibHeap * fibHeap){
   if( fibHeap->min != NULL ){
     output = fibHeap->min->vertex;
     FibHeapNode * oldFHN = fibHeap->min;
-    printf("fibHeapExtractMin() extracting %cx%d - %p\n", (oldFHN->vertex->sign == POSITIVE) ? '+' : '-' , oldFHN->vertex->index , output );
+    //printf("fibHeapExtractMin() extracting %cx%d - %p\n", (oldFHN->vertex->sign == POSITIVE) ? '+' : '-' , oldFHN->vertex->index , output );
     /*FibHeapNode * fhn = fibHeap->min;
     puts("original main heap list:");
     i1 = 0;
@@ -714,7 +732,7 @@ Vertex * fibHeapExtractMin(FibHeap * fibHeap){
     } while( fhn != fibHeap->min && i1 < 20 );
     putchar('\n');*/
     if( fibHeap->min->child != NULL ){
-      puts("if( fibHeap->min->child != NULL )");
+      //puts("if( fibHeap->min->child != NULL )");
       FibHeapNode * fhn = fibHeap->min->child;
       //puts("original child list:");
       //puts("5.2.3.1");
@@ -729,7 +747,7 @@ Vertex * fibHeapExtractMin(FibHeap * fibHeap){
       }
       puts("5.2.3.2");*/
       if( fibHeap->min->right != fibHeap->min ){
-        puts("if( fibHeap->min->right != fibHeap->min )");
+        //puts("if( fibHeap->min->right != fibHeap->min )");
         fibHeap->min->right->left = fibHeap->min->child;
         fibHeap->min->child->right->left = fibHeap->min->left;
         fibHeap->min->left->right = fibHeap->min->child->right;
@@ -738,7 +756,7 @@ Vertex * fibHeapExtractMin(FibHeap * fibHeap){
       fibHeap->min = fibHeap->min->child;
     }
     else if( fibHeap->min->right != fibHeap->min ){
-      puts("else if( fibHeap->min->right != fibHeap->min )");
+      //puts("else if( fibHeap->min->right != fibHeap->min )");
       /*printf("fibHeap->min = %cx%d\n", (fibHeap->min->vertex->sign == POSITIVE) ? '+' : '-' , fibHeap->min->vertex->index);
       printf("fibHeap->min->right = %cx%d\n", (fibHeap->min->right->vertex->sign == POSITIVE) ? '+' : '-' , fibHeap->min->right->vertex->index);
       printf("fibHeap->min->left = %cx%d\n", (fibHeap->min->left->vertex->sign == POSITIVE) ? '+' : '-' , fibHeap->min->left->vertex->index);
@@ -752,13 +770,13 @@ Vertex * fibHeapExtractMin(FibHeap * fibHeap){
       printf("fibHeap->min->left = %cx%d\n", (fibHeap->min->left->vertex->sign == POSITIVE) ? '+' : '-' , fibHeap->min->left->vertex->index);*/
     }
     else {
-      puts("else");
+      //puts("else");
       fibHeap->min = NULL;
     }
     output->fibHeapNode = NULL;
     if( fibHeap->min != NULL ){
       //i1 = 0;
-      puts("before consolidate main heap list:");
+      //puts("before consolidate main heap list:");
       fibHeapVisualize( fibHeap );
       /*fhn = fibHeap->min;
       do {
@@ -772,7 +790,7 @@ Vertex * fibHeapExtractMin(FibHeap * fibHeap){
       }*/
       fibHeapConsolidate( fibHeap );
       //i1 = 0;
-      puts("after consolidate main heap list:");
+      //puts("after consolidate main heap list:");
       fibHeapVisualize( fibHeap );
       /*fhn = fibHeap->min;
       do {
@@ -789,7 +807,7 @@ Vertex * fibHeapExtractMin(FibHeap * fibHeap){
     fibHeap->n--;
   }
   else {
-    puts( "fibHeapExtractMin() returns NULL");
+    //puts( "fibHeapExtractMin() returns NULL");
     output = NULL;
   }
   return output;
@@ -888,12 +906,12 @@ void fibHeapLink(FibHeap * fibHeap, FibHeapNode * y, FibHeapNode * x){
  * This scenario can cause the heap to violate the min-heap property, making it useless. 
  */
 void fibHeapDecreaseKey(FibHeap * fibHeap, Vertex * vertex){
-  printf("fibHeapDecreaseKey() decreasing key of %cx%d - %p\n", /*vertex->sign*/ (vertex->sign == POSITIVE) ? '+' : '-' , vertex->index, vertex );
+  //printf("fibHeapDecreaseKey() decreasing key of %cx%d - %p\n", /*vertex->sign*/ (vertex->sign == POSITIVE) ? '+' : '-' , vertex->index, vertex );
   FibHeapNode * x = vertex->fibHeapNode;
   FibHeapNode * y = x->parent;
-  if( y == NULL ){
+  /*if( y == NULL ){
     puts( "x->parent == NULL");
-  }
+  }*/
   if( y != NULL && x->vertex->D < y->vertex->D ){
     fibHeapCut(fibHeap, x, y);
     fibHeapCascadingCut(fibHeap, y);
@@ -905,13 +923,13 @@ void fibHeapDecreaseKey(FibHeap * fibHeap, Vertex * vertex){
 }
 
 void fibHeapCut(FibHeap * fibHeap, FibHeapNode * x, FibHeapNode * y){
-  fputs("y->child = ", stdout); vertexLine(y->child->vertex, 0);
-  fputs("y->child->right = ", stdout); vertexLine(y->child->right->vertex, 0);
-  fputs("x = ", stdout); vertexLine( x->vertex, 0);
-  fputs("x->right = ", stdout); vertexLine( x->right->vertex, 0);
-  fputs("x->left = ", stdout); vertexLine( x->left->vertex, 0);
-  fputs("fibHeap->min->right = ", stdout); vertexLine( fibHeap->min->right->vertex, 0);
-  fputs("fibHeap->min = ", stdout); vertexLine( fibHeap->min->vertex, 0);
+  //fputs("y->child = ", stdout); vertexLine(y->child->vertex, 0);
+  //fputs("y->child->right = ", stdout); vertexLine(y->child->right->vertex, 0);
+  //fputs("x = ", stdout); vertexLine( x->vertex, 0);
+  //fputs("x->right = ", stdout); vertexLine( x->right->vertex, 0);
+  //fputs("x->left = ", stdout); vertexLine( x->left->vertex, 0);
+  //fputs("fibHeap->min->right = ", stdout); vertexLine( fibHeap->min->right->vertex, 0);
+  //fputs("fibHeap->min = ", stdout); vertexLine( fibHeap->min->vertex, 0);
   if( y->child == y->child->right ){
     y->child = NULL;
   }
@@ -950,7 +968,7 @@ void noHeadIndicesHigherThanTailIndeces( System * system ){
       Edge * edge = system->graph[i][j].first;
       while( edge != NULL ){
         Edge * next = edge->next;
-        if( edge->tail->index >= edge->head->index ){
+        if( edge->head->index <= edge->tail->index ){
           if( prior == NULL ){
             system->graph[i][j].first = edge;
           }
