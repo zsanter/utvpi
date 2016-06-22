@@ -1,7 +1,7 @@
-#include "lahiriMine.h"
+#include "lahiri.h"
 #include <string.h>
 
-void testFibHeap();
+//void testFibHeap();
 void fibHeapVisualize(FibHeap * fibHeap);
 void vertexLine(Vertex * vertex, int level);
 
@@ -13,10 +13,10 @@ int main(int argc, char * argv[]){
     fprintf( stderr, "Proper use is %s [input file] {output file}.\nIf no output file is specified, output is to stdout.\n", argv[0] );
     exit(1);
   }
-  if( strcmp( argv[1], "testFibHeap") == 0 ){
+  /*if( strcmp( argv[1], "testFibHeap") == 0 ){
     testFibHeap();
     return 0;
-  }
+  }*/
   
   FILE * input = fopen( argv[1], "r");
   if( input == NULL ){
@@ -43,7 +43,10 @@ int main(int argc, char * argv[]){
   }
   time_t afterSystemCreation = clock();
   Edge * negativeCycle = bellmanFord(&system);
+  time_t afterLinear = clock();
+  int f;
   if( negativeCycle != NULL ){
+    f = 0;
     fputs("The following negative cost cycle was detected:\n", output);
     Edge * edge = negativeCycle;
     while( edge->backtrackSeen == true ){
@@ -60,25 +63,29 @@ int main(int argc, char * argv[]){
     }
     int infeasibleVertexIndex = lahiri(&system);
     if( infeasibleVertexIndex >= 0 ){
+      f = 1;
       fputs("\nSystem is not integrally feasible.\nProof:\n", output);
       int k = system.graph[NEGATIVE][infeasibleVertexIndex].D - system.graph[POSITIVE][infeasibleVertexIndex].D;
       fprintf(output, "-x%d <= %d\n", infeasibleVertexIndex + 1, (k-1)/2 );
       fprintf(output, "+x%d <= %d\n", infeasibleVertexIndex + 1, (-k-1)/2 );
     }
     else {
+      f = 2;
       fputs("\nIntegral solution:\n", output);
       for(int i = 0; i < system.n; i++){
         fprintf(output, "x%i = %i\n", i + 1, system.graph[POSITIVE][i].rho );
       }
     }
   }
+  time_t afterIntegral = clock();  
   fclose(output);
-  time_t afterSolutionOutput = clock();
   freeSystem(&system);
   time_t afterCleanup = clock();
+  printf("%d,", f);
   printf("%f,", ((double)(afterSystemCreation - beginning))/CLOCKS_PER_SEC );
-  printf("%f,,", ((double)(afterSolutionOutput - afterSystemCreation))/CLOCKS_PER_SEC );
-  printf("%f,", ((double)(afterCleanup - afterSolutionOutput))/CLOCKS_PER_SEC );
+  printf("%f,", ((double)(afterLinear - afterSystemCreation))/CLOCKS_PER_SEC );
+  printf("%f,", ((double)(afterIntegral - afterLinear))/CLOCKS_PER_SEC );
+  printf("%f,", ((double)(afterCleanup - afterIntegral))/CLOCKS_PER_SEC );
   printf("%f,", ((double)(afterCleanup - beginning))/CLOCKS_PER_SEC );
   return 0;
 }
@@ -625,7 +632,7 @@ void dijkstra(System * system, Vertex * source){
   
 }
 
-void testFibHeap(){
+/*void testFibHeap(){
   Vertex vertices[100];
 
   FibHeap fibHeap;
@@ -669,7 +676,7 @@ void testFibHeap(){
     }
   }
   puts("Sure hope this accomplished something.");
-}
+}*/
 
 void vertexLine(Vertex * vertex, int level){
   for(int i = 0; i < level; i++){

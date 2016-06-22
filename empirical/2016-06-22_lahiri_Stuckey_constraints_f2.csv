@@ -1,0 +1,121 @@
+input file,variables,constraints,f,setup,linear,integer,cleanup,total,user,system,maximum resident set size (kb)
+input/test_n1000_m10000_f2_no1.utv,1000,10000,Command terminated by signal 2
+0.04,0.01,2560
+input/test_n1000_m10000_f2_no2.utv,1000,10000,Command terminated by signal 2
+0.13,0.01,2552
+input/test_n1000_m10000_f2_no3.utv,1000,10000,Command terminated by signal 2
+0.13,0.01,2596
+input/test_n1000_m20000_f2_no1.utv,1000,20000,Command terminated by signal 2
+0.36,0.02,3536
+input/test_n1000_m20000_f2_no2.utv,1000,20000,Command terminated by signal 2
+0.04,0.01,3544
+input/test_n1000_m20000_f2_no3.utv,1000,20000,Command terminated by signal 2
+0.16,0.01,3568
+input/test_n1000_m30000_f2_no1.utv,1000,30000,Command terminated by signal 2
+0.10,0.03,4472
+input/test_n1000_m30000_f2_no2.utv,1000,30000,Command terminated by signal 2
+0.16,0.02,4448
+input/test_n1000_m30000_f2_no3.utv,1000,30000,Command terminated by signal 2
+0.17,0.02,4448
+input/test_n1000_m40000_f2_no1.utv,1000,40000,Command terminated by signal 2
+0.04,0.02,4536
+input/test_n1000_m40000_f2_no2.utv,1000,40000,Command terminated by signal 2
+0.11,0.03,5400
+input/test_n1000_m40000_f2_no3.utv,1000,40000,Command terminated by signal 2
+0.18,0.04,5400
+input/test_n1000_m50000_f2_no1.utv,1000,50000,Command terminated by signal 2
+0.09,0.05,6260
+input/test_n1000_m50000_f2_no2.utv,1000,50000,Command terminated by signal 2
+0.10,0.03,6328
+input/test_n1000_m50000_f2_no3.utv,1000,50000,Command terminated by signal 2
+0.10,0.03,6348
+input/test_n1000_m60000_f2_no1.utv,1000,60000,Command terminated by signal 2
+0.14,0.05,7276
+input/test_n1000_m60000_f2_no2.utv,1000,60000,Command terminated by signal 2
+0.07,0.04,6232
+input/test_n1000_m60000_f2_no3.utv,1000,60000,Command terminated by signal 2
+0.04,0.04,5372
+input/test_n1000_m70000_f2_no1.utv,1000,70000,Command terminated by signal 2
+0.11,0.04,8200
+input/test_n1000_m70000_f2_no2.utv,1000,70000,Command terminated by signal 2
+0.12,0.05,8224
+input/test_n1000_m70000_f2_no3.utv,1000,70000,Command terminated by signal 2
+0.08,0.06,7992
+input/test_n1000_m80000_f2_no1.utv,1000,80000,Command terminated by signal 2
+0.10,0.05,8504
+input/test_n1000_m80000_f2_no2.utv,1000,80000,Command terminated by signal 2
+0.08,0.08,8560
+input/test_n1000_m80000_f2_no3.utv,1000,80000,Command terminated by signal 2
+0.09,0.07,8880
+input/test_n1000_m90000_f2_no1.utv,1000,90000,Command terminated by signal 2
+0.08,0.06,8312
+input/test_n1000_m90000_f2_no2.utv,1000,90000,Command terminated by signal 2
+0.09,0.05,8068
+input/test_n1000_m90000_f2_no3.utv,1000,90000,Command terminated by signal 2
+0.12,0.03,8792
+input/test_n1000_m100000_f2_no1.utv,1000,100000,Command terminated by signal 2
+0.12,0.05,9304
+input/test_n1000_m100000_f2_no2.utv,1000,100000,Command terminated by signal 2
+0.10,0.05,8484
+input/test_n1000_m100000_f2_no3.utv,1000,100000,Command terminated by signal 2
+0.12,0.04,9228
+input/test_n1000_m110000_f2_no1.utv,1000,110000,Command terminated by signal 2
+0.02,0.02,3564
+input/test_n1000_m110000_f2_no2.utv,1000,110000,Command terminated by signal 2
+0.06,0.07,7532
+input/test_n1000_m110000_f2_no3.utv,1000,110000,Command terminated by signal 2
+0.10,0.05,8324
+input/test_n1000_m120000_f2_no1.utv,1000,120000,Command terminated by signal 2
+0.09,0.03,6952
+input/test_n1000_m120000_f2_no2.utv,1000,120000,Command terminated by signal 2
+0.39,0.09,12884
+input/test_n1000_m120000_f2_no3.utv,1000,120000,Command terminated by signal 2
+0.01,0.00,2268
+input/test_n1000_m130000_f2_no1.utv,1000,130000,Command terminated by signal 2
+0.00,0.00,1488
+input/test_n1000_m130000_f2_no2.utv,1000,130000,Command terminated by signal 2
+0.00,0.01,2388
+input/test_n1000_m130000_f2_no3.utv,1000,130000,Command terminated by signal 2
+0.02,0.00,2292
+input/test_n1000_m140000_f2_no1.utv,1000,140000,Command terminated by signal 2
+0.00,0.00,2020
+input/test_n1000_m140000_f2_no2.utv,1000,140000,Command terminated by signal 2
+0.00,0.00,1468
+input/test_n1000_m140000_f2_no3.utv,1000,140000,Command terminated by signal 2
+0.00,0.00,1708
+input/test_n1000_m150000_f2_no1.utv,1000,150000,Command terminated by signal 2
+0.01,0.00,2336
+input/test_n1000_m150000_f2_no2.utv,1000,150000,Command terminated by signal 2
+0.01,0.00,2244
+input/test_n1000_m150000_f2_no3.utv,1000,150000,Command terminated by signal 2
+0.00,0.00,1996
+input/test_n1000_m160000_f2_no1.utv,1000,160000,Command terminated by signal 2
+0.00,0.00,1608
+input/test_n1000_m160000_f2_no2.utv,1000,160000,Command terminated by signal 2
+0.00,0.00,1836
+input/test_n1000_m160000_f2_no3.utv,1000,160000,Command terminated by signal 2
+0.00,0.00,1964
+input/test_n1000_m170000_f2_no1.utv,1000,170000,Command terminated by signal 2
+0.00,0.00,1792
+input/test_n1000_m170000_f2_no2.utv,1000,170000,Command terminated by signal 2
+0.01,0.00,1912
+input/test_n1000_m170000_f2_no3.utv,1000,170000,Command terminated by signal 2
+0.00,0.00,1864
+input/test_n1000_m180000_f2_no1.utv,1000,180000,Command terminated by signal 2
+0.00,0.00,1892
+input/test_n1000_m180000_f2_no2.utv,1000,180000,Command terminated by signal 2
+0.00,0.00,1716
+input/test_n1000_m180000_f2_no3.utv,1000,180000,Command terminated by signal 2
+0.00,0.00,1784
+input/test_n1000_m190000_f2_no1.utv,1000,190000,Command terminated by signal 2
+0.00,0.00,1840
+input/test_n1000_m190000_f2_no2.utv,1000,190000,Command terminated by signal 2
+0.00,0.00,1812
+input/test_n1000_m190000_f2_no3.utv,1000,190000,Command terminated by signal 2
+0.00,0.00,1824
+input/test_n1000_m200000_f2_no1.utv,1000,200000,Command terminated by signal 2
+0.01,0.00,1948
+input/test_n1000_m200000_f2_no2.utv,1000,200000,Command terminated by signal 2
+0.00,0.00,540
+input/test_n1000_m200000_f2_no3.utv,1000,200000,Command terminated by signal 2
+0.00,0.00,1492
