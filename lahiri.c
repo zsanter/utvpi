@@ -8,6 +8,7 @@ void vertexLine(Vertex * vertex, int level);
 int main(int argc, char * argv[]){
   //printf("NEGATIVE = %d, POSITIVE = %d, !NEGATIVE = %d , !POSITIVE = %d\n", NEGATIVE, POSITIVE, !NEGATIVE, !POSITIVE );
   //printf("NULL = %p\n", NULL );
+  //printf("sizeof(OldVertex) = %d, sizeof(Vertex) = %d\n", (int) sizeof(OldVertex), (int) sizeof(Vertex) );
   clock_t beginning = clock();
   if( argc != 2 && argc != 3 ){
     fprintf( stderr, "Proper use is %s [input file] {output file}.\nIf no output file is specified, output is to stdout.\n", argv[0] );
@@ -130,6 +131,24 @@ void fputEdge(Edge * edge, FILE * output){
   }
 }
 
+/*
+  union {
+    struct {
+      DFScolor dfsColor;
+      int discoveryTime;
+      int finishingTime;
+      int sccNumber;
+    };
+    struct {
+      int h;
+      int rho;
+      bool dijkstraFinalized;
+      FibHeapNode * fibHeapNode;
+    };
+  };
+
+ */
+
 void initializeSystem(void * object, int n, Parser * parser){
   System * system = (System *) object;
   system->n = n;
@@ -141,14 +160,25 @@ void initializeSystem(void * object, int n, Parser * parser){
       system->graph[i][j].L = NULL;
       system->graph[i][j].D = 0;
       system->graph[i][j].first = NULL;
-      system->graph[i][j].rho = INT_MAX;
+      //system->graph[i][j].rho = INT_MAX;
       system->graph[i][j].dfsColor = WHITE;
       system->graph[i][j].discoveryTime = 0;
       system->graph[i][j].finishingTime = 0;
       system->graph[i][j].sccNumber = 0;
+      //system->graph[i][j].h = 0;
+      //system->graph[i][j].dijkstraFinalized = false;
+      //system->graph[i][j].fibHeapNode = NULL;
+    }
+  }
+}
+
+void setSystemForJohnson(System * system){
+  for(VertexSign i = POSITIVE; i <= NEGATIVE; i++){
+    for(int j = 0; j < system->n; j++){
       system->graph[i][j].h = 0;
       system->graph[i][j].dijkstraFinalized = false;
       system->graph[i][j].fibHeapNode = NULL;
+      system->graph[i][j].rho = INT_MAX;
     }
   }
 }
@@ -281,6 +311,7 @@ int lahiri(System * Gphi){
     return output;
   }
   //puts("5");
+  setSystemForJohnson( Gphi );
   System Cstar;
   johnsonAllPairs( Gphi, &Cstar );
   //puts("6");
@@ -492,6 +523,7 @@ int vertexCompareFinishingTimes(const void * vertex1, const void * vertex2){
  */
 void johnsonAllPairs(System * Gphi, System * Cstar){
   initializeSystem( Cstar, Gphi->n, NULL );
+  setSystemForJohnson( Cstar );
   for(VertexSign i = POSITIVE; i <= NEGATIVE; i++){
     for(int j = 0; j < Gphi->n; j++){
       //fputs("distance label arising from Bellman-Ford: ", stdout); vertexLine( &Gphi->graph[i][j], 0);

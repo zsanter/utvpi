@@ -1,121 +1,26 @@
 input file,variables,constraints,f,setup,linear,integer,cleanup,total,user,system,maximum resident set size (kb)
-input/test_n1000_m100000_f2_no1.utv,1000,100000,Command terminated by signal 2
-0.08,0.05,7280
-input/test_n1000_m100000_f2_no2.utv,1000,100000,Command terminated by signal 2
-0.11,0.04,8512
-input/test_n1000_m100000_f2_no3.utv,1000,100000,Command terminated by signal 2
-0.13,0.04,9436
-input/test_n2000_m100000_f2_no1.utv,2000,100000,Command terminated by signal 2
-0.10,0.05,8612
-input/test_n2000_m100000_f2_no2.utv,2000,100000,Command terminated by signal 2
-0.25,0.09,11140
-input/test_n2000_m100000_f2_no3.utv,2000,100000,Command terminated by signal 2
-0.11,0.05,9132
-input/test_n3000_m100000_f2_no1.utv,3000,100000,Command terminated by signal 2
-0.12,0.05,9512
-input/test_n3000_m100000_f2_no2.utv,3000,100000,Command terminated by signal 2
-0.10,0.08,9216
-input/test_n3000_m100000_f2_no3.utv,3000,100000,Command terminated by signal 2
-0.25,0.04,11272
-input/test_n4000_m100000_f2_no1.utv,4000,100000,Command terminated by signal 2
-0.11,0.05,8884
-input/test_n4000_m100000_f2_no2.utv,4000,100000,Command terminated by signal 2
-0.10,0.04,8232
-input/test_n4000_m100000_f2_no3.utv,4000,100000,Command terminated by signal 2
-0.12,0.04,9324
-input/test_n5000_m100000_f2_no1.utv,5000,100000,Command terminated by signal 2
-0.11,0.04,8680
-input/test_n5000_m100000_f2_no2.utv,5000,100000,Command terminated by signal 2
-0.11,0.06,9536
-input/test_n5000_m100000_f2_no3.utv,5000,100000,Command terminated by signal 2
-0.08,0.07,8904
-input/test_n6000_m100000_f2_no1.utv,6000,100000,Command terminated by signal 2
-0.11,0.04,9380
-input/test_n6000_m100000_f2_no2.utv,6000,100000,Command terminated by signal 2
-0.08,0.06,8724
-input/test_n6000_m100000_f2_no3.utv,6000,100000,Command terminated by signal 2
-0.09,0.05,8608
-input/test_n7000_m100000_f2_no1.utv,7000,100000,Command terminated by signal 2
-0.07,0.07,8536
-input/test_n7000_m100000_f2_no2.utv,7000,100000,Command terminated by signal 2
-0.11,0.05,9308
-input/test_n7000_m100000_f2_no3.utv,7000,100000,Command terminated by signal 2
-0.11,0.05,9596
-input/test_n8000_m100000_f2_no1.utv,8000,100000,Command terminated by signal 2
-0.10,0.04,8508
-input/test_n8000_m100000_f2_no2.utv,8000,100000,Command terminated by signal 2
-0.09,0.03,7688
-input/test_n8000_m100000_f2_no3.utv,8000,100000,Command terminated by signal 2
-0.12,0.04,9792
-input/test_n9000_m100000_f2_no1.utv,9000,100000,Command terminated by signal 2
-0.03,0.04,5512
-input/test_n9000_m100000_f2_no2.utv,9000,100000,Command terminated by signal 2
-0.06,0.02,6460
-input/test_n9000_m100000_f2_no3.utv,9000,100000,Command terminated by signal 2
-0.08,0.02,7008
-input/test_n10000_m100000_f2_no1.utv,10000,100000,Command terminated by signal 2
-0.07,0.06,8636
-input/test_n10000_m100000_f2_no2.utv,10000,100000,Command terminated by signal 2
-0.10,0.04,8564
-input/test_n10000_m100000_f2_no3.utv,10000,100000,Command terminated by signal 2
-0.09,0.05,8324
-input/test_n11000_m100000_f2_no1.utv,11000,100000,Command terminated by signal 2
-0.52,0.08,12444
-input/test_n11000_m100000_f2_no2.utv,11000,100000,Command terminated by signal 2
-0.09,0.02,7752
-input/test_n11000_m100000_f2_no3.utv,11000,100000,Command terminated by signal 2
-0.04,0.04,6112
-input/test_n12000_m100000_f2_no1.utv,12000,100000,Command terminated by signal 2
-0.13,0.06,11144
-input/test_n12000_m100000_f2_no2.utv,12000,100000,Command terminated by signal 2
-0.06,0.04,7248
-input/test_n12000_m100000_f2_no3.utv,12000,100000,Command terminated by signal 2
-0.06,0.02,6428
-input/test_n13000_m100000_f2_no1.utv,13000,100000,Command terminated by signal 2
-0.06,0.05,7736
-input/test_n13000_m100000_f2_no2.utv,13000,100000,Command terminated by signal 2
-0.04,0.02,5864
-input/test_n13000_m100000_f2_no3.utv,13000,100000,Command terminated by signal 2
-0.06,0.02,5788
-input/test_n14000_m100000_f2_no1.utv,14000,100000,Command terminated by signal 2
-0.03,0.06,7068
-input/test_n14000_m100000_f2_no2.utv,14000,100000,Command terminated by signal 2
-0.03,0.04,6032
-input/test_n14000_m100000_f2_no3.utv,14000,100000,Command terminated by signal 2
-0.04,0.03,6260
-input/test_n15000_m100000_f2_no1.utv,15000,100000,Command terminated by signal 2
-0.04,0.03,6552
-input/test_n15000_m100000_f2_no2.utv,15000,100000,Command terminated by signal 2
-0.05,0.02,5920
-input/test_n15000_m100000_f2_no3.utv,15000,100000,Command terminated by signal 2
-0.03,0.02,5812
-input/test_n16000_m100000_f2_no1.utv,16000,100000,Command terminated by signal 2
-0.04,0.02,6032
-input/test_n16000_m100000_f2_no2.utv,16000,100000,Command terminated by signal 2
-0.06,0.02,6888
-input/test_n16000_m100000_f2_no3.utv,16000,100000,Command terminated by signal 2
-0.05,0.04,7320
-input/test_n17000_m100000_f2_no1.utv,17000,100000,Command terminated by signal 2
-0.06,0.02,6776
-input/test_n17000_m100000_f2_no2.utv,17000,100000,Command terminated by signal 2
-0.06,0.02,7136
-input/test_n17000_m100000_f2_no3.utv,17000,100000,Command terminated by signal 2
-0.06,0.04,7536
-input/test_n18000_m100000_f2_no1.utv,18000,100000,Command terminated by signal 2
-0.08,0.02,7776
-input/test_n18000_m100000_f2_no2.utv,18000,100000,Command terminated by signal 2
-0.05,0.04,7248
-input/test_n18000_m100000_f2_no3.utv,18000,100000,Command terminated by signal 2
-0.06,0.03,7352
-input/test_n19000_m100000_f2_no1.utv,19000,100000,Command terminated by signal 2
-0.05,0.03,7400
-input/test_n19000_m100000_f2_no2.utv,19000,100000,Command terminated by signal 2
-0.07,0.03,7728
-input/test_n19000_m100000_f2_no3.utv,19000,100000,Command terminated by signal 2
-0.07,0.06,8996
-input/test_n20000_m100000_f2_no1.utv,20000,100000,Command terminated by signal 2
-0.09,0.02,8404
-input/test_n20000_m100000_f2_no2.utv,20000,100000,Command terminated by signal 2
-0.05,0.04,7932
-input/test_n20000_m100000_f2_no3.utv,20000,100000,Command terminated by signal 2
-0.06,0.03,7384
+input/test_n1000_m100000_f2_no1.utv,1000,100000,2,0.203214,36.155425,40.964716,0.062563,77.385918,77.02,0.36,105332
+input/test_n1000_m100000_f2_no2.utv,1000,100000,2,0.214754,36.177657,42.949703,0.068069,79.410183,79.08,0.33,105348
+input/test_n1000_m100000_f2_no3.utv,1000,100000,2,0.209158,40.558555,45.770142,0.069077,86.606932,86.20,0.40,105236
+input/test_n2000_m100000_f2_no1.utv,2000,100000,2,0.212341,83.203141,106.261351,0.031391,189.708224,188.69,1.02,386948
+input/test_n2000_m100000_f2_no2.utv,2000,100000,2,0.212228,85.916562,108.453084,0.033274,194.615148,193.41,1.20,387016
+input/test_n2000_m100000_f2_no3.utv,2000,100000,2,0.215940,88.830769,106.940869,0.031346,196.018924,194.93,1.09,386932
+input/test_n3000_m100000_f2_no1.utv,3000,100000,2,0.220823,137.132462,179.989337,0.031664,317.374286,315.18,2.19,856008
+input/test_n3000_m100000_f2_no2.utv,3000,100000,2,0.218012,136.447230,183.635930,0.032182,320.333354,318.06,2.27,856196
+input/test_n3000_m100000_f2_no3.utv,3000,100000,2,0.215726,136.729968,186.657466,0.035009,323.638169,321.48,2.15,856204
+input/test_n4000_m100000_f2_no1.utv,4000,100000,2,0.222005,191.719136,280.695874,0.033336,472.670351,463.70,9.06,1511564
+input/test_n4000_m100000_f2_no2.utv,4000,100000,2,0.220694,193.972319,275.939977,0.033578,470.166568,466.45,3.71,1512588
+input/test_n4000_m100000_f2_no3.utv,4000,100000,2,0.221181,190.464149,277.050219,0.038181,467.773730,462.36,5.62,1511684
+input/test_n5000_m100000_f2_no1.utv,5000,100000,2,0.231869,249.031759,406.483929,0.036109,655.783666,628.78,27.29,1753276
+input/test_n5000_m100000_f2_no2.utv,5000,100000,Command terminated by signal 9
+588.77,6.62,1568296
+input/test_n5000_m100000_f2_no3.utv,5000,100000,Command terminated by signal 9
+560.58,7.38,1793708
+input/test_n6000_m100000_f2_no1.utv,6000,100000,Command terminated by signal 9
+616.36,7.66,1796172
+input/test_n6000_m100000_f2_no2.utv,6000,100000,Command terminated by signal 9
+642.25,7.78,1842780
+input/test_n6000_m100000_f2_no3.utv,6000,100000,Command terminated by signal 9
+476.38,5.00,1420652
+input/test_n7000_m100000_f2_no1.utv,7000,100000,0,0.218632,271.721797,0.000642,0.026509,271.967580,271.78,0.18,11836
+input/test_n7000_m100000_f2_no2.utv,7000,100000,

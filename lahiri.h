@@ -38,15 +38,44 @@ struct Vertex {
   Edge * L;
   int D;
   Edge * first;
-  int rho;
-  DFScolor dfsColor;
-  int discoveryTime;
-  int finishingTime;
-  int sccNumber;
-  int h;
-  bool dijkstraFinalized;
-  FibHeapNode * fibHeapNode;
+  union {
+    struct {
+      DFScolor dfsColor;
+      int discoveryTime;
+      int finishingTime;
+      int sccNumber;
+    };
+    struct {
+      int h;
+      int rho;
+      bool dijkstraFinalized;
+      FibHeapNode * fibHeapNode;
+    };
+  };
 };
+/*
+typedef struct OldVertex {
+  int index;
+  VertexSign sign;
+  Edge * L;
+  int D;
+  Edge * first;
+  //union {
+  //struct {
+      DFScolor dfsColor;
+      int discoveryTime;
+      int finishingTime;
+      int sccNumber;
+  //};
+  //struct {
+      int h;
+      int rho;
+      bool dijkstraFinalized;
+      FibHeapNode * fibHeapNode;
+  //};
+  //};
+} OldVertex;
+*/
 
 struct Edge {
   int weight;
@@ -75,6 +104,7 @@ struct FibHeapNode {
 int main(int argc, char * argv[]);
 void fputEdge(Edge * edge, FILE * output);
 void initializeSystem(void * object, int n, Parser * parser);
+void setSystemForJohnson(System * system);
 void addConstraint(void * object, Constraint * constraint, Parser * parser);
 Edge * bellmanFord(System * system);
 void relax(Edge * edge);
