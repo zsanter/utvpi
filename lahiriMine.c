@@ -279,12 +279,12 @@ int lahiri(System * Gphi){
   //puts("6");
   //noHeadIndicesHigherThanTailIndeces( Gphi );
   //puts("lahiri considers:");
-  for(int j = 0; j < Gphi->n; j++){
+  for(int j = 0; j < Cstar.n; j++){
     int upperBound = INT_MAX;
     int lowerBound = INT_MIN;
     for(VertexSign i = POSITIVE; i <= NEGATIVE; i++){
       //vertexLine( &Gphi->graph[i][j], 0 );
-      Edge * edge = Gphi->graph[i][j].first;
+      Edge * edge = Cstar.graph[i][j].first;
       while( edge != NULL ){
         //vertexLine( edge->head, 2 );
         //fputEdge( edge, stdout );
@@ -303,7 +303,7 @@ int lahiri(System * Gphi){
           }
           //fprintf(output, "%cx%d <= %d\n", sign, edge->tail->index, (edge->weight)/2);
         }
-        else{
+	else{
           //char sign[2];
           if( edge->tail->sign == edge->head->sign ){
             switch( edge->tail->sign ){
@@ -338,7 +338,7 @@ int lahiri(System * Gphi){
         }
         if( potentialNewLowerBound != INT_MIN ){
           printf("potentialNewLowerBound = %d\n", potentialNewLowerBound );
-        }*/
+	}*/
         if( potentialNewUpperBound < upperBound ){
           upperBound = potentialNewUpperBound;
         }
@@ -364,6 +364,8 @@ int lahiri(System * Gphi){
       solution = (upperBound + lowerBound)/2;
     }
     //printf("rho = %d\n", solution);
+    Cstar.graph[POSITIVE][j].rho = solution;
+    Cstar.graph[NEGATIVE][j].rho = solution;
     Gphi->graph[POSITIVE][j].rho = solution;
     Gphi->graph[NEGATIVE][j].rho = solution;
   }
@@ -485,6 +487,7 @@ void johnsonAllPairs(System * Gphi, System * Cstar){
   initializeSystem( Cstar, Gphi->n, NULL );
   for(VertexSign i = POSITIVE; i <= NEGATIVE; i++){
     for(int j = 0; j < Gphi->n; j++){
+      //fputs("distance label arising from Bellman-Ford: ", stdout); vertexLine( &Gphi->graph[i][j], 0);
       Gphi->graph[i][j].h = Gphi->graph[i][j].D;
     }
   }
@@ -495,7 +498,7 @@ void johnsonAllPairs(System * Gphi, System * Cstar){
       while( edge != NULL ){
         edge->weight += edge->tail->h - edge->head->h;
         if( edge->weight < 0 ){
-          fputEdge( edge, stdout );
+          fputs("Negative edge weight:", stdout); fputEdge( edge, stdout );
         }
         edge = edge->next;
       }
@@ -504,6 +507,7 @@ void johnsonAllPairs(System * Gphi, System * Cstar){
   //puts("Dijkstra covers:");
   for(VertexSign i = POSITIVE; i <= NEGATIVE; i++){
     for(int j = 0; j < Gphi->n; j++){
+      //fputs("tail: ", stdout ); vertexLine( &Gphi->graph[i][j], 0);
       //Vertex * source = &Gphi->graph[i][j];
       //Vertex * copyHead = &copy.graph[!i][j];
       dijkstra( Gphi, &Gphi->graph[i][j] );
@@ -525,9 +529,9 @@ void johnsonAllPairs(System * Gphi, System * Cstar){
       }
       //fputs("tail: ", stdout); vertexLine(copyTail, 0);
       //fputs("head: ", stdout); vertexLine(copyHead, 0);
-      int weight = Cstar->graph[!i][j].D;
+      int weight = Gphi->graph[!i][j].D;
       if( weight != INT_MAX ){
-        weight += Cstar->graph[!i][j].h - Cstar->graph[i][j].h;
+        weight += Gphi->graph[!i][j].h - Gphi->graph[i][j].h;
         if( weight % 2 != 0 ){
           weight--;
         }
@@ -601,7 +605,7 @@ void dijkstra(System * system, Vertex * source){
     while( edge != NULL ){
       if( edge->head->D > edge->tail->D + edge->weight ){
         if( edge->head->dijkstraFinalized == true ){
-          fputs("pQueue failure ", stdout); vertexLine( outbound->head, 0 );
+          fputs("pQueue failure ", stdout); vertexLine( edge->head, 0 );
         }
         edge->head->D = edge->tail->D + edge->weight;
         if( edge->head->fibHeapNode == NULL ){
