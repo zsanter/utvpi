@@ -23,4 +23,24 @@ input/test_n6000_m100000_f2_no2.utv,6000,100000,Command terminated by signal 9
 input/test_n6000_m100000_f2_no3.utv,6000,100000,Command terminated by signal 9
 476.38,5.00,1420652
 input/test_n7000_m100000_f2_no1.utv,7000,100000,0,0.218632,271.721797,0.000642,0.026509,271.967580,271.78,0.18,11836
-input/test_n7000_m100000_f2_no2.utv,7000,100000,
+input/test_n7000_m100000_f2_no2.utv,7000,100000,Command terminated by signal 9
+585.94,5.96,1827184
+input/test_n7000_m100000_f2_no3.utv,7000,100000,Command terminated by signal 9
+607.70,6.55,1843768
+input/test_n8000_m100000_f2_no1.utv,8000,100000,Command terminated by signal 9
+613.79,6.78,1829976
+input/test_n8000_m100000_f2_no2.utv,8000,100000,Command terminated by signal 9
+615.70,7.05,1842568
+input/test_n8000_m100000_f2_no3.utv,8000,100000,Command terminated by signal 9
+603.12,8.52,1836352
+input/test_n9000_m100000_f2_no1.utv,9000,100000,Command terminated by signal 9
+670.99,7.15,1833788
+input/test_n9000_m100000_f2_no2.utv,9000,100000,Command terminated by signal 9
+686.20,8.67,1820392
+input/test_n9000_m100000_f2_no3.utv,9000,100000,Command terminated by signal 9
+675.30,9.96,1830968
+input/test_n10000_m100000_f2_no1.utv,10000,100000,Command terminated by signal 9
+730.93,12.14,1822412
+input/test_n10000_m100000_f2_no2.utv,10000,100000,Command terminated by signal 9
+756.70,8.34,1839628
+input/test_n10000_m100000_f2_no3.utv,10000,100000,
