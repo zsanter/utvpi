@@ -1,5 +1,0 @@
-The following negative gray cycle was detected:
-+x13702 -x5325 <= -7
-+x5325 -x4971 <= -13
-+x4971 -x9655 <= -3
-+x9655 -x13702 <= -12
