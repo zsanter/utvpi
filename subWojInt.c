@@ -737,7 +737,7 @@ bool optionalRoundings(System * system){
         
         freeIntegerTree( system->T );
         system->T = generateIntegerTree( system );
-	
+        
         for(int j = 1; j < system->vertexCount; j++){
           system->graph[j].Z[TEMP] = INT_MAX;
         }

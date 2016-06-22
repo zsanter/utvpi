@@ -274,19 +274,20 @@ int lahiri(System * Gphi){
     return output;
   }
   //puts("5");
-  johnsonAllPairs( Gphi );
+  System Cstar;
+  johnsonAllPairs( Gphi, &Cstar );
   //puts("6");
-  noHeadIndicesHigherThanTailIndeces( Gphi );
-  puts("lahiri considers:");
+  //noHeadIndicesHigherThanTailIndeces( Gphi );
+  //puts("lahiri considers:");
   for(int j = 0; j < Gphi->n; j++){
     int upperBound = INT_MAX;
     int lowerBound = INT_MIN;
     for(VertexSign i = POSITIVE; i <= NEGATIVE; i++){
-      vertexLine( &Gphi->graph[i][j], 0 );
+      //vertexLine( &Gphi->graph[i][j], 0 );
       Edge * edge = Gphi->graph[i][j].first;
       while( edge != NULL ){
-	vertexLine( edge->head, 2 );
-	fputEdge( edge, stdout );
+        //vertexLine( edge->head, 2 );
+        //fputEdge( edge, stdout );
         int potentialNewUpperBound = INT_MAX;
         int potentialNewLowerBound = INT_MIN;
         if( edge->tail->index == edge->head->index ){
@@ -332,12 +333,12 @@ int lahiri(System * Gphi){
           }
           //fprintf(output, "%cx%d %cx%d <= %d\n", sign[0], edge->tail->index, sign[1], edge->head->index, edge->weight);
         }
-        if( potentialNewUpperBound != INT_MAX ){
-	  printf("potentialNewUpperBound = %d\n", potentialNewUpperBound );
-	}
-	if( potentialNewLowerBound != INT_MIN ){
-	  printf("potentialNewLowerBound = %d\n", potentialNewLowerBound );
-	}
+        /*if( potentialNewUpperBound != INT_MAX ){
+          printf("potentialNewUpperBound = %d\n", potentialNewUpperBound );
+        }
+        if( potentialNewLowerBound != INT_MIN ){
+          printf("potentialNewLowerBound = %d\n", potentialNewLowerBound );
+        }*/
         if( potentialNewUpperBound < upperBound ){
           upperBound = potentialNewUpperBound;
         }
@@ -348,7 +349,7 @@ int lahiri(System * Gphi){
         edge = edge->next;
       }  
     }
-    printf("upperBound = %d, lowerBound = %d\n", upperBound, lowerBound );
+    //printf("upperBound = %d, lowerBound = %d\n", upperBound, lowerBound );
     int solution;
     if( upperBound == INT_MAX && lowerBound == INT_MIN ){
       solution = 0;
@@ -362,11 +363,11 @@ int lahiri(System * Gphi){
     else {
       solution = (upperBound + lowerBound)/2;
     }
-    printf("rho = %d\n", solution);
+    //printf("rho = %d\n", solution);
     Gphi->graph[POSITIVE][j].rho = solution;
     Gphi->graph[NEGATIVE][j].rho = solution;
   }
-  
+  freeSystem( &Cstar );
   return output;
 }
 
@@ -477,21 +478,20 @@ int vertexCompareFinishingTimes(const void * vertex1, const void * vertex2){
 }
 
 /*
- * Adds required absolute constraints to system, instead of creating
- * an n x n array whose entries will mostly be ignored.
+ * Fills Cstar with the transitive and tight closure of Gphi
+ * but only adding edges where head->index <= tail->index
  */
-void johnsonAllPairs(System * system){
-  System copy;
-  copySystem(system, &copy);
+void johnsonAllPairs(System * Gphi, System * Cstar){
+  initializeSystem( Cstar, Gphi->n, NULL );
   for(VertexSign i = POSITIVE; i <= NEGATIVE; i++){
-    for(int j = 0; j < copy.n; j++){
-      copy.graph[i][j].h = system->graph[i][j].D;
+    for(int j = 0; j < Gphi->n; j++){
+      Gphi->graph[i][j].h = Gphi->graph[i][j].D;
     }
   }
   //puts("5.1");
   for(VertexSign i = POSITIVE; i <= NEGATIVE; i++){
-    for(int j = 0; j < copy.n; j++){
-      Edge * edge = copy.graph[i][j].first;
+    for(int j = 0; j < Gphi->n; j++){
+      Edge * edge = Gphi->graph[i][j].first;
       while( edge != NULL ){
         edge->weight += edge->tail->h - edge->head->h;
         if( edge->weight < 0 ){
@@ -501,41 +501,57 @@ void johnsonAllPairs(System * system){
       }
     }
   }
-  puts("Dijkstra covers:");
+  //puts("Dijkstra covers:");
   for(VertexSign i = POSITIVE; i <= NEGATIVE; i++){
-    for(int j = 0; j < system->n; j++){
-      Vertex * copyTail = &copy.graph[i][j];
-      Vertex * copyHead = &copy.graph[!i][j];
-      dijkstra( &copy, copyTail );
-      fputs("tail: ", stdout); vertexLine(copyTail, 0);
-      fputs("head: ", stdout); vertexLine(copyHead, 0);
-      int weight = copyHead->D;
+    for(int j = 0; j < Gphi->n; j++){
+      //Vertex * source = &Gphi->graph[i][j];
+      //Vertex * copyHead = &copy.graph[!i][j];
+      dijkstra( Gphi, &Gphi->graph[i][j] );
+      for(VertexSign k = POSITIVE; k <= NEGATIVE; k++){
+        for(int m = 0; m < j; m++){
+          //Vertex * destination = &Gphi->graph[k][m];
+          int weight = Gphi->graph[k][m].D;
+          if( weight != INT_MAX ){
+            weight += Gphi->graph[k][m].h - Gphi->graph[i][j].h;
+            Edge * newEdge = (Edge *) malloc( sizeof(Edge) );
+            newEdge->weight = weight;
+            newEdge->head = &Cstar->graph[k][m];
+            newEdge->tail = &Cstar->graph[i][j];
+            newEdge->next = Cstar->graph[i][j].first;
+            Cstar->graph[i][j].first = newEdge;
+            newEdge->backtrackSeen = false;
+          }
+        }
+      }
+      //fputs("tail: ", stdout); vertexLine(copyTail, 0);
+      //fputs("head: ", stdout); vertexLine(copyHead, 0);
+      int weight = Cstar->graph[!i][j].D;
       if( weight != INT_MAX ){
-        weight += copyHead->h - copyTail->h;
+        weight += Cstar->graph[!i][j].h - Cstar->graph[i][j].h;
         if( weight % 2 != 0 ){
           weight--;
         }
-        Vertex * systemTail = &system->graph[i][j];
-        Vertex * systemHead = &system->graph[!i][j];
+        //Vertex * systemTail = &system->graph[i][j];
+        //Vertex * systemHead = &system->graph[!i][j];
         Edge * newEdge = (Edge *) malloc( sizeof(Edge) );
         newEdge->weight = weight;
-        newEdge->head = systemHead;
-        newEdge->tail = systemTail;
-        newEdge->next = systemTail->first;
-        systemTail->first = newEdge;
+        newEdge->head = &Cstar->graph[!i][j];
+        newEdge->tail = &Cstar->graph[i][j];
+        newEdge->next = Cstar->graph[i][j].first;
+        Cstar->graph[i][j].first = newEdge;
         newEdge->backtrackSeen = false;
-	fputEdge( newEdge, stdout );
+        //fputEdge( newEdge, stdout );
       }
     }
   }
-  freeSystem( &copy );
+  //freeSystem( &copy );
 }
 
 /*
  * Doesn't copy Vertex elements L, D, rho, dfsColor, discoveryTime, finishingTime, sccNumber, h, 
  * dijkstraFinalized, or fibHeapNode, because this is unnecessary for our purposes
  */
-void copySystem(System * original, System * copy){
+/*void copySystem(System * original, System * copy){
   initializeSystem( copy, original->n, NULL );
   for(VertexSign i = POSITIVE; i <= NEGATIVE; i++){
     for(int j = 0; j < original->n; j++){
@@ -553,22 +569,22 @@ void copySystem(System * original, System * copy){
       }
     }
   }
-}
+}*/
 
-void dijkstra(System * system, Vertex * vertex){
+void dijkstra(System * system, Vertex * source){
   for(VertexSign i = POSITIVE; i <= NEGATIVE; i++){
     for(int j = 0; j < system->n; j++){
       system->graph[i][j].D = INT_MAX; //Initialized to 0 to avoid having an actual source node for Bellman-Ford.
       system->graph[i][j].dijkstraFinalized = false;
     }
   }
-  vertex->D = 0;
+  source->D = 0;
   
   FibHeap pQueue;
   pQueue.min = NULL;
   pQueue.n = 0;
   //puts("5.2.1");
-  fibHeapInsert( &pQueue, vertex );
+  fibHeapInsert( &pQueue, source );
   //puts("5.2.2");
   //int i3 = 0;
   while( pQueue.n > 0 ){
@@ -581,25 +597,25 @@ void dijkstra(System * system, Vertex * vertex){
     }
     //puts("5.2.4");
     current->dijkstraFinalized = true;
-    Edge * outbound = current->first;
-    while( outbound != NULL ){
-      if( outbound->head->D > outbound->tail->D + outbound->weight ){
-	if( outbound->head->dijkstraFinalized == true ){
-	  fputs("pQueue failure ", stdout); vertexLine( outbound->head, 0 );
-	}
-	outbound->head->D = outbound->tail->D + outbound->weight;
-        if( outbound->head->fibHeapNode == NULL ){
+    Edge * edge = current->first;
+    while( edge != NULL ){
+      if( edge->head->D > edge->tail->D + edge->weight ){
+        if( edge->head->dijkstraFinalized == true ){
+          fputs("pQueue failure ", stdout); vertexLine( outbound->head, 0 );
+        }
+        edge->head->D = edge->tail->D + edge->weight;
+        if( edge->head->fibHeapNode == NULL ){
           //puts("5.2.5");
-          fibHeapInsert( &pQueue, outbound->head );
+          fibHeapInsert( &pQueue, edge->head );
           //puts("5.2.6");
         }
         else {
           //puts("5.2.7");
-          fibHeapDecreaseKey( &pQueue, outbound->head );
+          fibHeapDecreaseKey( &pQueue, edge->head );
           //puts("5.2.8");
         }
       }
-      outbound = outbound->next;
+      edge = edge->next;
     }
   }
   
@@ -668,13 +684,13 @@ void fibHeapVisualize(FibHeap * fibHeap){
       int level = 0;
       FibHeapNode * fhn = fibHeap->min;
       while( fhn != NULL ){
-	FibHeapNode * firstFHN = fhn;
-	do {
+        FibHeapNode * firstFHN = fhn;
+        do {
           vertexLine( fhn->vertex, level );
           while( fhn->child != NULL ){
             level++;
             fhn = fhn->child;
-	    firstFHN = fhn;
+            firstFHN = fhn;
             vertexLine( fhn->vertex, level );
           }
           fhn = fhn->right;
@@ -961,7 +977,7 @@ void fibHeapCascadingCut(FibHeap * fibHeap, FibHeapNode * y){
 }
 
 //Cut out all edges where head->index > tail->index
-void noHeadIndicesHigherThanTailIndeces( System * system ){
+/*void noHeadIndicesHigherThanTailIndeces( System * system ){
   for(VertexSign i = POSITIVE; i <= NEGATIVE; i++){
     for(int j = 0; j < system->n; j++){
       Edge * prior = NULL;
@@ -990,7 +1006,7 @@ void noHeadIndicesHigherThanTailIndeces( System * system ){
       }
     }
   }
-}
+}*/
 
 void freeSystem(System * system){
   for(VertexSign i = POSITIVE; i <= NEGATIVE; i++){

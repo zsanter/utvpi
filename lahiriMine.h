@@ -85,8 +85,8 @@ void stronglyConnectedComponents(System * system);
 void dfsVisit(Vertex * vertex, int * time, int sccNumber);
 void transposeSystem(System * original, System * transpose);
 int vertexCompareFinishingTimes(const void * vertex1, const void * vertex2);
-void johnsonAllPairs(System * system);
-void copySystem(System * original, System * copy);
+void johnsonAllPairs(System * Gphi, System * Cstar);
+//void copySystem(System * original, System * copy);
 void dijkstra(System * system, Vertex * vertex);
 void fibHeapInsert(FibHeap * fibHeap, Vertex * vertex);
 Vertex * fibHeapExtractMin(FibHeap * fibHeap);
@@ -95,7 +95,7 @@ void fibHeapLink(FibHeap * fibHeap, FibHeapNode * y, FibHeapNode * x);
 void fibHeapDecreaseKey(FibHeap * fibHeap, Vertex * vertex);
 void fibHeapCut(FibHeap * fibHeap, FibHeapNode * x, FibHeapNode * y);
 void fibHeapCascadingCut(FibHeap * fibHeap, FibHeapNode * y);
-void noHeadIndicesHigherThanTailIndeces( System * system );
+//void noHeadIndicesHigherThanTailIndeces( System * system );
 void freeSystem(System * system);
 
 #endif
