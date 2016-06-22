@@ -1,5 +1,5 @@
 # utvpi
-A new way to generate integral solutions for Unit Two Variable Per Inequality constraint systems, probably in O(mn) time.
+A new way to generate integral solutions for Unit Two Variable Per Inequality constraint systems, in O(m*n) time.
 
 Major theoretical work by Dr. K. Subramani and Piotr Wojciechowski. Implementation by Zachary Santer. Research conducted at West Virginia University, and funded by the National Science Foundation.
 
