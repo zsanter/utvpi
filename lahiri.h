@@ -41,41 +41,18 @@ struct Vertex {
   union {
     struct {
       DFScolor dfsColor;
-      int discoveryTime;
+//      int discoveryTime; //also not necessary
       int finishingTime;
       int sccNumber;
     };
     struct {
       int h;
       int rho;
-      bool dijkstraFinalized;
+//      bool dijkstraFinalized;
       FibHeapNode * fibHeapNode;
     };
   };
 };
-/*
-typedef struct OldVertex {
-  int index;
-  VertexSign sign;
-  Edge * L;
-  int D;
-  Edge * first;
-  //union {
-  //struct {
-      DFScolor dfsColor;
-      int discoveryTime;
-      int finishingTime;
-      int sccNumber;
-  //};
-  //struct {
-      int h;
-      int rho;
-      bool dijkstraFinalized;
-      FibHeapNode * fibHeapNode;
-  //};
-  //};
-} OldVertex;
-*/
 
 struct Edge {
   int weight;
@@ -116,7 +93,6 @@ void dfsVisit(Vertex * vertex, int * time, int sccNumber);
 void transposeSystem(System * original, System * transpose);
 int vertexCompareFinishingTimes(const void * vertex1, const void * vertex2);
 void johnsonAllPairs(System * Gphi, System * Cstar);
-//void copySystem(System * original, System * copy);
 void dijkstra(System * system, Vertex * vertex);
 void fibHeapInsert(FibHeap * fibHeap, Vertex * vertex);
 Vertex * fibHeapExtractMin(FibHeap * fibHeap);
@@ -125,7 +101,6 @@ void fibHeapLink(FibHeap * fibHeap, FibHeapNode * y, FibHeapNode * x);
 void fibHeapDecreaseKey(FibHeap * fibHeap, Vertex * vertex);
 void fibHeapCut(FibHeap * fibHeap, FibHeapNode * x, FibHeapNode * y);
 void fibHeapCascadingCut(FibHeap * fibHeap, FibHeapNode * y);
-//void noHeadIndicesHigherThanTailIndeces( System * system );
 void freeSystem(System * system);
 
 #endif
