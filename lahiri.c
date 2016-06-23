@@ -2,14 +2,13 @@
 
 
 #ifdef __HPC__
-  void diff(struct timespec * start, struct timespec * end, struct timespec * difference){
+void diff(struct timespec * start, struct timespec * end, struct timespec * difference);
 #endif
 
 int main(int argc, char * argv[]){
   #ifdef __HPC__
-    puts("Macro passed in correctly.");
-    struct timeSpec start;
-    clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &start);
+    struct timespec start;
+    clock_gettime(CLOCK_MONOTONIC_RAW, &start);
   #else
     clock_t start = clock();
   #endif
@@ -41,15 +40,15 @@ int main(int argc, char * argv[]){
     exit(1);
   }
   #ifdef __HPC__
-    struct timeSpec beforeLinear;
-    clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &beforeLinear);
+    struct timespec beforeLinear;
+    clock_gettime(CLOCK_MONOTONIC_RAW, &beforeLinear);
   #else
     clock_t beforeLinear = clock();
   #endif
   Edge * negativeCycle = bellmanFord(&system);
   #ifdef __HPC__
-    struct timeSpec beforeIntegral;
-    clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &beforeIntegral);
+    struct timespec beforeIntegral;
+    clock_gettime(CLOCK_MONOTONIC_RAW, &beforeIntegral);
   #else
     clock_t beforeIntegral = clock();
   #endif
@@ -87,16 +86,16 @@ int main(int argc, char * argv[]){
     }
   }
   #ifdef __HPC__
-    struct timeSpec beforeCleanup;
-    clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &beforeCleanup);
+    struct timespec beforeCleanup;
+    clock_gettime(CLOCK_MONOTONIC_RAW, &beforeCleanup);
   #else
     clock_t beforeCleanup = clock();
   #endif
   fclose(output);
   freeSystem(&system);
   #ifdef __HPC__
-    struct timeSpec end;
-    clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &end);
+    struct timespec end;
+    clock_gettime(CLOCK_MONOTONIC_RAW, &end);
   #else
     clock_t end = clock();
   #endif
@@ -104,26 +103,26 @@ int main(int argc, char * argv[]){
   #ifdef __HPC__
     struct timespec setup;
     diff(&start, &beforeLinear, &setup);
-    printf("%d.%09d", setup.tv_sec, setup.tv_nsec);
+    printf("%d.%09d,", (int)setup.tv_sec, (int)setup.tv_nsec);
     struct timespec linear;
     diff(&beforeLinear, &beforeIntegral, &linear);
-    printf("%d.%09d", linear.tv_sec, linear.tv_nsec);
+    printf("%d.%09d,", (int)linear.tv_sec, (int)linear.tv_nsec);
     struct timespec integral;
     diff(&beforeIntegral, &beforeCleanup, &integral);
-    printf("%d.%09d", integral.tv_sec, integral.tv_nsec);
+    printf("%d.%09d,", (int)integral.tv_sec, (int)integral.tv_nsec);
     struct timespec cleanup;
     diff(&beforeCleanup, &end, &cleanup);
-    printf("%d.%09d", cleanup.tv_sec, cleanup.tv_nsec);
+    printf("%d.%09d,", (int)cleanup.tv_sec, (int)cleanup.tv_nsec);
     struct timespec total;
     diff(&start, &end, &total);
-    printf("%d.%09d", total.tv_sec, total.tv_nsec);
+    printf("%d.%09d,", (int)total.tv_sec, (int)total.tv_nsec);
   #else
     printf("%f,", ((double)(beforeLinear - start))/CLOCKS_PER_SEC);
     printf("%f,", ((double)(beforeIntegral - beforeLinear))/CLOCKS_PER_SEC);
     printf("%f,", ((double)(beforeCleanup - beforeIntegral))/CLOCKS_PER_SEC);
     printf("%f,", ((double)(end - beforeCleanup))/CLOCKS_PER_SEC);
     printf("%f,", ((double)(end - start))/CLOCKS_PER_SEC);
-  #end
+  #endif
   return 0;
 }
 
@@ -133,10 +132,10 @@ int main(int argc, char * argv[]){
    * and modified
    */
   void diff(struct timespec * start, struct timespec * end, struct timespec * difference){
-	  if ( ( end->tv_nsec - start->tv_nsec ) < 0 ) {
-		  difference->tv_sec = end->tv_sec - start->tv_sec - 1;
-		  difference->tv_nsec = 1000000000 + end->tv_nsec - start->tv_nsec;
-	  }
+    if ( ( end->tv_nsec - start->tv_nsec ) < 0 ) {
+      difference->tv_sec = end->tv_sec - start->tv_sec - 1;
+      difference->tv_nsec = 1000000000 + end->tv_nsec - start->tv_nsec;
+    }
     else {
       difference->tv_sec = end->tv_sec - start->tv_sec;
       difference->tv_nsec = end->tv_nsec - start->tv_nsec;
