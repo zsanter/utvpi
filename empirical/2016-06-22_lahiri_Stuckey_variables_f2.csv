@@ -93,4 +93,20 @@ input/test_n18000_m100000_f2_no2.utv,18000,100000,Command terminated by signal 9
 1313.82,7.58,1826520
 input/test_n18000_m100000_f2_no3.utv,18000,100000,Command terminated by signal 9
 1209.06,7.37,1847208
-input/test_n19000_m100000_f2_no1.utv,19000,100000,
+input/test_n19000_m100000_f2_no1.utv,19000,100000,Command terminated by signal 9
+1274.12,8.62,1835400
+input/test_n19000_m100000_f2_no2.utv,19000,100000,/usr/bin/time: cannot run ./lahiri.exe: Permission denied
+Command exited with non-zero status 126
+0.00,0.00,1068
+input/test_n19000_m100000_f2_no3.utv,19000,100000,/usr/bin/time: cannot run ./lahiri.exe: Permission denied
+Command exited with non-zero status 126
+0.00,0.00,1244
+input/test_n20000_m100000_f2_no1.utv,20000,100000,/usr/bin/time: cannot run ./lahiri.exe: Permission denied
+Command exited with non-zero status 126
+0.00,0.00,1240
+input/test_n20000_m100000_f2_no2.utv,20000,100000,/usr/bin/time: cannot run ./lahiri.exe: Permission denied
+Command exited with non-zero status 126
+0.00,0.00,1104
+input/test_n20000_m100000_f2_no3.utv,20000,100000,/usr/bin/time: cannot run ./lahiri.exe: Permission denied
+Command exited with non-zero status 126
+0.00,0.00,1240
