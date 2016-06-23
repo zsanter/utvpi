@@ -41,14 +41,12 @@ struct Vertex {
   union {
     struct {
       DFScolor dfsColor;
-//      int discoveryTime; //also not necessary
       int finishingTime;
       int sccNumber;
     };
     struct {
       int h;
       int rho;
-//      bool dijkstraFinalized;
       FibHeapNode * fibHeapNode;
     };
   };

@@ -130,7 +130,6 @@ void initializeSystem(void * object, int n, Parser * parser){
       system->graph[i][j].D = 0;
       system->graph[i][j].first = NULL;
       system->graph[i][j].dfsColor = WHITE;
-//      system->graph[i][j].discoveryTime = 0;
       system->graph[i][j].finishingTime = 0;
       system->graph[i][j].sccNumber = 0;
     }
@@ -141,7 +140,6 @@ void setSystemForJohnson(System * system){
   for(VertexSign i = POSITIVE; i <= NEGATIVE; i++){
     for(int j = 0; j < system->n; j++){
       system->graph[i][j].h = 0;
-//      system->graph[i][j].dijkstraFinalized = false;
       system->graph[i][j].fibHeapNode = NULL;
       system->graph[i][j].rho = INT_MAX;
     }
@@ -406,7 +404,6 @@ void stronglyConnectedComponents(System * system){
 
 void dfsVisit(Vertex * vertex, int * time, int sccNumber){
   (*time)++;
-  //vertex->discoveryTime = *time;
   vertex->dfsColor = GRAY;
   vertex->sccNumber = sccNumber;
   Edge * edge = vertex->first;
@@ -510,7 +507,6 @@ void dijkstra(System * system, Vertex * source){
   for(VertexSign i = POSITIVE; i <= NEGATIVE; i++){
     for(int j = 0; j < system->n; j++){
       system->graph[i][j].D = INT_MAX;
-//      system->graph[i][j].dijkstraFinalized = false;
     }
   }
   source->D = 0;
@@ -522,13 +518,9 @@ void dijkstra(System * system, Vertex * source){
   fibHeapInsert( &pQueue, source );
   while( pQueue.n > 0 ){
     Vertex * current = fibHeapExtractMin( &pQueue );
-//    current->dijkstraFinalized = true;
     Edge * edge = current->first;
     while( edge != NULL ){
       if( edge->head->D > edge->tail->D + edge->weight ){
-//        if( edge->head->dijkstraFinalized == true ){
-//          fputs("pQueue failure ", stdout); vertexLine( edge->head, 0 );
-//        }
         edge->head->D = edge->tail->D + edge->weight;
         if( edge->head->fibHeapNode == NULL ){
           fibHeapInsert( &pQueue, edge->head );
@@ -567,7 +559,6 @@ void fibHeapInsert(FibHeap * fibHeap, Vertex * vertex){
     }
   }
   fibHeap->n++;
-  //fibHeapVisualize( fibHeap );
 }
 
 Vertex * fibHeapExtractMin(FibHeap * fibHeap){
@@ -599,9 +590,7 @@ Vertex * fibHeapExtractMin(FibHeap * fibHeap){
     }
     output->fibHeapNode = NULL;
     if( fibHeap->min != NULL ){
-      //fibHeapVisualize( fibHeap );
       fibHeapConsolidate( fibHeap );
-      //fibHeapVisualize( fibHeap );
     }
     free( oldFHN );
     fibHeap->n--;
@@ -623,7 +612,7 @@ void fibHeapConsolidate(FibHeap * fibHeap){
   do {
     w->rootListTraverseSeen = false;
     w = w->left;
-  } while( w != fibHeap->min /*&& i2 < 20*/ );
+  } while( w != fibHeap->min );
   while( w->rootListTraverseSeen == false ){
     w->rootListTraverseSeen = true;
     FibHeapNode * nextW = w->left;
@@ -663,10 +652,6 @@ void fibHeapConsolidate(FibHeap * fibHeap){
       }
     }
   }
-  /*if( fibHeap->min == NULL ){
-    puts("fibHeap->min == NULL at end of consolidate()");
-    exit(9);
-  }*/
 }
 
 void fibHeapLink(FibHeap * fibHeap, FibHeapNode * y, FibHeapNode * x){
@@ -702,7 +687,6 @@ void fibHeapDecreaseKey(FibHeap * fibHeap, Vertex * vertex){
   if( x->vertex->D < fibHeap->min->vertex->D ){
     fibHeap->min = x;
   }
-  //fibHeapVisualize( fibHeap );  
 }
 
 void fibHeapCut(FibHeap * fibHeap, FibHeapNode * x, FibHeapNode * y){
