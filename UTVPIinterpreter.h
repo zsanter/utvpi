@@ -70,6 +70,7 @@ void lessThanOrEqual(Parser * parser, Constraint * constraint);
 void weight(Parser * parser, Constraint * constraint);
 void newLine(Parser * parser, Constraint * constraint);
 bool variableIndexWithinBounds(Parser * parser, Token * token);
+bool variableIndecesDiffer(Parser * parser, Constraint * constraint);
 void newLineAdjustment(Parser * parser);
 Token getToken(Parser * parser);
 void afterSign(Parser * parser, Token * token);

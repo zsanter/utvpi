@@ -75,16 +75,16 @@ void parseConstraints(Parser * parser){
       afterInitialSign(parser, &constraint);
       break;
     case SIGNED_VARIABLE:
+      constraint.sign[0] = token.sign;
+      constraint.index[0] = token.integerComponent;
       if( variableIndexWithinBounds( parser, &token ) ){
-        constraint.sign[0] = token.sign;
-        constraint.index[0] = token.integerComponent;
         afterFirstVariable(parser, &constraint);
       }
       break;
     case UNSIGNED_VARIABLE:
+      constraint.sign[0] = PLUS;
+      constraint.index[0] = token.integerComponent;
       if( variableIndexWithinBounds( parser, &token ) ){
-        constraint.sign[0] = PLUS;
-        constraint.index[0] = token.integerComponent;
         afterFirstVariable(parser, &constraint);
       }
       break;
@@ -101,8 +101,8 @@ void afterInitialSign(Parser * parser, Constraint * constraint){
   Token token = getToken(parser);
   switch( token.type ){
   case UNSIGNED_VARIABLE:
+    constraint->index[0] = token.integerComponent;
     if( variableIndexWithinBounds( parser, &token ) ){
-      constraint->index[0] = token.integerComponent;
       afterFirstVariable(parser, constraint);
     }
     break;
@@ -119,9 +119,10 @@ void afterFirstVariable(Parser * parser, Constraint * constraint){
     secondVariable(parser, constraint);
     break;
   case SIGNED_VARIABLE:
-    if( variableIndexWithinBounds( parser, &token ) ){
-      constraint->sign[1] = token.sign;
-      constraint->index[1] = token.integerComponent;
+    constraint->sign[1] = token.sign;
+    constraint->index[1] = token.integerComponent;
+    if( variableIndexWithinBounds( parser, &token )
+        && variableIndecesDiffer( parser, constraint ) ){
       lessThanOrEqual(parser, constraint);
     }
     break;
@@ -137,20 +138,22 @@ void secondVariable(Parser * parser, Constraint * constraint){
   Token token = getToken(parser);
   switch(token.type){
   case SIGNED_VARIABLE:
-    if( variableIndexWithinBounds( parser, &token ) ){
-      if( constraint->sign[1] != token.sign ){
-        constraint->sign[1] = MINUS;
-      }
-      else{
-        constraint->sign[1] = PLUS;
-      }
-      constraint->index[1] = token.integerComponent;
+    if( constraint->sign[1] != token.sign ){
+      constraint->sign[1] = MINUS;
+    }
+    else{
+      constraint->sign[1] = PLUS;
+    }
+    constraint->index[1] = token.integerComponent;
+    if( variableIndexWithinBounds( parser, &token )
+        && variableIndecesDiffer( parser, constraint ) ){
       lessThanOrEqual(parser, constraint);
     }
     break;
   case UNSIGNED_VARIABLE:
-    if( variableIndexWithinBounds( parser, &token ) ){
-      constraint->index[1] = token.integerComponent;
+    constraint->index[1] = token.integerComponent;
+    if( variableIndexWithinBounds( parser, &token )
+        && variableIndecesDiffer( parser, constraint ) ){
       lessThanOrEqual(parser, constraint);
     }
     break;
@@ -197,6 +200,14 @@ void newLine(Parser * parser, Constraint * constraint){
 bool variableIndexWithinBounds(Parser * parser, Token * token){
   if( token->integerComponent < 1 || token->integerComponent > parser->systemMaxIndex ){
     parseError(parser, "Variable index outside of defined range.");
+    return false;
+  }
+  return true;
+}
+
+bool variableIndecesDiffer(Parser * parser, Constraint * constraint){
+  if( constraint->index[0] == constraint->index[1] ){
+    parseError(parser, "Variable indices must differ.");
     return false;
   }
   return true;

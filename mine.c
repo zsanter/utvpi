@@ -118,69 +118,64 @@ void initializeSystem(void * object, int n, Parser * parser){
 }
 
 void addConstraint(void * object, Constraint * constraint, Parser * parser){
-  if( constraint->index[0] == constraint->index[1] ){
-    parseError(parser, "Both indices in a constraint can not be the same." );
+  System * system = (System *) object;
+  if( constraint->sign[1] == NONE ){
+    Edge * newEdge = (Edge *) malloc( sizeof(Edge) );
+    newEdge->weight = 2 * constraint->weight;
+    newEdge->backtrackSeen = false;
+    VertexSign tailSign, headSign;
+    if( constraint->sign[0] == PLUS ){
+      tailSign = NEGATIVE;
+      headSign = POSITIVE;
+    }
+    else {
+      tailSign = POSITIVE;
+      headSign = NEGATIVE;
+    }
+    newEdge->tail = &system->graph[tailSign][ constraint->index[0] - 1 ];
+    newEdge->head = &system->graph[headSign][ constraint->index[0] - 1 ];
+    newEdge->next = newEdge->tail->first;
+    newEdge->tail->first = newEdge;
   }
   else{
-    System * system = (System *) object;
-    if( constraint->sign[1] == NONE ){
-      Edge * newEdge = (Edge *) malloc( sizeof(Edge) );
-      newEdge->weight = 2 * constraint->weight;
-      newEdge->backtrackSeen = false;
-      VertexSign tailSign, headSign;
+    Edge * newEdges[2];
+    newEdges[0] = (Edge *) malloc( sizeof(Edge) );
+    newEdges[0]->weight = constraint->weight;
+    newEdges[0]->backtrackSeen = false;
+    newEdges[1] = (Edge *) malloc( sizeof(Edge) );
+    newEdges[1]->weight = constraint->weight;
+    newEdges[1]->backtrackSeen = false;
+    if( constraint->sign[0] != constraint->sign[1] ){
+      int positiveIndex, negativeIndex;
       if( constraint->sign[0] == PLUS ){
-        tailSign = NEGATIVE;
-        headSign = POSITIVE;
+        positiveIndex = 0;
+        negativeIndex = 1;
       }
-      else {
-        tailSign = POSITIVE;
-        headSign = NEGATIVE;
+      else{
+        positiveIndex = 1;
+        negativeIndex = 0;
       }
-      newEdge->tail = &system->graph[tailSign][ constraint->index[0] - 1 ];
-      newEdge->head = &system->graph[headSign][ constraint->index[0] - 1 ];
-      newEdge->next = newEdge->tail->first;
-      newEdge->tail->first = newEdge;
+      newEdges[0]->tail = &system->graph[POSITIVE][ constraint->index[ negativeIndex ] - 1 ];
+      newEdges[0]->head = &system->graph[POSITIVE][ constraint->index[ positiveIndex ] - 1 ];
+      newEdges[1]->tail = &system->graph[NEGATIVE][ constraint->index[ positiveIndex ] - 1 ];
+      newEdges[1]->head = &system->graph[NEGATIVE][ constraint->index[ negativeIndex ] - 1 ];
     }
-    else{
-      Edge * newEdges[2];
-      newEdges[0] = (Edge *) malloc( sizeof(Edge) );
-      newEdges[0]->weight = constraint->weight;
-      newEdges[0]->backtrackSeen = false;
-      newEdges[1] = (Edge *) malloc( sizeof(Edge) );
-      newEdges[1]->weight = constraint->weight;
-      newEdges[1]->backtrackSeen = false;
-      if( constraint->sign[0] != constraint->sign[1] ){
-        int positiveIndex, negativeIndex;
-        if( constraint->sign[0] == PLUS ){
-          positiveIndex = 0;
-          negativeIndex = 1;
-        }
-        else{
-          positiveIndex = 1;
-          negativeIndex = 0;
-        }
-        newEdges[0]->tail = &system->graph[POSITIVE][ constraint->index[ negativeIndex ] - 1 ];
-        newEdges[0]->head = &system->graph[POSITIVE][ constraint->index[ positiveIndex ] - 1 ];
-        newEdges[1]->tail = &system->graph[NEGATIVE][ constraint->index[ positiveIndex ] - 1 ];
-        newEdges[1]->head = &system->graph[NEGATIVE][ constraint->index[ negativeIndex ] - 1 ];
-      }
-      else if( constraint->sign[0] == PLUS ){
-        newEdges[0]->tail = &system->graph[NEGATIVE][ constraint->index[1] - 1 ];
-        newEdges[0]->head = &system->graph[POSITIVE][ constraint->index[0] - 1 ];
-        newEdges[1]->tail = &system->graph[NEGATIVE][ constraint->index[0] - 1 ];
-        newEdges[1]->head = &system->graph[POSITIVE][ constraint->index[1] - 1 ];
-      }
-      else {
-        newEdges[0]->tail = &system->graph[POSITIVE][ constraint->index[1] - 1 ];
-        newEdges[0]->head = &system->graph[NEGATIVE][ constraint->index[0] - 1 ];
-        newEdges[1]->tail = &system->graph[POSITIVE][ constraint->index[0] - 1 ];
-        newEdges[1]->head = &system->graph[NEGATIVE][ constraint->index[1] - 1 ];
-      }
-      newEdges[0]->next = newEdges[0]->tail->first;
-      newEdges[0]->tail->first = newEdges[0];
-      newEdges[1]->next = newEdges[1]->tail->first;
-      newEdges[1]->tail->first = newEdges[1];
+    else if( constraint->sign[0] == PLUS ){
+      newEdges[0]->tail = &system->graph[NEGATIVE][ constraint->index[1] - 1 ];
+      newEdges[0]->head = &system->graph[POSITIVE][ constraint->index[0] - 1 ];
+      newEdges[1]->tail = &system->graph[NEGATIVE][ constraint->index[0] - 1 ];
+      newEdges[1]->head = &system->graph[POSITIVE][ constraint->index[1] - 1 ];
     }
+    else {
+      newEdges[0]->tail = &system->graph[POSITIVE][ constraint->index[1] - 1 ];
+      newEdges[0]->head = &system->graph[NEGATIVE][ constraint->index[0] - 1 ];
+      newEdges[1]->tail = &system->graph[POSITIVE][ constraint->index[0] - 1 ];
+      newEdges[1]->head = &system->graph[NEGATIVE][ constraint->index[1] - 1 ];
+    }
+    newEdges[0]->next = newEdges[0]->tail->first;
+    newEdges[0]->tail->first = newEdges[0];
+    newEdges[1]->next = newEdges[1]->tail->first;
+    newEdges[1]->tail->first = newEdges[1];
   }
 }
 
