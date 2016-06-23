@@ -40,7 +40,7 @@ for variables in "${variablesArray[@]}" ; do
         echo "${programNoExt} ${modify} ${f} processing ${inputFile}"
         outputFile="output/${date}_${programNoExt}_test_n${variables}_m${constraints}_${f}_no${number}_out.txt"
         echo -n "${inputFile},${variables},${constraints}," >> "${csvFile}"
-        (/usr/bin/time -f "%U,%S,%M" ./${program} "${inputFile}" "${outputFile}") &>> "${csvFile}" 
+        /usr/bin/time -f "%U,%S,%M" ./${program} "${inputFile}" "${outputFile}" &>> "${csvFile}" 
       fi
     done
   done
