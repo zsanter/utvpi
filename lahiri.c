@@ -127,6 +127,23 @@ int main(int argc, char * argv[]){
   return 0;
 }
 
+#ifdef __HPC__
+  /*
+   * Copied from https://www.guyrutenberg.com/2007/09/22/profiling-code-using-clock_gettime/
+   * and modified
+   */
+  void diff(struct timespec * start, struct timespec * end, struct timespec * difference){
+	  if ( ( end->tv_nsec - start->tv_nsec ) < 0 ) {
+		  difference->tv_sec = end->tv_sec - start->tv_sec - 1;
+		  difference->tv_nsec = 1000000000 + end->tv_nsec - start->tv_nsec;
+	  }
+    else {
+      difference->tv_sec = end->tv_sec - start->tv_sec;
+      difference->tv_nsec = end->tv_nsec - start->tv_nsec;
+    }
+  }
+#endif
+
 void fputEdge(Edge * edge, FILE * output){
   if( edge->tail->index == edge->head->index ){
     char sign;
