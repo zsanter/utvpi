@@ -567,7 +567,7 @@ void fibHeapInsert(FibHeap * fibHeap, Vertex * vertex){
     }
   }
   fibHeap->n++;
-  fibHeapVisualize( fibHeap );
+  //fibHeapVisualize( fibHeap );
 }
 
 Vertex * fibHeapExtractMin(FibHeap * fibHeap){
@@ -599,9 +599,9 @@ Vertex * fibHeapExtractMin(FibHeap * fibHeap){
     }
     output->fibHeapNode = NULL;
     if( fibHeap->min != NULL ){
-      fibHeapVisualize( fibHeap );
+      //fibHeapVisualize( fibHeap );
       fibHeapConsolidate( fibHeap );
-      fibHeapVisualize( fibHeap );
+      //fibHeapVisualize( fibHeap );
     }
     free( oldFHN );
     fibHeap->n--;
@@ -702,7 +702,7 @@ void fibHeapDecreaseKey(FibHeap * fibHeap, Vertex * vertex){
   if( x->vertex->D < fibHeap->min->vertex->D ){
     fibHeap->min = x;
   }
-  fibHeapVisualize( fibHeap );  
+  //fibHeapVisualize( fibHeap );  
 }
 
 void fibHeapCut(FibHeap * fibHeap, FibHeapNode * x, FibHeapNode * y){
