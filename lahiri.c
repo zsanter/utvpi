@@ -1,7 +1,18 @@
 #include "lahiri.h"
 
+
+#ifdef __HPC__
+  void diff(struct timespec * start, struct timespec * end, struct timespec * difference){
+#endif
+
 int main(int argc, char * argv[]){
-  clock_t beginning = clock();
+  #ifdef __HPC__
+    puts("Macro passed in correctly.");
+    struct timeSpec start;
+    clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &start);
+  #else
+    clock_t start = clock();
+  #endif
   if( argc != 2 && argc != 3 ){
     fprintf( stderr, "Proper use is %s [input file] {output file}.\nIf no output file is specified, output is to stdout.\n", argv[0] );
     exit(1);
@@ -29,9 +40,19 @@ int main(int argc, char * argv[]){
     fprintf( stderr, "Parsing of \"%s\" failed.\n", argv[1] );
     exit(1);
   }
-  time_t afterSystemCreation = clock();
+  #ifdef __HPC__
+    struct timeSpec beforeLinear;
+    clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &beforeLinear);
+  #else
+    clock_t beforeLinear = clock();
+  #endif
   Edge * negativeCycle = bellmanFord(&system);
-  time_t afterLinear = clock();
+  #ifdef __HPC__
+    struct timeSpec beforeIntegral;
+    clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &beforeIntegral);
+  #else
+    clock_t beforeIntegral = clock();
+  #endif
   int f;
   if( negativeCycle != NULL ){
     f = 0;
@@ -65,16 +86,44 @@ int main(int argc, char * argv[]){
       }
     }
   }
-  time_t afterIntegral = clock();  
+  #ifdef __HPC__
+    struct timeSpec beforeCleanup;
+    clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &beforeCleanup);
+  #else
+    clock_t beforeCleanup = clock();
+  #endif
   fclose(output);
   freeSystem(&system);
-  time_t afterCleanup = clock();
+  #ifdef __HPC__
+    struct timeSpec end;
+    clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &end);
+  #else
+    clock_t end = clock();
+  #endif
   printf("%d,", f);
-  printf("%f,", ((double)(afterSystemCreation - beginning))/CLOCKS_PER_SEC );
-  printf("%f,", ((double)(afterLinear - afterSystemCreation))/CLOCKS_PER_SEC );
-  printf("%f,", ((double)(afterIntegral - afterLinear))/CLOCKS_PER_SEC );
-  printf("%f,", ((double)(afterCleanup - afterIntegral))/CLOCKS_PER_SEC );
-  printf("%f,", ((double)(afterCleanup - beginning))/CLOCKS_PER_SEC );
+  #ifdef __HPC__
+    struct timespec setup;
+    diff(&start, &beforeLinear, &setup);
+    printf("%d.%09d", setup.tv_sec, setup.tv_nsec);
+    struct timespec linear;
+    diff(&beforeLinear, &beforeIntegral, &linear);
+    printf("%d.%09d", linear.tv_sec, linear.tv_nsec);
+    struct timespec integral;
+    diff(&beforeIntegral, &beforeCleanup, &integral);
+    printf("%d.%09d", integral.tv_sec, integral.tv_nsec);
+    struct timespec cleanup;
+    diff(&beforeCleanup, &end, &cleanup);
+    printf("%d.%09d", cleanup.tv_sec, cleanup.tv_nsec);
+    struct timespec total;
+    diff(&start, &end, &total);
+    printf("%d.%09d", total.tv_sec, total.tv_nsec);
+  #else
+    printf("%f,", ((double)(beforeLinear - start))/CLOCKS_PER_SEC);
+    printf("%f,", ((double)(beforeIntegral - beforeLinear))/CLOCKS_PER_SEC);
+    printf("%f,", ((double)(beforeCleanup - beforeIntegral))/CLOCKS_PER_SEC);
+    printf("%f,", ((double)(end - beforeCleanup))/CLOCKS_PER_SEC);
+    printf("%f,", ((double)(end - start))/CLOCKS_PER_SEC);
+  #end
   return 0;
 }
 

@@ -1,8 +1,18 @@
 #include "subWojInt.h"
 #include <time.h>
 
+#ifdef __HPC__
+  void diff(struct timespec * start, struct timespec * end, struct timespec * difference){
+#endif
+
 int main(int argc, char * argv[]){
-  clock_t start = clock();
+  #ifdef __HPC__
+    puts("Macro passed in correctly.");
+    struct timeSpec start;
+    clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &start);
+  #else
+    clock_t start = clock();
+  #endif
   if( argc != 2 && argc != 3 ){
     fprintf( stderr, "Proper use is %s [input file] {output file}.\nIf no output file is specified, output is to stdout.\n", argv[0] );
     exit(1);
@@ -31,10 +41,20 @@ int main(int argc, char * argv[]){
     exit(1);
   }
   finishSystemCreation(&system);
-  clock_t beforeLinear = clock();
+  #ifdef __HPC__
+    struct timeSpec beforeLinear;
+    clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &beforeLinear);
+  #else
+    clock_t beforeLinear = clock();
+  #endif
   int f;
   bool linearlyFeasible = relaxNetwork(&system);
-  clock_t beforeIntegral = clock();
+  #ifdef __HPC__
+    struct timeSpec beforeIntegral;
+    clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &beforeIntegral);
+  #else
+    clock_t beforeIntegral = clock();
+  #endif
   if( !linearlyFeasible ){
     f = 0;
     fputs("The following negative gray cycle was detected:\n", output);
@@ -68,18 +88,63 @@ int main(int argc, char * argv[]){
       }
     }
   }
-  clock_t beforeCleanup = clock();
+  #ifdef __HPC__
+    struct timeSpec beforeCleanup;
+    clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &beforeCleanup);
+  #else
+    clock_t beforeCleanup = clock();
+  #endif
   freeSystem(&system);
   fclose(output);
-  clock_t end = clock();
-  printf("%i,", f);
-  printf("%f,", ((double)(beforeLinear - start))/CLOCKS_PER_SEC);
-  printf("%f,", ((double)(beforeIntegral - beforeLinear))/CLOCKS_PER_SEC);
-  printf("%f,", ((double)(beforeCleanup - beforeIntegral))/CLOCKS_PER_SEC);
-  printf("%f,", ((double)(end - beforeCleanup))/CLOCKS_PER_SEC);
-  printf("%f,", ((double)(end - start))/CLOCKS_PER_SEC);
+  #ifdef __HPC__
+    struct timeSpec end;
+    clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &end);
+  #else
+    clock_t end = clock();
+  #endif
+  printf("%d,", f);
+  #ifdef __HPC__
+    struct timespec setup;
+    diff(&start, &beforeLinear, &setup);
+    printf("%d.%09d", setup.tv_sec, setup.tv_nsec);
+    struct timespec linear;
+    diff(&beforeLinear, &beforeIntegral, &linear);
+    printf("%d.%09d", linear.tv_sec, linear.tv_nsec);
+    struct timespec integral;
+    diff(&beforeIntegral, &beforeCleanup, &integral);
+    printf("%d.%09d", integral.tv_sec, integral.tv_nsec);
+    struct timespec cleanup;
+    diff(&beforeCleanup, &end, &cleanup);
+    printf("%d.%09d", cleanup.tv_sec, cleanup.tv_nsec);
+    struct timespec total;
+    diff(&start, &end, &total);
+    printf("%d.%09d", total.tv_sec, total.tv_nsec);
+  #else
+    printf("%f,", ((double)(beforeLinear - start))/CLOCKS_PER_SEC);
+    printf("%f,", ((double)(beforeIntegral - beforeLinear))/CLOCKS_PER_SEC);
+    printf("%f,", ((double)(beforeCleanup - beforeIntegral))/CLOCKS_PER_SEC);
+    printf("%f,", ((double)(end - beforeCleanup))/CLOCKS_PER_SEC);
+    printf("%f,", ((double)(end - start))/CLOCKS_PER_SEC);
+  #end
   return 0;
 }
+
+#ifdef __HPC__
+  /*
+   * Copied from https://www.guyrutenberg.com/2007/09/22/profiling-code-using-clock_gettime/
+   * and modified
+   */
+  void diff(struct timespec * start, struct timespec * end, struct timespec * difference){
+	  if ( ( end->tv_nsec - start->tv_nsec ) < 0 ) {
+		  difference->tv_sec = end->tv_sec - start->tv_sec - 1;
+		  difference->tv_nsec = 1000000000 + end->tv_nsec - start->tv_nsec;
+	  }
+    else {
+      difference->tv_sec = end->tv_sec - start->tv_sec;
+      difference->tv_nsec = end->tv_nsec - start->tv_nsec;
+    }
+  }
+#endif
 
 EdgeType reverseEdgeType(EdgeType input){ 
   EdgeType output;

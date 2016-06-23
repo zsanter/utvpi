@@ -3,4 +3,4 @@ A new way to generate integral solutions for Unit Two Variable Per Inequality co
 
 Major theoretical work by Dr. K. Subramani and Piotr Wojciechowski. Implementation by Zachary Santer. Research conducted at West Virginia University, and funded by the National Science Foundation.
 
-All C complies with the C11 specification and uses no platform-specific function calls. (Anonymous structs and unions are used in the Lahiri implementation. Otherwise, C99 covers everything.)
+All C complies with the C11 specification and uses no platform-specific function calls (unless you define an __HPC__ macro when compiling subWojInt and lahiri). (Anonymous structs and unions are used in lahiri. Otherwise, C99 covers everything.)
