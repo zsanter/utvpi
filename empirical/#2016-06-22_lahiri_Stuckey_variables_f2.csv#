@@ -73,24 +73,4 @@ input/test_n15000_m100000_f2_no1.utv,15000,100000,Command terminated by signal 9
 1106.70,8.44,1819288
 input/test_n15000_m100000_f2_no2.utv,15000,100000,Command terminated by signal 9
 1127.60,8.50,1817172
-input/test_n15000_m100000_f2_no3.utv,15000,100000,Command terminated by signal 9
-1100.20,11.38,1843164
-input/test_n16000_m100000_f2_no1.utv,16000,100000,Command terminated by signal 9
-1221.57,7.50,1820176
-input/test_n16000_m100000_f2_no2.utv,16000,100000,Command terminated by signal 9
-1192.96,6.86,1824524
-input/test_n16000_m100000_f2_no3.utv,16000,100000,Command terminated by signal 9
-1213.78,7.36,1829748
-input/test_n17000_m100000_f2_no1.utv,17000,100000,Command terminated by signal 9
-1256.61,11.06,1836596
-input/test_n17000_m100000_f2_no2.utv,17000,100000,Command terminated by signal 9
-1347.81,8.27,1828520
-input/test_n17000_m100000_f2_no3.utv,17000,100000,Command terminated by signal 9
-1266.81,8.03,1822092
-input/test_n18000_m100000_f2_no1.utv,18000,100000,Command terminated by signal 9
-1366.12,7.94,1826848
-input/test_n18000_m100000_f2_no2.utv,18000,100000,Command terminated by signal 9
-1313.82,7.58,1826520
-input/test_n18000_m100000_f2_no3.utv,18000,100000,Command terminated by signal 9
-1209.06,7.37,1847208
-input/test_n19000_m100000_f2_no1.utv,19000,100000,
+input/test_n15000_m100000_f2_no3.utv,15000,100000,
