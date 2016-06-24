@@ -10,8 +10,8 @@ x3 + -x3 <= 2
 -x4 - -x_4 <= 23 // more stuff
 x5 -x5 <= 45 /*
 omg */
-x6 - /* whatever */ x6 <= /*noise'/ 3
-x7 + x7 /* yo '/ <= 23 /*
+x6 - /* whatever */ x6 <= /*noise*/ 3
+x7 + x7 /* yo */ <= 23 /*
 and then something else
 */ x8 + x8 <= 3
 x9 - x9 <= 4 /*
