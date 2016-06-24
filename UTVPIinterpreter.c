@@ -14,6 +14,7 @@ bool parseFile(FILE * constraintFile,
   parser.fileLineOffset = ftell( constraintFile );
   parser.line = 1;
   parser.column = 0;
+  parser.inMiddleOfBlockComment = false;
   parser.completedSuccessfully = true;
 
   bool foundVertexCount = parseVertexCount(&parser);
@@ -227,6 +228,10 @@ Token getToken(Parser * parser){
   token.integerComponent = 0;
 
   int character;
+  if( parser->inMiddleOfBlockComment ){
+    parser->inMiddleOfBlockComment = false;
+    goto inMiddleOfBlockCommentLabel; //enter velociraptor
+  }
   do {
     character = myfgetc(parser);
     if(character == '/'){
@@ -239,22 +244,24 @@ Token getToken(Parser * parser){
         break;
       case '*':
         ;
-        BlockCommentEnd bce = NOTHING;
+        inMiddleOfBlockCommentLabel:
+        ;
+        BlockCommentState bcs = NOTHING;
         do {
           character = myfgetc(parser);
           if(character == '\n'){
             newLineAdjustment(parser);
           }
           if(character == '*'){
-            bce = STAR;
+            bcs = STAR;
           }
-          else if(bce == STAR && character == '/'){
-            bce = SLASH;
+          else if(bcs == STAR && character == '/'){
+            bcs = SLASH;
           }
           else{
-            bce = NOTHING;
+            bcs = NOTHING;
           }
-        } while( bce != SLASH && character != EOF );
+        } while( bcs != SLASH && character != EOF );
         if( character == EOF ){
           parseError(parser, "Unexpected EOF or bad block comment.");
         }
@@ -400,13 +407,38 @@ void parseError(Parser * parser, const char * message){
   fputs("  ", stderr);
   fseek(parser->constraintFile, parser->fileLineOffset, SEEK_SET);
   int character;
+  BlockCommentState bcs = NOTHING;
   do {
     character = fgetc(parser->constraintFile);
-    if( character != EOF ){
-      fputc(character, stderr);
-    }
-    else{
+    if( character == EOF ){
       fputc('\n', stderr);
+    }
+    else {
+      fputc(character, stderr);
+      if( parser->inMiddleOfBLockComment ){
+        if( character == '*' ){
+          bcs = STAR;
+        }
+        else if( bcs == STAR && character == '/' ){
+          parser->inMiddleOfBlockComment = false;
+          bcs = NOTHING;
+        }
+        else {
+          bcs = NOTHING;
+        }
+      }
+      else {
+        if( character == '/' ){
+          bcs = SLASH;
+        }
+        else if( bcs == SLASH && character == '*' ){
+          parser->inMiddleOfBlockComment = true;
+          bcs = NOTHING;
+        }
+        else {
+          bcs = NOTHING;
+        }
+      }
     }
   } while( character != '\n' && character != EOF );
   for(int i = 0; i < parser->column + 1; i++){
