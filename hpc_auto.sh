@@ -11,7 +11,7 @@
 #The above line will be skipped by qsub because of the two consecutive # signs 
 
 # Specify job name
-#PBS -N profile_${program}_${modify}_${f}
+#PBS -N utvpi_profile
 
 # Specify the resources need for the job
 # Walltime is specified as hh:mm:ss (hours:minutes:seconds)
@@ -20,7 +20,7 @@
 # Specify when Moab should send e-mails 'ae' below user will
 # receive e-mail for any errors with the job and/or upon completion
 # If you don't want e-mails just comment out these next two PBS lines
-#PBS -m ae
+#PBS -m abe
 
 # Specify the e-mail address to receive above mentioned e-mails
 #PBS -M zsanter@mix.wvu.edu
