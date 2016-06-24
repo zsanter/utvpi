@@ -23,11 +23,11 @@ typedef enum Sign {
   NONE,
 } Sign;
 
-typedef enum BlockCommentEnd {
+typedef enum BlockCommentState {
   NOTHING,
   STAR,
   SLASH,
-} BlockCommentEnd;
+} BlockCommentState;
 
 typedef struct Parser Parser;
 typedef struct Token Token;
@@ -42,6 +42,7 @@ struct Parser {
   long int fileLineOffset;
   int line;
   int column;
+  bool inMiddleOfBlockComment;
   bool completedSuccessfully;
 };
 
