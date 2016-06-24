@@ -11,7 +11,7 @@
 #The above line will be skipped by qsub because of the two consecutive # signs 
 
 # Specify job name
-#PBS -N profile_${1}_${2}_${3}
+#PBS -N profile_${program}_${modify}_${f}
 
 # Specify the resources need for the job
 # Walltime is specified as hh:mm:ss (hours:minutes:seconds)
@@ -33,4 +33,4 @@
 # you want to use or use full path names
 
 cd subramani/utvpi
-./auto.sh "$@"
+./auto.sh "${program}" "${modify}" "${f}"
