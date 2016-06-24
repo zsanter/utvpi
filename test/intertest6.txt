@@ -1,0 +1,12 @@
+/*
+ * Testing parseError() failure when line ends with the
+ * beginning of a block quote.
+ */
+ 
+2 variables
+x1 + x1 <= 23 /* stuff
+x2 - x2 <= -11 */
+x3 + -x3 <= 2
+-x4 - -x_4 <= 23 // more stuff
+x5 -x5 <= 45 /*
+omg */
