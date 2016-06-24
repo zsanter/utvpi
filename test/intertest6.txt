@@ -3,7 +3,7 @@
  * beginning of a block quote.
  */
  
-2 variables
+5 variables
 x1 + x1 <= 23 /* stuff
 x2 - x2 <= -11 */
 x3 + -x3 <= 2

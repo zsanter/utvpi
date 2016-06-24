@@ -415,7 +415,7 @@ void parseError(Parser * parser, const char * message){
     }
     else {
       fputc(character, stderr);
-      if( parser->inMiddleOfBLockComment ){
+      if( parser->inMiddleOfBlockComment ){
         if( character == '*' ){
           bcs = STAR;
         }
