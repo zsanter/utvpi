@@ -129,7 +129,7 @@ int main(int argc, char * argv[]){
 #ifdef __HPC__
   /*
    * Copied from https://www.guyrutenberg.com/2007/09/22/profiling-code-using-clock_gettime/
-   * and modified
+   * and modified.
    */
   void diff(struct timespec * start, struct timespec * end, struct timespec * difference){
     if ( ( end->tv_nsec - start->tv_nsec ) < 0 ) {
