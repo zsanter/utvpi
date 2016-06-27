@@ -73,6 +73,8 @@ int main(int argc, char * argv[]){
       double solution = ((double)( system.graph[POSITIVE][i].D - system.graph[NEGATIVE][i].D )) / 2.0;
       fprintf( output, "x%i = %.1f\n", i + 1, solution );
     }
+    fprintf( output, "\n%d false positives\n", system.falsePositives );
+    fprintf( output, "%d main loop iterations\n", system.mainLoopIterations );
     int infeasibleVertexIndex = lahiri(&system);
     if( infeasibleVertexIndex >= 0 ){
       f = 1;
@@ -294,7 +296,7 @@ Edge * bellmanFord(System * system){
           edge->head->L = edge;
           edge->head->cycleOriginator = edge;
         }
-	edge = edge->next;
+        edge = edge->next;
       }
     }
   }
@@ -325,6 +327,9 @@ Edge * bellmanFord(System * system){
           edge = edge->next;
         }
       }
+    }
+    if( !anyChange ){
+      system->mainLoopIterations = i;
     }
   }
   for(VertexSign i = POSITIVE; i <= NEGATIVE; i++){
