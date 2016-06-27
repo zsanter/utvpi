@@ -243,7 +243,6 @@ Token getToken(Parser * parser){
         } while(character != '\n' && character != EOF);
         break;
       case '*':
-        ;
         inMiddleOfBlockCommentLabel:
         ;
         BlockCommentState bcs = NOTHING;
