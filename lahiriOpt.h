@@ -39,8 +39,8 @@ struct Vertex {
   int index;
   VertexSign sign;
   Edge * L;
-  Edge * cycleOriginator;
   int D;
+  Edge * cycleOriginator;
   Edge * first;
   union {
     struct {
