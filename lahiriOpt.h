@@ -1,5 +1,5 @@
-#ifndef _LAHIRI_H
-#define _LAHIRI_H
+#ifndef _LAHIRI_OPT_H
+#define _LAHIRI_OPT_H
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -32,7 +32,7 @@ struct System {
   int n;
   int falsePositives;
   int mainLoopIterations;
-  int negativeCycleLength;
+  int negativeCycleEdgeCount;
 };
 
 struct Vertex {

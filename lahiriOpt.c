@@ -1,5 +1,4 @@
-#include "lahiri.h"
-
+#include "lahiriOpt.h"
 
 #ifdef __HPC__
   void diff(struct timespec * start, struct timespec * end, struct timespec * difference);
@@ -55,17 +54,18 @@ int main(int argc, char * argv[]){
   int f;
   if( negativeCycle != NULL ){
     f = 0;
+    int negativeCycleEdgeCount = 0;
     fputs("The following negative cost cycle was detected:\n", output);
     Edge * edge = negativeCycle;
     while( edge->backtrackSeen == true ){
       fputEdge( edge, output );
       edge->backtrackSeen = false;
       edge = edge->tail->L;
-      system.negativeCycleLength++;
+      system.negativeCycleEdgeCount++;
     }
     fprintf( output, "\n%d false positives\n", system.falsePositives );
     fprintf( output, "%d main loop iterations\n", system.mainLoopIterations );
-    fprintf( output, "%d negative eycle edges\n", system.negativeCycleLength );
+    fprintf( output, "%d negative cycle edges\n", system.negativeCycleEdgeCount );
   }
   else{
     fputs("Linear solution:\n", output);
@@ -106,7 +106,7 @@ int main(int argc, char * argv[]){
   printf("%d,", f);
   printf("%d,", system.falsePositives);
   printf("%d,", system.mainLoopIterations);
-  printf("%d,", system.negativeCycleLength);
+  printf("%d,", system.negativeCycleEdgeCount);
   #ifdef __HPC__
     struct timespec setup;
     diff(&start, &beforeLinear, &setup);
@@ -195,7 +195,7 @@ void initializeSystem(void * object, int n, Parser * parser){
   system->n = n;
   system->falsePositives = 0;
   system->mainLoopIterations = INT_MAX;
-  system->negativeCycleLength = 0;
+  system->negativeCycleEdgeCount = 0;
   for(VertexSign i = POSITIVE; i <= NEGATIVE; i++){
     system->graph[i] = (Vertex *) malloc( sizeof(Vertex) * n );
     for(int j = 0; j < system->n; j++){
@@ -294,6 +294,7 @@ Edge * bellmanFord(System * system){
           edge->head->L = edge;
           edge->head->cycleOriginator = edge;
         }
+	edge = edge->next;
       }
     }
   }
