@@ -59,9 +59,9 @@ struct Constraint {
 };
 
 bool parseFile(FILE * constraintFile,
-	       void * object,
-	       void (* initializeSystem)(void * object, int n, Parser * parser), 
-	       void (* addEdge)(void * object, Constraint * constraint, Parser * parser));
+    void * object,
+    void (* initializeSystem)(void * object, int n, Parser * parser), 
+    void (* addEdge)(void * object, Constraint * constraint, Parser * parser));
 bool parseVertexCount(Parser * parser);
 void parseConstraints(Parser * parser);
 void afterInitialSign(Parser * parser, Constraint * constraint);

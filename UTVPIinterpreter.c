@@ -306,7 +306,7 @@ Token getToken(Parser * parser){
       token.type = INTEGER;
       token.sign = PLUS;
       token.integerComponent = character - '0';
-      continuingInteger(parser, &token);	
+      continuingInteger(parser, &token);
     }
   }
   if( token.type == INTEGER && token.sign == MINUS ){
