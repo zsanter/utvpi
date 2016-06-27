@@ -301,7 +301,7 @@ Edge * bellmanFord(System * system){
     }
   }
   bool anyChange = true;
-  for(int i = 1; i <= (2 * system->n - 1) && anyChange; i++){
+  for(int i = 1; i <= (2 * system->n - 2 /*1*/) && anyChange; i++){
     anyChange = false;
     for(VertexSign j = POSITIVE; j <= NEGATIVE; j++){
       for(int k = 0; k < system->n; k++){
