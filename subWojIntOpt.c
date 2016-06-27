@@ -414,7 +414,7 @@ bool relaxNetwork(System * system){
   anyChange = true;
   for(int r = 1; r <= 2 * system->n - 1 && anyChange; r++){
     anyChange = false;
-    Edge * e = system->allEdgeFirst;
+    e = system->allEdgeFirst;
     while( e != NULL ){
       bool edgeFeasible = relaxEdge(system, e, &anyChange);
       if( !edgeFeasible ){
@@ -427,7 +427,7 @@ bool relaxNetwork(System * system){
       system->mainLoopIterations = r;
     }
   }
-  Edge * e = system->allEdgeFirst;
+  e = system->allEdgeFirst;
   while( e != NULL ){
     switch( e->type ){
     case WHITE:
@@ -769,8 +769,8 @@ bool backtrack(System * system, Vertex * x_i, EdgeType t, Edge * e){
   
   if( x_c->L[t_c] == NULL ){ //due to cycleOriginator false positive
     for(int i = 0; i < system->vertexCount; i++){
-      E[NEG_ONE] = NULL;
-      E[POS_ONE] = NULL;
+      system->graph[i].E[NEG_ONE] = NULL;
+      system->graph[i].E[POS_ONE] = NULL;
     }
     system->falsePositives++;
     return true;
