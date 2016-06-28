@@ -1,4 +1,3 @@
-#include <stdio.h>
 #include <ctype.h>
 #include "utvpiInterpreter.h"
 
@@ -39,25 +38,25 @@ typedef struct Token {
   int integerComponent;
 } Token;
 
-bool parseVertexCount(Parser * parser);
-void parseConstraints(Parser * parser);
-void afterInitialSign(Parser * parser, Constraint * constraint);
-void afterFirstVariable(Parser * parser, Constraint * constraint);
-void secondVariable(Parser * parser, Constraint * constraint);
-void lessThanOrEqual(Parser * parser, Constraint * constraint);
-void weight(Parser * parser, Constraint * constraint);
-void newLine(Parser * parser, Constraint * constraint);
-bool variableIndexWithinBounds(Parser * parser, Token * token);
-bool variableIndecesDiffer(Parser * parser, Constraint * constraint);
-void newLineAdjustment(Parser * parser);
-Token getToken(Parser * parser);
-void afterSign(Parser * parser, Token * token);
-void afterX(Parser * parser, Token * token);
-void variablesKeyword(Parser * parser, Token * token);
-void lessThanOrEqualToken(Parser * parser, Token * token);
-void continuingInteger(Parser * parser, Token * token);
-int myfgetc(Parser * parser);
-void myungetc(int character, Parser * parser);
+static bool parseVertexCount(Parser * parser);
+static void parseConstraints(Parser * parser);
+static void afterInitialSign(Parser * parser, Constraint * constraint);
+static void afterFirstVariable(Parser * parser, Constraint * constraint);
+static void secondVariable(Parser * parser, Constraint * constraint);
+static void lessThanOrEqual(Parser * parser, Constraint * constraint);
+static void weight(Parser * parser, Constraint * constraint);
+static void newLine(Parser * parser, Constraint * constraint);
+static bool variableIndexWithinBounds(Parser * parser, Token * token);
+static bool variableIndecesDiffer(Parser * parser, Constraint * constraint);
+static void newLineAdjustment(Parser * parser);
+static Token getToken(Parser * parser);
+static void afterSign(Parser * parser, Token * token);
+static void afterX(Parser * parser, Token * token);
+static void variablesKeyword(Parser * parser, Token * token);
+static void lessThanOrEqualToken(Parser * parser, Token * token);
+static void continuingInteger(Parser * parser, Token * token);
+static int myfgetc(Parser * parser);
+static void myungetc(int character, Parser * parser);
 
 bool parseFile(FILE * constraintFile,
         void * object,
@@ -91,7 +90,7 @@ bool parseFile(FILE * constraintFile,
   return parser.completedSuccessfully;
 }
 
-bool parseVertexCount(Parser * parser){
+static bool parseVertexCount(Parser * parser){
   Token token;
   do {
     token = getToken(parser);
@@ -112,7 +111,7 @@ bool parseVertexCount(Parser * parser){
   return false;
 }
 
-void parseConstraints(Parser * parser){
+static void parseConstraints(Parser * parser){
   Token token;
   do {
 
@@ -157,7 +156,7 @@ void parseConstraints(Parser * parser){
   } while( token.type != END_OF_FILE );
 }
 
-void afterInitialSign(Parser * parser, Constraint * constraint){
+static void afterInitialSign(Parser * parser, Constraint * constraint){
   Token token = getToken(parser);
   switch( token.type ){
   case UNSIGNED_VARIABLE:
@@ -171,7 +170,7 @@ void afterInitialSign(Parser * parser, Constraint * constraint){
   }
 }
 
-void afterFirstVariable(Parser * parser, Constraint * constraint){
+static void afterFirstVariable(Parser * parser, Constraint * constraint){
   Token token = getToken(parser);
   switch( token.type ){
   case SIGN:
@@ -194,7 +193,7 @@ void afterFirstVariable(Parser * parser, Constraint * constraint){
   }
 }
 
-void secondVariable(Parser * parser, Constraint * constraint){
+static void secondVariable(Parser * parser, Constraint * constraint){
   Token token = getToken(parser);
   switch(token.type){
   case SIGNED_VARIABLE:
@@ -222,7 +221,7 @@ void secondVariable(Parser * parser, Constraint * constraint){
   }
 }
 
-void lessThanOrEqual(Parser * parser, Constraint * constraint){
+static void lessThanOrEqual(Parser * parser, Constraint * constraint){
   Token token = getToken(parser);
   switch(token.type){
   case LESS_THAN_OR_EQUAL:
@@ -233,7 +232,7 @@ void lessThanOrEqual(Parser * parser, Constraint * constraint){
   }
 }
 
-void weight(Parser * parser, Constraint * constraint){
+static void weight(Parser * parser, Constraint * constraint){
   Token token = getToken(parser);
   switch(token.type){
   case INTEGER:
@@ -245,7 +244,7 @@ void weight(Parser * parser, Constraint * constraint){
   }
 }
 
-void newLine(Parser * parser, Constraint * constraint){
+static void newLine(Parser * parser, Constraint * constraint){
   Token token = getToken(parser);
   switch(token.type){
   case NEWLINE:
@@ -257,7 +256,7 @@ void newLine(Parser * parser, Constraint * constraint){
   }
 }
 
-bool variableIndexWithinBounds(Parser * parser, Token * token){
+static bool variableIndexWithinBounds(Parser * parser, Token * token){
   if( token->integerComponent < 1 || token->integerComponent > parser->systemMaxIndex ){
     parseError(parser, "Variable index outside of defined range.");
     return false;
@@ -265,7 +264,7 @@ bool variableIndexWithinBounds(Parser * parser, Token * token){
   return true;
 }
 
-bool variableIndecesDiffer(Parser * parser, Constraint * constraint){
+static bool variableIndecesDiffer(Parser * parser, Constraint * constraint){
   if( constraint->index[0] == constraint->index[1] ){
     parseError(parser, "Variable indices must differ.");
     return false;
@@ -273,13 +272,13 @@ bool variableIndecesDiffer(Parser * parser, Constraint * constraint){
   return true;
 }
 
-void newLineAdjustment(Parser * parser){
+static void newLineAdjustment(Parser * parser){
   parser->fileLineOffset = ftell( parser->constraintFile );
   parser->line++;
   parser->column = 0;
 }
 
-Token getToken(Parser * parser){
+static Token getToken(Parser * parser){
 
   Token token;
   token.type = UNDEFINED;
@@ -375,7 +374,7 @@ Token getToken(Parser * parser){
   return token;
 }
 
-void afterSign(Parser * parser, Token * token){
+static void afterSign(Parser * parser, Token * token){
   int character = myfgetc(parser);
   if( character == 'x' || character == 'X'){
     token->type = SIGNED_VARIABLE;
@@ -396,7 +395,7 @@ void afterSign(Parser * parser, Token * token){
   }
 }
 
-void afterX(Parser * parser, Token * token){
+static void afterX(Parser * parser, Token * token){
   int character = myfgetc(parser);
   if( character == '_' ){
     character = myfgetc(parser);
@@ -411,7 +410,7 @@ void afterX(Parser * parser, Token * token){
   }
 }
 
-void variablesKeyword(Parser * parser, Token * token){
+static void variablesKeyword(Parser * parser, Token * token){
   int character;
   char ariables[] = {'a', 'r', 'i', 'a', 'b', 'l', 'e', 's'};
   bool matches = true;
@@ -425,7 +424,7 @@ void variablesKeyword(Parser * parser, Token * token){
   }
 }
 
-void lessThanOrEqualToken(Parser * parser, Token * token){
+static void lessThanOrEqualToken(Parser * parser, Token * token){
   int character = myfgetc(parser);
   if( character != '=' ){
     token->type = UNDEFINED;
@@ -433,7 +432,7 @@ void lessThanOrEqualToken(Parser * parser, Token * token){
   }
 }
 
-void continuingInteger(Parser * parser, Token * token){
+static void continuingInteger(Parser * parser, Token * token){
   int character = myfgetc(parser);
   while( isdigit( character ) ){
     token->integerComponent *= 10;
@@ -446,12 +445,12 @@ void continuingInteger(Parser * parser, Token * token){
   myungetc( character, parser );
 }
 
-int myfgetc(Parser * parser){
+static int myfgetc(Parser * parser){
   parser->column++;
   return fgetc(parser->constraintFile);
 }
 
-void myungetc(int character, Parser * parser){
+static void myungetc(int character, Parser * parser){
   if(character != EOF){
     parser->column--;
     fseek(parser->constraintFile, -1, SEEK_CUR);

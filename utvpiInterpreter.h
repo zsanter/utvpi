@@ -1,6 +1,7 @@
 #ifndef _UTVPI_INTERPRETER_H
 #define _UTVPI_INTERPRETER_H
 
+#include <stdio.h>
 #include <stdbool.h>
 #include "constraint.h"
 
