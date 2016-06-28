@@ -119,12 +119,12 @@ void initializeSystem(void * object, int n, Parser * parser){
 
 void addConstraint(void * object, Constraint * constraint, Parser * parser){
   System * system = (System *) object;
-  if( constraint->sign[1] == NONE ){
+  if( constraint->sign[1] == CONSTRAINT_NONE ){
     Edge * newEdge = (Edge *) malloc( sizeof(Edge) );
     newEdge->weight = 2 * constraint->weight;
     newEdge->backtrackSeen = false;
     VertexSign tailSign, headSign;
-    if( constraint->sign[0] == PLUS ){
+    if( constraint->sign[0] == CONSTRAINT_PLUS ){
       tailSign = NEGATIVE;
       headSign = POSITIVE;
     }
@@ -147,7 +147,7 @@ void addConstraint(void * object, Constraint * constraint, Parser * parser){
     newEdges[1]->backtrackSeen = false;
     if( constraint->sign[0] != constraint->sign[1] ){
       int positiveIndex, negativeIndex;
-      if( constraint->sign[0] == PLUS ){
+      if( constraint->sign[0] == CONSTRAINT_PLUS ){
         positiveIndex = 0;
         negativeIndex = 1;
       }
@@ -160,7 +160,7 @@ void addConstraint(void * object, Constraint * constraint, Parser * parser){
       newEdges[1]->tail = &system->graph[NEGATIVE][ constraint->index[ positiveIndex ] - 1 ];
       newEdges[1]->head = &system->graph[NEGATIVE][ constraint->index[ negativeIndex ] - 1 ];
     }
-    else if( constraint->sign[0] == PLUS ){
+    else if( constraint->sign[0] == CONSTRAINT_PLUS ){
       newEdges[0]->tail = &system->graph[NEGATIVE][ constraint->index[1] - 1 ];
       newEdges[0]->head = &system->graph[POSITIVE][ constraint->index[0] - 1 ];
       newEdges[1]->tail = &system->graph[NEGATIVE][ constraint->index[0] - 1 ];

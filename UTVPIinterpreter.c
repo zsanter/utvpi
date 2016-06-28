@@ -58,9 +58,9 @@ void parseConstraints(Parser * parser){
   do {
 
     Constraint constraint;
-    constraint.sign[0] = NONE;
+    constraint.sign[0] = CONSTRAINT_NONE;
     constraint.index[0] = 0;
-    constraint.sign[1] = NONE;
+    constraint.sign[1] = CONSTRAINT_NONE;
     constraint.index[1] = 0;
     constraint.weight = 0;
     
@@ -83,7 +83,7 @@ void parseConstraints(Parser * parser){
       }
       break;
     case UNSIGNED_VARIABLE:
-      constraint.sign[0] = PLUS;
+      constraint.sign[0] = CONSTRAINT_PLUS;
       constraint.index[0] = token.integerComponent;
       if( variableIndexWithinBounds( parser, &token ) ){
         afterFirstVariable(parser, &constraint);
@@ -140,10 +140,10 @@ void secondVariable(Parser * parser, Constraint * constraint){
   switch(token.type){
   case SIGNED_VARIABLE:
     if( constraint->sign[1] != token.sign ){
-      constraint->sign[1] = MINUS;
+      constraint->sign[1] = CONSTRAINT_MINUS;
     }
     else{
-      constraint->sign[1] = PLUS;
+      constraint->sign[1] = CONSTRAINT_PLUS;
     }
     constraint->index[1] = token.integerComponent;
     if( variableIndexWithinBounds( parser, &token )
@@ -224,7 +224,7 @@ Token getToken(Parser * parser){
 
   Token token;
   token.type = UNDEFINED;
-  token.sign = NONE;
+  token.sign = CONSTRAINT_NONE;
   token.integerComponent = 0;
 
   int character;
@@ -274,17 +274,17 @@ Token getToken(Parser * parser){
   } while( isspace(character) && character != '\n' );
   switch(character){
   case '+':
-    token.sign = PLUS;
+    token.sign = CONSTRAINT_PLUS;
     afterSign(parser, &token);
     break;
   case '-':
-    token.sign = MINUS;
+    token.sign = CONSTRAINT_MINUS;
     afterSign(parser, &token);
     break;
   case 'x':
   case 'X':
     token.type = UNSIGNED_VARIABLE;
-    token.sign = PLUS;
+    token.sign = CONSTRAINT_PLUS;
     afterX(parser, &token);
     break;
   case 'v':
@@ -304,14 +304,14 @@ Token getToken(Parser * parser){
   default:
     if( isdigit(character) ){
       token.type = INTEGER;
-      token.sign = PLUS;
+      token.sign = CONSTRAINT_PLUS;
       token.integerComponent = character - '0';
       continuingInteger(parser, &token);
     }
   }
-  if( token.type == INTEGER && token.sign == MINUS ){
+  if( token.type == INTEGER && token.sign == CONSTRAINT_MINUS ){
     token.integerComponent *= -1;
-    token.sign = PLUS;
+    token.sign = CONSTRAINT_PLUS;
   } 
   return token;
 }

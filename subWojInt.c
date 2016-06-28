@@ -233,14 +233,15 @@ void addConstraint(void * object, Constraint * constraint, Parser * parser){
   if( abs( constraint->weight ) > system->C ){
     system->C = abs( constraint->weight );
   }
-  if( constraint->sign[1] == NONE ){
+  if( constraint->sign[1] == CONSTRAINT_NONE ){
     constraint->index[1] = 0;
-    constraint->sign[1] = PLUS;
+    constraint->sign[1] = CONSTRAINT_PLUS;
     addEdge( system, constraint );
-    constraint->sign[1] = MINUS;
+    constraint->sign[1] = CONSTRAINT_MINUS;
     addEdge( system, constraint );
+    constraint->sign[1] = CONSTRAINT_MOME;
     //Calls to addEdge place the new edges at first[edgeType] for both vertices
-    if( constraint->sign[0] == PLUS ){
+    if( constraint->sign[0] == CONSTRAINT_PLUS ){
       if( constraint->weight < system->graph[ constraint->index[0] ].D[WHITE] ){
         system->graph[ constraint->index[0] ].D[WHITE] = constraint->weight;
         system->graph[ constraint->index[0] ].L[WHITE] = system->graph[0].first[WHITE];
@@ -274,7 +275,7 @@ void addEdge(System * system, Constraint * constraint){
   newEdges[1]->next = NULL;
   if( constraint->sign[0] == constraint->sign[1] ){
     EdgeType edgeType;
-    if( constraint->sign[0] == PLUS ){
+    if( constraint->sign[0] == CONSTRAINT_PLUS ){
       edgeType = WHITE;
     }
     else{
@@ -289,7 +290,7 @@ void addEdge(System * system, Constraint * constraint){
   }
   else{
     int negativeIndex, positiveIndex;
-    if( constraint->sign[0] == PLUS ){
+    if( constraint->sign[0] == CONSTRAINT_PLUS ){
       positiveIndex = 0;
       negativeIndex = 1;
     }

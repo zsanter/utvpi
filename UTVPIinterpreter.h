@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <ctype.h>
+#include "constraint.h"
 
 typedef enum TokenType{
   SIGN,
@@ -17,12 +18,6 @@ typedef enum TokenType{
   UNDEFINED,
 } TokenType;
 
-typedef enum Sign {
-  PLUS,
-  MINUS,
-  NONE,
-} Sign;
-
 typedef enum BlockCommentState {
   NOTHING,
   STAR,
@@ -31,7 +26,6 @@ typedef enum BlockCommentState {
 
 typedef struct Parser Parser;
 typedef struct Token Token;
-typedef struct Constraint Constraint;
 
 struct Parser {
   FILE * constraintFile;
@@ -50,12 +44,6 @@ struct Token {
   TokenType type;
   Sign sign;
   int integerComponent;
-};
-
-struct Constraint {
-  Sign sign[2];
-  int index[2];
-  int weight;
 };
 
 bool parseFile(FILE * constraintFile,

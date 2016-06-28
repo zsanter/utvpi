@@ -55,12 +55,12 @@ void initializeSystem(void * object, int n, Parser * parser){
 
 void addEdge(void * object, Constraint * constraint, Parser * parser){
   System * system = (System *) object;
-  if( constraint->sign[1] == NONE || constraint->sign[0] == constraint->sign[1] ){
+  if( constraint->sign[1] == CONSTRAINT_NONE || constraint->sign[0] == constraint->sign[1] ){
     parseError(parser, "The Bellman-Ford algorithm cannot handle this type of constraint." );
   }
   else{
     int tailIndex, headIndex;
-    if( constraint->sign[0] == MINUS ) {
+    if( constraint->sign[0] == CONSTRAINT_MINUS ) {
       tailIndex = constraint->index[0] - 1;
       headIndex = constraint->index[1] - 1;
     }
