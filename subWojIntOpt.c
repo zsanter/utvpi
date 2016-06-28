@@ -61,7 +61,11 @@ int main(int argc, char * argv[]){
     while( R != NULL ){
       fputEdge(R->edge, output);
       R = R->next;
+      system.negativeCycleEdgeCount++;
     }
+    fprintf( output, "\n%d false positives\n", system.falsePositives );
+    fprintf( output, "%d main loop iterations\n", system.mainLoopIterations );
+    fprintf( output, "%d negative cycle edges\n", system.negativeCycleEdgeCount );
   }
   else{
     fputs("Linear solution:\n", output);
@@ -102,6 +106,9 @@ int main(int argc, char * argv[]){
     clock_t end = clock();
   #endif
   printf("%d,", f);
+  printf("%d,", system.falsePositives);
+  printf("%d,", system.mainLoopIterations);
+  printf("%d,", system.negativeCycleEdgeCount);
   #ifdef __HPC__
     struct timespec setup;
     diff(&start, &beforeLinear, &setup);
