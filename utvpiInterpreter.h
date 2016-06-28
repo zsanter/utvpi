@@ -10,7 +10,7 @@ typedef struct Parser Parser;
 bool parseFile(FILE * constraintFile,
     void * object,
     void (* initializeSystem)(void * object, int n, Parser * parser), 
-    void (* addEdge)(void * object, Constraint * constraint, Parser * parser));
+    void (* addConstraint)(void * object, Constraint * constraint, Parser * parser));
 
 void parseError(Parser * parser, const char * message);
 

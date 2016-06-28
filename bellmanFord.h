@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "UTVPIinterpreter.h"
+#include "utvpiInterpreter.h"
 
 typedef struct System System;
 typedef struct Vertex Vertex;

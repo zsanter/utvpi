@@ -23,7 +23,7 @@ struct Parser {
   FILE * constraintFile;
   void * object;
   void (* initializeSystem)(void * object, int n, Parser * parser);
-  void (* addEdge)(void * object, Constraint * constraint, Parser * parser);
+  void (* addConstraint)(void * object, Constraint * constraint, Parser * parser);
   int systemMaxIndex;
   long int fileLineOffset;
   int line;
@@ -61,13 +61,13 @@ static void myungetc(int character, Parser * parser);
 bool parseFile(FILE * constraintFile,
         void * object,
         void (* initializeSystem)(void * object, int n, Parser * parser), 
-        void (* addEdge)(void * object, Constraint * constraint, Parser * parser)){
+        void (* addConstraint)(void * object, Constraint * constraint, Parser * parser)){
   
   Parser parser;
   parser.constraintFile = constraintFile;
   parser.object = object;
   parser.initializeSystem = initializeSystem;
-  parser.addEdge = addEdge;
+  parser.addConstraint = addConstraint;
   parser.systemMaxIndex = 0;
   parser.fileLineOffset = ftell( constraintFile );
   parser.line = 1;
@@ -249,7 +249,7 @@ static void newLine(Parser * parser, Constraint * constraint){
   switch(token.type){
   case NEWLINE:
   case END_OF_FILE:
-    parser->addEdge(parser->object, constraint, parser);
+    parser->addConstraint(parser->object, constraint, parser);
     break;
   default:
     parseError(parser, "Unexpected token.");
