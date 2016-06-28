@@ -108,7 +108,7 @@ void finishSystemCreation(System * system);
 int edgeCompare(const void * edge1, const void * edge2);
 void removeFromAllEdgeList(System * system, Edge * edge);
 bool relaxNetwork(System * system);
-void relaxEdge(Edge * e);
+bool relaxEdge(System * system, Edge * e, bool * anyChange);
 bool backtrack(System * system, Vertex * x_i, EdgeType t, Edge * e);
 bool produceIntegerSolution(System * system);
 bool forcedRounding(System * system, Vertex * x_i);
