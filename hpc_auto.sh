@@ -7,7 +7,7 @@
 
 # Specify the resources needed for the job
 # 1 node, 1 processor per node, 54 GB of memory, 10 hours max
-#PBS -l nodes=1:ppn=1,pvmem=54gb,walltime=24:00:00
+#PBS -l nodes=1:ppn=1,pvmem=54gb,walltime=168:00:00
 
 # Specify when Moab should send e-mails
 # Upon abort/begin/end
@@ -17,7 +17,7 @@
 #PBS -M zsanter@mix.wvu.edu
 
 # Specify the queue to execute task in.
-#PBS -q comm_mmem_day
+#PBS -q comm_mmem_week
 
 # Whenever a job begins, the node starts in your home directory.
 cd subramani/utvpi
