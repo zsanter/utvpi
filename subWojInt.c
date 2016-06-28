@@ -239,7 +239,7 @@ void addConstraint(void * object, Constraint * constraint, Parser * parser){
     addEdge( system, constraint );
     constraint->sign[1] = CONSTRAINT_MINUS;
     addEdge( system, constraint );
-    constraint->sign[1] = CONSTRAINT_MOME;
+    constraint->sign[1] = CONSTRAINT_NONE;
     //Calls to addEdge place the new edges at first[edgeType] for both vertices
     if( constraint->sign[0] == CONSTRAINT_PLUS ){
       if( constraint->weight < system->graph[ constraint->index[0] ].D[WHITE] ){

@@ -42,7 +42,7 @@ struct Parser {
 
 struct Token {
   TokenType type;
-  Sign sign;
+  ConstraintSign sign;
   int integerComponent;
 };
 

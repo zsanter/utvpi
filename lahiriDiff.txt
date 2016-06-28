@@ -1,0 +1,201 @@
+*** lahiri.c	2016-06-26 19:56:58.548000000 -0400
+--- lahiriOpt.c	2016-06-26 21:40:27.772000000 -0400
+***************
+*** 1,8 ****
+! #include "lahiri.h"
+! 
+  
+  #ifdef __HPC__
+! void diff(struct timespec * start, struct timespec * end, struct timespec * difference);
+  #endif
+  
+  int main(int argc, char * argv[]){
+--- 1,7 ----
+! #include "lahiriOpt.h"
+  
+  #ifdef __HPC__
+!   void diff(struct timespec * start, struct timespec * end, struct timespec * difference);
+  #endif
+  
+  int main(int argc, char * argv[]){
+*************** int main(int argc, char * argv[]){
+*** 55,67 ****
+--- 54,71 ----
+    int f;
+    if( negativeCycle != NULL ){
+      f = 0;
++     int negativeCycleEdgeCount = 0;
+      fputs("The following negative cost cycle was detected:\n", output);
+      Edge * edge = negativeCycle;
+      while( edge->backtrackSeen == true ){
+        fputEdge( edge, output );
+        edge->backtrackSeen = false;
+        edge = edge->tail->L;
++       system.negativeCycleEdgeCount++;
+      }
++     fprintf( output, "\n%d false positives\n", system.falsePositives );
++     fprintf( output, "%d main loop iterations\n", system.mainLoopIterations );
++     fprintf( output, "%d negative cycle edges\n", system.negativeCycleEdgeCount );
+    }
+    else{
+      fputs("Linear solution:\n", output);
+*************** int main(int argc, char * argv[]){
+*** 69,74 ****
+--- 73,80 ----
+        double solution = ((double)( system.graph[POSITIVE][i].D - system.graph[NEGATIVE][i].D )) / 2.0;
+        fprintf( output, "x%i = %.1f\n", i + 1, solution );
+      }
++     fprintf( output, "\n%d false positives\n", system.falsePositives );
++     fprintf( output, "%d main loop iterations\n", system.mainLoopIterations );
+      int infeasibleVertexIndex = lahiri(&system);
+      if( infeasibleVertexIndex >= 0 ){
+        f = 1;
+*************** int main(int argc, char * argv[]){
+*** 100,105 ****
+--- 106,114 ----
+      clock_t end = clock();
+    #endif
+    printf("%d,", f);
++   printf("%d,", system.falsePositives);
++   printf("%d,", system.mainLoopIterations);
++   printf("%d,", system.negativeCycleEdgeCount);
+    #ifdef __HPC__
+      struct timespec setup;
+      diff(&start, &beforeLinear, &setup);
+*************** void fputEdge(Edge * edge, FILE * output
+*** 186,197 ****
+--- 195,210 ----
+  void initializeSystem(void * object, int n, Parser * parser){
+    System * system = (System *) object;
+    system->n = n;
++   system->falsePositives = 0;
++   system->mainLoopIterations = INT_MAX;
++   system->negativeCycleEdgeCount = 0;
+    for(VertexSign i = POSITIVE; i <= NEGATIVE; i++){
+      system->graph[i] = (Vertex *) malloc( sizeof(Vertex) * n );
+      for(int j = 0; j < system->n; j++){
+        system->graph[i][j].index = j + 1;
+        system->graph[i][j].sign = i;
+        system->graph[i][j].L = NULL;
++       system->graph[i][j].cycleOriginator = NULL;
+        system->graph[i][j].D = 0;
+        system->graph[i][j].first = NULL;
+        system->graph[i][j].dfsColor = WHITE;
+*************** void addConstraint(void * object, Constr
+*** 274,289 ****
+  }
+  
+  Edge * bellmanFord(System * system){
+!   for(int i = 1; i <= (2 * system->n - 1); i++){
+      for(VertexSign j = POSITIVE; j <= NEGATIVE; j++){
+        for(int k = 0; k < system->n; k++){
+          Edge * edge = system->graph[j][k].first;
+          while(edge != NULL){
+!           relax(edge);
+            edge = edge->next;
+          }
+        }
+      }
+    }
+    for(VertexSign i = POSITIVE; i <= NEGATIVE; i++){
+      for(int j = 0; j < system->n; j++){
+--- 287,336 ----
+  }
+  
+  Edge * bellmanFord(System * system){
+!   for(VertexSign i = POSITIVE; i <= NEGATIVE; i++){
+!     for(int j = 0; j < system->n; j++){
+!       Edge * edge = system->graph[i][j].first;
+!       while(edge != NULL){
+!         if( edge->head->D > edge->tail->D + edge->weight ){
+!           edge->head->D = edge->tail->D + edge->weight;
+!           edge->head->L = edge;
+!           edge->head->cycleOriginator = edge;
+!         }
+!         edge = edge->next;
+!       }
+!     }
+!   }
+!   bool anyChange = true;
+!   for(int i = 1; i <= (2 * system->n - 2 /*1*/) && anyChange; i++){
+!     anyChange = false;
+      for(VertexSign j = POSITIVE; j <= NEGATIVE; j++){
+        for(int k = 0; k < system->n; k++){
+          Edge * edge = system->graph[j][k].first;
+          while(edge != NULL){
+!           if( edge->head->D > edge->tail->D + edge->weight ){
+!             edge->head->D = edge->tail->D + edge->weight;
+!             edge->head->L = edge;
+!             edge->head->cycleOriginator = edge->tail->cycleOriginator;
+!             if( edge == edge->head->cycleOriginator ){
+!               Edge * negativeCycle = backtrack( edge );
+!               if( negativeCycle == NULL ){
+!                 system->falsePositives++;
+!               }
+!               else {
+!                 system->mainLoopIterations = i;
+!                 return negativeCycle;
+!               }
+!             }
+!             anyChange = true;
+!           }
+!           
+            edge = edge->next;
+          }
+        }
+      }
++     if( !anyChange ){
++       system->mainLoopIterations = i;
++     }
+    }
+    for(VertexSign i = POSITIVE; i <= NEGATIVE; i++){
+      for(int j = 0; j < system->n; j++){
+*************** Edge * bellmanFord(System * system){
+*** 298,316 ****
+    }
+    return NULL;
+  }
+! 
+  void relax(Edge * edge){
+    if( edge->head->D > edge->tail->D + edge->weight ){
+      edge->head->D = edge->tail->D + edge->weight;
+      edge->head->L = edge;
+    }
+  }
+! 
+  Edge * backtrack(Edge * edge){
+!   while( edge->backtrackSeen == false ){
+      edge->backtrackSeen = true;
+      edge = edge->tail->L;
+    }
+    return edge;
+  }
+  
+--- 345,371 ----
+    }
+    return NULL;
+  }
+! /*
+  void relax(Edge * edge){
+    if( edge->head->D > edge->tail->D + edge->weight ){
+      edge->head->D = edge->tail->D + edge->weight;
+      edge->head->L = edge;
+    }
+  }
+! */
+  Edge * backtrack(Edge * edge){
+!   Edge * input = edge;
+!   while( edge != NULL && edge->backtrackSeen == false ){
+      edge->backtrackSeen = true;
+      edge = edge->tail->L;
+    }
++   if( edge == NULL ){
++     edge = input;
++     while( edge != NULL && edge->backtrackSeen == true ){
++       edge->backtrackSeen = false;
++       edge = edge->tail->L;
++     }
++   }
+    return edge;
+  }
+  
