@@ -73,6 +73,8 @@ int main(int argc, char * argv[]){
       system.graph[i].a = intDivBy2ToHalfInt( system.graph[i].D[WHITE] - system.graph[i].D[BLACK] );
       fprintf(output, "x%i = %.1f\n", i, halfIntToDouble( system.graph[i].a ) );
     }
+    fprintf( output, "\n%d false positives\n", system.falsePositives );
+    fprintf( output, "%d main loop iterations\n", system.mainLoopIterations );
     bool integrallyFeasible = produceIntegerSolution(&system);
     if( !integrallyFeasible ){
       f = 1;
