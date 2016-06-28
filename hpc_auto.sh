@@ -7,7 +7,7 @@
 
 # Specify the resources needed for the job
 # 1 node, 1 processor per node, 54 GB of memory, 10 hours max
-#PBS -l nodes=1:ppn=1,pvmem=54gb,walltime=10:00:00
+#PBS -l nodes=1:ppn=1,pvmem=54gb,walltime=24:00:00
 
 # Specify when Moab should send e-mails
 # Upon abort/begin/end
