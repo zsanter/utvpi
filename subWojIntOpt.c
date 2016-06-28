@@ -412,7 +412,7 @@ bool relaxNetwork(System * system){
     }
   }
   anyChange = true;
-  for(int r = 1; r <= 2 * system->n && anyChange; r++){
+  for(int r = 1; r <= 2 * system->n - 1 && anyChange; r++){
     anyChange = false;
     Edge * e = system->allEdgeFirst;
     while( e != NULL ){
@@ -427,9 +427,10 @@ bool relaxNetwork(System * system){
       system->mainLoopIterations = r;
     }
   }
-  for(int i = 0; i < system->vertexCount; i++){
-    Edge * e = system->graph[i].first[WHITE];
-    while( e != NULL ){
+  Edge * e = system->allEdgeFirst;
+  while( e != NULL ){
+    switch( e->type ){
+    case WHITE:
       if( e->head->D[GRAY_REVERSE] + e->weight < e->tail->D[WHITE] ){
         return backtrack(system, e->head, GRAY_REVERSE, e->reverse);
       }
@@ -442,12 +443,8 @@ bool relaxNetwork(System * system){
       if( e->tail->D[BLACK] + e->weight < e->head->D[GRAY_FORWARD] ){
         return backtrack(system, e->tail, BLACK, e);
       }
-      e = e->next;
-    }
-  }
-  for(int i = 0; i < system->vertexCount; i++){
-    Edge * e = system->graph[i].first[BLACK];
-    while( e != NULL ){
+      break;
+    case BLACK:
       if( e->head->D[GRAY_FORWARD] + e->weight < e->tail->D[BLACK] ){
         return backtrack(system, e->head, GRAY_FORWARD, e->reverse);
       }
@@ -460,12 +457,8 @@ bool relaxNetwork(System * system){
       if( e->tail->D[WHITE] + e->weight < e->head->D[GRAY_REVERSE] ){
         return backtrack(system, e->tail, WHITE, e);
       }
-      e = e->next;
-    }
-  }
-  for(int i = 0; i < system->vertexCount; i++){
-    Edge * e = system->graph[i].first[GRAY_FORWARD];
-    while( e != NULL ){
+      break;
+    case GRAY_FORWARD:
       if( e->head->D[GRAY_REVERSE] + e->weight < e->tail->D[GRAY_REVERSE] ){
         return backtrack(system, e->head, GRAY_REVERSE, e->reverse);
       }
@@ -478,12 +471,8 @@ bool relaxNetwork(System * system){
       if( e->tail->D[WHITE] + e->weight < e->head->D[WHITE] ){
         return backtrack(system, e->tail, WHITE, e);
       }
-      e = e->next;
-    }
-  }
-  for(int i = 0; i < system->vertexCount; i++){
-    Edge * e = system->graph[i].first[GRAY_REVERSE];
-    while( e != NULL ){
+      break;
+    case GRAY_REVERSE:
       if( e->head->D[GRAY_FORWARD] + e->weight < e->tail->D[GRAY_FORWARD] ){
         return backtrack(system, e->head, GRAY_FORWARD, e->reverse);
       }
@@ -496,8 +485,8 @@ bool relaxNetwork(System * system){
       if( e->tail->D[BLACK] + e->weight < e->head->D[BLACK] ){
         return backtrack(system, e->tail, BLACK, e);
       }
-      e = e->next;
     }
+    e = e->allNext;
   }
   return true;
 }
