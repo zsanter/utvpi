@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdbool.h>
-#include "UTVPIinterpreter.h"
+#include "utvpiInterpreter.h"
 
 void main(int argc, char * argv[]);
 void initializeSystem(void * object, int vertexCount, Parser * parser);

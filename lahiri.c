@@ -1,6 +1,5 @@
 #include "lahiri.h"
 
-
 #ifdef __HPC__
 void diff(struct timespec * start, struct timespec * end, struct timespec * difference);
 #endif

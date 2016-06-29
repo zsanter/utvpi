@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <time.h>
-#include "UTVPIinterpreter.h"
+#include "utvpiInterpreter.h"
 #include "halfint.h"
 
 #define VERTEX_SIGN_COUNT 2

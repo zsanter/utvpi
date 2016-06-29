@@ -1,4 +1,4 @@
-#include "UTVPIinterpreter.h"
+#include "utvpiInterpreter.h"
 
 bool parseFile(FILE * constraintFile,
         void * object,

@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <time.h>
-#include "UTVPIinterpreter.h"
+#include "utvpiInterpreter.h"
 #include "halfint.h"
 
 #define EDGE_TYPE_COUNT 4

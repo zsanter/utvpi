@@ -7,7 +7,7 @@
 #include <limits.h>
 #include <math.h>
 #include <time.h>
-#include "UTVPIinterpreter.h"
+#include "urvpiInterpreter.h"
 
 #define VERTEX_SIGN_COUNT 2
 typedef enum VertexSign {
