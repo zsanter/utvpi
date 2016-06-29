@@ -32,11 +32,11 @@ static void initializeSystem(void * object, int vertexCount, Parser * parser){
 
 static void addEdge(void * object, Constraint * constraint, Parser * parser){
   for(int i = 0; i < 2; i++){
-    if( constraint->sign[i] != NONE){
-      if( constraint->sign[i] == PLUS){
+    if( constraint->sign[i] != CONSTRAINT_NONE){
+      if( constraint->sign[i] == CONSTRAINT_PLUS){
         printf("+");
       }
-      else if( constraint->sign[i] == MINUS){
+      else if( constraint->sign[i] == CONSTRAINT_MINUS){
         printf("-");
       }
       printf("x%i ", constraint->index[i]);
