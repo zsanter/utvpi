@@ -196,7 +196,7 @@ static void afterFirstVariable(Parser * parser, Constraint * constraint){
 static void secondVariable(Parser * parser, Constraint * constraint){
   Token token = getToken(parser);
   switch(token.type){
-  case SIGNED_VARIABLE:
+  /*case SIGNED_VARIABLE:
     if( constraint->sign[1] != token.sign ){
       constraint->sign[1] = CONSTRAINT_MINUS;
     }
@@ -208,7 +208,7 @@ static void secondVariable(Parser * parser, Constraint * constraint){
         && variableIndecesDiffer( parser, constraint ) ){
       lessThanOrEqual(parser, constraint);
     }
-    break;
+    break;*/
   case UNSIGNED_VARIABLE:
     constraint->index[1] = token.integerComponent;
     if( variableIndexWithinBounds( parser, &token )
