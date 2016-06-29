@@ -74,32 +74,32 @@ struct FibHeapNode {
 };
 
 int main(int argc, char * argv[]);
-void fputEdge(Edge * edge, FILE * output);
-void initializeSystem(void * object, int n, Parser * parser);
-void setSystemForJohnson(System * system);
-void addConstraint(void * object, Constraint * constraint, Parser * parser);
-Edge * bellmanFord(System * system);
-void relax(Edge * edge);
-Edge * backtrack(Edge * edge);
-int lahiri(System * Gphi);
-void onlySlacklessEdges(System * original, System * subgraph);
-void stronglyConnectedComponents(System * system);
-void dfsVisit(Vertex * vertex, int * time, int sccNumber);
-void transposeSystem(System * original, System * transpose);
-int vertexCompareFinishingTimes(const void * vertex1, const void * vertex2);
-void johnsonAllPairs(System * Gphi, System * Cstar);
-void dijkstra(System * system, Vertex * vertex);
-void fibHeapInsert(FibHeap * fibHeap, Vertex * vertex);
-Vertex * fibHeapExtractMin(FibHeap * fibHeap);
-void fibHeapConsolidate(FibHeap * fibHeap);
-void fibHeapLink(FibHeap * fibHeap, FibHeapNode * y, FibHeapNode * x);
-void fibHeapDecreaseKey(FibHeap * fibHeap, Vertex * vertex);
-void fibHeapCut(FibHeap * fibHeap, FibHeapNode * x, FibHeapNode * y);
-void fibHeapCascadingCut(FibHeap * fibHeap, FibHeapNode * y);
-void freeSystem(System * system);
+static void fputEdge(Edge * edge, FILE * output);
+static void initializeSystem(void * object, int n, Parser * parser);
+static void setSystemForJohnson(System * system);
+static void addConstraint(void * object, Constraint * constraint, Parser * parser);
+static Edge * bellmanFord(System * system);
+static void relax(Edge * edge);
+static Edge * backtrack(Edge * edge);
+static int lahiri(System * Gphi);
+static void onlySlacklessEdges(System * original, System * subgraph);
+static void stronglyConnectedComponents(System * system);
+static void dfsVisit(Vertex * vertex, int * time, int sccNumber);
+static void transposeSystem(System * original, System * transpose);
+static int vertexCompareFinishingTimes(const void * vertex1, const void * vertex2);
+static void johnsonAllPairs(System * Gphi, System * Cstar);
+static void dijkstra(System * system, Vertex * vertex);
+static void fibHeapInsert(FibHeap * fibHeap, Vertex * vertex);
+static Vertex * fibHeapExtractMin(FibHeap * fibHeap);
+static void fibHeapConsolidate(FibHeap * fibHeap);
+static void fibHeapLink(FibHeap * fibHeap, FibHeapNode * y, FibHeapNode * x);
+static void fibHeapDecreaseKey(FibHeap * fibHeap, Vertex * vertex);
+static void fibHeapCut(FibHeap * fibHeap, FibHeapNode * x, FibHeapNode * y);
+static void fibHeapCascadingCut(FibHeap * fibHeap, FibHeapNode * y);
+static void freeSystem(System * system);
 
 #ifdef __HPC__
-  void diff(struct timespec * start, struct timespec * end, struct timespec * difference);
+  static void diff(struct timespec * start, struct timespec * end, struct timespec * difference);
 #endif
 
 int main(int argc, char * argv[]){
@@ -228,7 +228,7 @@ int main(int argc, char * argv[]){
    * Copied from https://www.guyrutenberg.com/2007/09/22/profiling-code-using-clock_gettime/
    * and modified.
    */
-  void diff(struct timespec * start, struct timespec * end, struct timespec * difference){
+  static void diff(struct timespec * start, struct timespec * end, struct timespec * difference){
     if ( ( end->tv_nsec - start->tv_nsec ) < 0 ) {
       difference->tv_sec = end->tv_sec - start->tv_sec - 1;
       difference->tv_nsec = 1000000000 + end->tv_nsec - start->tv_nsec;
@@ -240,7 +240,7 @@ int main(int argc, char * argv[]){
   }
 #endif
 
-void fputEdge(Edge * edge, FILE * output){
+static void fputEdge(Edge * edge, FILE * output){
   if( edge->tail->index == edge->head->index ){
     char sign;
     switch( edge->tail->sign ){
@@ -280,7 +280,7 @@ void fputEdge(Edge * edge, FILE * output){
   }
 }
 
-void initializeSystem(void * object, int n, Parser * parser){
+static void initializeSystem(void * object, int n, Parser * parser){
   System * system = (System *) object;
   system->n = n;
   for(VertexSign i = POSITIVE; i <= NEGATIVE; i++){
@@ -298,7 +298,7 @@ void initializeSystem(void * object, int n, Parser * parser){
   }
 }
 
-void setSystemForJohnson(System * system){
+static void setSystemForJohnson(System * system){
   for(VertexSign i = POSITIVE; i <= NEGATIVE; i++){
     for(int j = 0; j < system->n; j++){
       system->graph[i][j].h = 0;
@@ -308,7 +308,7 @@ void setSystemForJohnson(System * system){
   }
 }
 
-void addConstraint(void * object, Constraint * constraint, Parser * parser){
+static void addConstraint(void * object, Constraint * constraint, Parser * parser){
   System * system = (System *) object;
   if( constraint->sign[1] == CONSTRAINT_NONE ){
     Edge * newEdge = (Edge *) malloc( sizeof(Edge) );
@@ -370,7 +370,7 @@ void addConstraint(void * object, Constraint * constraint, Parser * parser){
   }
 }
 
-Edge * bellmanFord(System * system){
+static Edge * bellmanFord(System * system){
   for(int i = 1; i <= (2 * system->n - 1); i++){
     for(VertexSign j = POSITIVE; j <= NEGATIVE; j++){
       for(int k = 0; k < system->n; k++){
@@ -396,14 +396,14 @@ Edge * bellmanFord(System * system){
   return NULL;
 }
 
-void relax(Edge * edge){
+static void relax(Edge * edge){
   if( edge->head->D > edge->tail->D + edge->weight ){
     edge->head->D = edge->tail->D + edge->weight;
     edge->head->L = edge;
   }
 }
 
-Edge * backtrack(Edge * edge){
+static Edge * backtrack(Edge * edge){
   while( edge->backtrackSeen == false ){
     edge->backtrackSeen = true;
     edge = edge->tail->L;
@@ -411,7 +411,7 @@ Edge * backtrack(Edge * edge){
   return edge;
 }
 
-int lahiri(System * Gphi){
+static int lahiri(System * Gphi){
   System GphiPrime;
   onlySlacklessEdges(Gphi, &GphiPrime);
   stronglyConnectedComponents(&GphiPrime);
@@ -502,7 +502,7 @@ int lahiri(System * Gphi){
  * Doesn't copy Vertex elements L, D, rho, dfsColor, discoveryTime, finishingTime, sccNumber, h, 
  * dijkstraFinalized, or fibHeapNode, because this is unnecessary for our purposes
  */
-void onlySlacklessEdges(System * original, System * subgraph){
+static void onlySlacklessEdges(System * original, System * subgraph){
   initializeSystem( subgraph, original->n, NULL );
   for(VertexSign i = POSITIVE; i <= NEGATIVE; i++){
     for(int j = 0; j < original->n; j++){
@@ -523,7 +523,7 @@ void onlySlacklessEdges(System * original, System * subgraph){
   }
 }
 
-void stronglyConnectedComponents(System * system){
+static void stronglyConnectedComponents(System * system){
   int time = 0;
   int sccNumber = 0;
   for(VertexSign i = POSITIVE; i <= NEGATIVE; i++){
@@ -559,7 +559,7 @@ void stronglyConnectedComponents(System * system){
   freeSystem( &transpose );
 }
 
-void dfsVisit(Vertex * vertex, int * time, int sccNumber){
+static void dfsVisit(Vertex * vertex, int * time, int sccNumber){
   (*time)++;
   vertex->dfsColor = GRAY;
   vertex->sccNumber = sccNumber;
@@ -579,7 +579,7 @@ void dfsVisit(Vertex * vertex, int * time, int sccNumber){
  * Doesn't copy Vertex elements L, D, rho, dfsColor, discoveryTime, finishingTime, sccNumber, h, 
  * dijkstraFinalized, or fibHeapNode, because this is unnecessary for our purposes
  */
-void transposeSystem(System * original, System * transpose){
+static void transposeSystem(System * original, System * transpose){
   initializeSystem( transpose, original->n, NULL );
   for(VertexSign i = POSITIVE; i <= NEGATIVE; i++){
     for(int j = 0; j < original->n; j++){
@@ -599,7 +599,7 @@ void transposeSystem(System * original, System * transpose){
   }
 }
 
-int vertexCompareFinishingTimes(const void * vertex1, const void * vertex2){
+static int vertexCompareFinishingTimes(const void * vertex1, const void * vertex2){
   return (*(Vertex **)vertex1)->finishingTime - (*(Vertex **)vertex2)->finishingTime;
 }
 
@@ -607,7 +607,7 @@ int vertexCompareFinishingTimes(const void * vertex1, const void * vertex2){
  * Fills Cstar with the transitive and tight closure of Gphi
  * but only adding edges where head->index <= tail->index
  */
-void johnsonAllPairs(System * Gphi, System * Cstar){
+static void johnsonAllPairs(System * Gphi, System * Cstar){
   initializeSystem( Cstar, Gphi->n, NULL );
   setSystemForJohnson( Cstar );
   for(VertexSign i = POSITIVE; i <= NEGATIVE; i++){
@@ -660,7 +660,7 @@ void johnsonAllPairs(System * Gphi, System * Cstar){
   }
 }
 
-void dijkstra(System * system, Vertex * source){
+static void dijkstra(System * system, Vertex * source){
   for(VertexSign i = POSITIVE; i <= NEGATIVE; i++){
     for(int j = 0; j < system->n; j++){
       system->graph[i][j].D = INT_MAX;
@@ -692,7 +692,7 @@ void dijkstra(System * system, Vertex * source){
   
 }
 
-void fibHeapInsert(FibHeap * fibHeap, Vertex * vertex){
+static void fibHeapInsert(FibHeap * fibHeap, Vertex * vertex){
   FibHeapNode * newFHN = (FibHeapNode *) malloc( sizeof(FibHeapNode) );
   newFHN->degree = 0;
   newFHN->parent = NULL;
@@ -718,7 +718,7 @@ void fibHeapInsert(FibHeap * fibHeap, Vertex * vertex){
   fibHeap->n++;
 }
 
-Vertex * fibHeapExtractMin(FibHeap * fibHeap){
+static Vertex * fibHeapExtractMin(FibHeap * fibHeap){
   Vertex * output;
   if( fibHeap->min != NULL ){
     output = fibHeap->min->vertex;
@@ -758,7 +758,7 @@ Vertex * fibHeapExtractMin(FibHeap * fibHeap){
   return output;
 }
 
-void fibHeapConsolidate(FibHeap * fibHeap){
+static void fibHeapConsolidate(FibHeap * fibHeap){
   double phi = ( 1.0 + sqrt( 5.0 ) ) / 2.0;
   int Alength = ((int)( log( fibHeap->n ) / log( phi ) )) + 1;
   FibHeapNode * A[ Alength ];
@@ -811,7 +811,7 @@ void fibHeapConsolidate(FibHeap * fibHeap){
   }
 }
 
-void fibHeapLink(FibHeap * fibHeap, FibHeapNode * y, FibHeapNode * x){
+static void fibHeapLink(FibHeap * fibHeap, FibHeapNode * y, FibHeapNode * x){
   y->left->right = y->right;
   y->right->left = y->left;
   if( x->child != NULL ){
@@ -834,7 +834,7 @@ void fibHeapLink(FibHeap * fibHeap, FibHeapNode * y, FibHeapNode * x){
  * Will silently fail if vertex->D is actually set higher than it had been.
  * This scenario can cause the heap to violate the min-heap property, making it useless. 
  */
-void fibHeapDecreaseKey(FibHeap * fibHeap, Vertex * vertex){
+static void fibHeapDecreaseKey(FibHeap * fibHeap, Vertex * vertex){
   FibHeapNode * x = vertex->fibHeapNode;
   FibHeapNode * y = x->parent;
   if( y != NULL && x->vertex->D < y->vertex->D ){
@@ -846,7 +846,7 @@ void fibHeapDecreaseKey(FibHeap * fibHeap, Vertex * vertex){
   }
 }
 
-void fibHeapCut(FibHeap * fibHeap, FibHeapNode * x, FibHeapNode * y){
+static void fibHeapCut(FibHeap * fibHeap, FibHeapNode * x, FibHeapNode * y){
   if( y->child == y->child->right ){
     y->child = NULL;
   }
@@ -864,7 +864,7 @@ void fibHeapCut(FibHeap * fibHeap, FibHeapNode * x, FibHeapNode * y){
   x->mark = false;
 }
 
-void fibHeapCascadingCut(FibHeap * fibHeap, FibHeapNode * y){
+static void fibHeapCascadingCut(FibHeap * fibHeap, FibHeapNode * y){
   FibHeapNode * z = y->parent;
   if( z != NULL ){
     if( y->mark == false ){
@@ -877,7 +877,7 @@ void fibHeapCascadingCut(FibHeap * fibHeap, FibHeapNode * y){
   }
 }
 
-void freeSystem(System * system){
+static void freeSystem(System * system){
   for(VertexSign i = POSITIVE; i <= NEGATIVE; i++){
     for(int j = 0; j < system->n; j++){
       Edge * edge = system->graph[i][j].first;

@@ -38,13 +38,13 @@ struct Edge {
 };
 
 int main(int argc, char * argv[]);
-void fputEdge(Edge * edge, FILE * output);
-void initializeSystem(void * object, int n, Parser * parser);
-void addConstraint(void * object, Constraint * constraint, Parser * parser);
-Edge * bellmanFord(System * system);
-void relax(Edge * edge);
-Edge * backtrack(Edge * edge);
-void cleanup(System * system);
+static void fputEdge(Edge * edge, FILE * output);
+static void initializeSystem(void * object, int n, Parser * parser);
+static void addConstraint(void * object, Constraint * constraint, Parser * parser);
+static Edge * bellmanFord(System * system);
+static void relax(Edge * edge);
+static Edge * backtrack(Edge * edge);
+static void cleanup(System * system);
 
 int main(int argc, char * argv[]){
   clock_t beginning = clock();
@@ -106,7 +106,7 @@ int main(int argc, char * argv[]){
   return 0;
 }
 
-void fputEdge(Edge * edge, FILE * output){
+static void fputEdge(Edge * edge, FILE * output){
   if( edge->tail->index == edge->head->index ){
     char sign;
     switch( edge->tail->sign ){
@@ -146,7 +146,7 @@ void fputEdge(Edge * edge, FILE * output){
   }
 }
 
-void initializeSystem(void * object, int n, Parser * parser){
+static void initializeSystem(void * object, int n, Parser * parser){
   System * system = (System *) object;
   system->n = n;
   system->graph[POSITIVE] = (Vertex *) malloc( sizeof(Vertex) * n );
@@ -163,7 +163,7 @@ void initializeSystem(void * object, int n, Parser * parser){
   }
 }
 
-void addConstraint(void * object, Constraint * constraint, Parser * parser){
+static void addConstraint(void * object, Constraint * constraint, Parser * parser){
   System * system = (System *) object;
   if( constraint->sign[1] == CONSTRAINT_NONE ){
     Edge * newEdge = (Edge *) malloc( sizeof(Edge) );
@@ -225,7 +225,7 @@ void addConstraint(void * object, Constraint * constraint, Parser * parser){
   }
 }
 
-Edge * bellmanFord(System * system){
+static Edge * bellmanFord(System * system){
   for(int i = 1; i <= (2 * system->n - 1); i++){
     for(VertexSign j = POSITIVE; j <= NEGATIVE; j++){
       for(int k = 0; k < system->n; k++){
@@ -251,14 +251,14 @@ Edge * bellmanFord(System * system){
   return NULL;
 }
 
-void relax(Edge * edge){
+static void relax(Edge * edge){
   if( edge->head->D > edge->tail->D + edge->weight ){
     edge->head->D = edge->tail->D + edge->weight;
     edge->head->L = edge;
   }
 }
 
-Edge * backtrack(Edge * edge){
+static Edge * backtrack(Edge * edge){
   while( edge->backtrackSeen == false ){
     edge->backtrackSeen = true;
     edge = edge->tail->L;
@@ -266,7 +266,7 @@ Edge * backtrack(Edge * edge){
   return edge;
 }
 
-void cleanup(System * system){
+static void cleanup(System * system){
   for(VertexSign i = POSITIVE; i <= NEGATIVE; i++){
     for(int j = 0; j < system->n; j++){
       Edge * edge = system->graph[i][j].first;

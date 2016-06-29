@@ -58,16 +58,16 @@ struct EdgeRefList {
 };
 
 int main(int argc, char * argv[]);
-void fputEdge(Edge * edge, FILE * output);
-EdgeType reverseEdgeType(EdgeType input);
-void initializeSystem(void * object, int n, Parser * parser);
-void addConstraint(void * object, Constraint * constraint, Parser * parser);
-void addEdge(System * system, Constraint * constraint);
-void finishSystemCreation(System * system);
-EdgeRefList * relaxNetwork(System * system);
-void relaxEdge(Edge * e);
-EdgeRefList * backtrack(Vertex * x_i, EdgeType t, Edge * e);
-void cleanupSystem(System * system);
+static void fputEdge(Edge * edge, FILE * output);
+static EdgeType reverseEdgeType(EdgeType input);
+static void initializeSystem(void * object, int n, Parser * parser);
+static void addConstraint(void * object, Constraint * constraint, Parser * parser);
+static void addEdge(System * system, Constraint * constraint);
+static void finishSystemCreation(System * system);
+static EdgeRefList * relaxNetwork(System * system);
+static void relaxEdge(Edge * e);
+static EdgeRefList * backtrack(Vertex * x_i, EdgeType t, Edge * e);
+static void cleanupSystem(System * system);
 
 int main(int argc, char * argv[]){
   clock_t beginning = clock();
@@ -128,7 +128,7 @@ int main(int argc, char * argv[]){
   return 0;
 }
 
-void fputEdge(Edge * edge, FILE * output){
+static void fputEdge(Edge * edge, FILE * output){
   char sign[2];
   switch(edge->type){
   case WHITE:
@@ -157,7 +157,7 @@ void fputEdge(Edge * edge, FILE * output){
   fprintf(output, "<= %i\n", edge->weight);
 }
 
-EdgeType reverseEdgeType(EdgeType input){ /////////
+static EdgeType reverseEdgeType(EdgeType input){ /////////
   EdgeType output;
   switch(input){
   case GRAY_FORWARD:
@@ -172,7 +172,7 @@ EdgeType reverseEdgeType(EdgeType input){ /////////
   return output;
 }
 
-void initializeSystem(void * object, int n, Parser * parser){
+static void initializeSystem(void * object, int n, Parser * parser){
   System * system = (System *) object;
   system->vertexCount = n + 1;
   system->graph = (Vertex *) malloc( sizeof(Vertex) * system->vertexCount );
@@ -201,7 +201,7 @@ void initializeSystem(void * object, int n, Parser * parser){
   }
 }
 
-void addConstraint(void * object, Constraint * constraint, Parser * parser){
+static void addConstraint(void * object, Constraint * constraint, Parser * parser){
   System * system = (System *) object;
   if( abs( constraint->weight ) > system->C ){
     system->C = abs( constraint->weight );
@@ -236,7 +236,7 @@ void addConstraint(void * object, Constraint * constraint, Parser * parser){
   }
 }
 
-void addEdge(System * system, Constraint * constraint){
+static void addEdge(System * system, Constraint * constraint){
   Edge * newEdges[2];
   newEdges[0] = (Edge *) malloc( sizeof(Edge) );
   newEdges[1] = (Edge *) malloc( sizeof(Edge) );
@@ -287,7 +287,7 @@ void addEdge(System * system, Constraint * constraint){
   newEdges[1]->allNext = NULL;
 }
 
-void finishSystemCreation(System * system){
+static void finishSystemCreation(System * system){
   int sourceEdgeWeights = (2 * system->n + 1) * system->C;
   for(EdgeType i = WHITE; i <= GRAY_REVERSE; i++){
     for(int j = 1; j < system->vertexCount; j++){
@@ -298,20 +298,15 @@ void finishSystemCreation(System * system){
   }
 }
 
-EdgeRefList * relaxNetwork(System * system){
+static EdgeRefList * relaxNetwork(System * system){
   //Lines 3-6 of algorithm implemented in finishSystemCreation().
-  //int sourceNodeEdgeRelaxCount = 0;
   for(int r = 1; r <= 2 * system->n; r++){
     Edge * e = system->allEdgeFirst;
     while( e != NULL ){
-      //if( i == 0 ){
-      //  sourceNodeEdgeRelaxCount++;
-      //}
       relaxEdge(e);
       e = e->allNext;
     }
   }
-  //printf("Source node edge relaxed %d times.\n", sourceNodeEdgeRelaxCount);
   for(int i = 0; i < system->vertexCount; i++){
     Edge * e = system->graph[i].first[WHITE];
     while( e != NULL ){
@@ -387,7 +382,7 @@ EdgeRefList * relaxNetwork(System * system){
   return NULL;
 }
 
-void relaxEdge(Edge * e){
+static void relaxEdge(Edge * e){
   switch(e->type){
   case WHITE:
     if( e->head->D[GRAY_REVERSE] + e->weight < e->tail->D[WHITE] ){
@@ -463,7 +458,7 @@ void relaxEdge(Edge * e){
   }
 }
 
-EdgeRefList * backtrack(Vertex * x_i, EdgeType t, Edge * e){
+static EdgeRefList * backtrack(Vertex * x_i, EdgeType t, Edge * e){
   Vertex * x_c = x_i;
   Edge * e_c = e;
   EdgeType t_c = t;
@@ -572,7 +567,7 @@ EdgeRefList * backtrack(Vertex * x_i, EdgeType t, Edge * e){
   return R;
 }
 
-void cleanupSystem(System * system){
+static void cleanupSystem(System * system){
   for(EdgeType i = WHITE; i <= GRAY_REVERSE; i++){
     for(int j = 0; j < system->vertexCount; j++){
       Edge * e = system->graph[j].first[i];

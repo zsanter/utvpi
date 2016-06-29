@@ -93,38 +93,38 @@ struct IntegerTreeVertex {
 };
 
 int main(int argc, char * argv[]);
-EdgeType reverseEdgeType(EdgeType input);
-void fputEdge(Edge * edge, FILE * output);
-void initializeSystem(void * object, int n, Parser * parser);
-void addConstraint(void * object, Constraint * constraint, Parser * parser);
-void addEdge(System * system, Constraint * constraint);
-void finishSystemCreation(System * system);
-int edgeCompare(const void * edge1, const void * edge2);
-void removeFromAllEdgeList(System * system, Edge * edge);
-bool relaxNetwork(System * system);
-void relaxEdge(Edge * e);
-bool backtrack(System * system, Vertex * x_i, EdgeType t, Edge * e);
-bool produceIntegerSolution(System * system);
-bool forcedRounding(System * system, Vertex * x_i);
-bool optionalRoundings(System * system);
-void checkDependencies(IntegerTree * T, Vertex * x_i, IntegerType integerType);
-bool checkAllConstraints(System * system, Vertex * toVertex, IntegerType integerType);
-void systemSubset(System * system);
-Edge * generateAbsoluteConstraint(System * system, Vertex * x_i, int weight, EdgeType type);
-IntegerTree * generateIntegerTree(System * system);
-Vertex * pollIntegerTreeQueue(IntegerTree * tree);
-void expandIntegerTree(IntegerTree * T, Vertex * active, Vertex * parent, Edge * edge0, Edge * edge1, Edge * edge2);
-void integerTreeBacktrack(EdgeRefList * list, IntegerTreeVertex * fromVertex, IntegerTreeVertex * toVertex, bool includeToVertex);
-void copyTreeEdgesToList(EdgeRefList * list, IntegerTreeVertex * itv);
-void freeIntegerTree(IntegerTree * tree);
-EdgeRefList * generateEdgeRefList();
-void edgeRefListAppend(EdgeRefList * erl, Edge * edge);
-void edgeRefListPrepend(EdgeRefList * erl, Edge * edge);
-void freeEdgeRefList(EdgeRefList * erl);
-void freeSystem(System * system);
+static EdgeType reverseEdgeType(EdgeType input);
+static void fputEdge(Edge * edge, FILE * output);
+static void initializeSystem(void * object, int n, Parser * parser);
+static void addConstraint(void * object, Constraint * constraint, Parser * parser);
+static void addEdge(System * system, Constraint * constraint);
+static void finishSystemCreation(System * system);
+static int edgeCompare(const void * edge1, const void * edge2);
+static void removeFromAllEdgeList(System * system, Edge * edge);
+static bool relaxNetwork(System * system);
+static void relaxEdge(Edge * e);
+static bool backtrack(System * system, Vertex * x_i, EdgeType t, Edge * e);
+static bool produceIntegerSolution(System * system);
+static bool forcedRounding(System * system, Vertex * x_i);
+static bool optionalRoundings(System * system);
+static void checkDependencies(IntegerTree * T, Vertex * x_i, IntegerType integerType);
+static bool checkAllConstraints(System * system, Vertex * toVertex, IntegerType integerType);
+static void systemSubset(System * system);
+static Edge * generateAbsoluteConstraint(System * system, Vertex * x_i, int weight, EdgeType type);
+static IntegerTree * generateIntegerTree(System * system);
+static Vertex * pollIntegerTreeQueue(IntegerTree * tree);
+static void expandIntegerTree(IntegerTree * T, Vertex * active, Vertex * parent, Edge * edge0, Edge * edge1, Edge * edge2);
+static void integerTreeBacktrack(EdgeRefList * list, IntegerTreeVertex * fromVertex, IntegerTreeVertex * toVertex, bool includeToVertex);
+static void copyTreeEdgesToList(EdgeRefList * list, IntegerTreeVertex * itv);
+static void freeIntegerTree(IntegerTree * tree);
+static EdgeRefList * generateEdgeRefList();
+static void edgeRefListAppend(EdgeRefList * erl, Edge * edge);
+static void edgeRefListPrepend(EdgeRefList * erl, Edge * edge);
+static void freeEdgeRefList(EdgeRefList * erl);
+static void freeSystem(System * system);
 
 #ifdef __HPC__
-  void diff(struct timespec * start, struct timespec * end, struct timespec * difference);
+  static void diff(struct timespec * start, struct timespec * end, struct timespec * difference);
 #endif
 
 int main(int argc, char * argv[]){
@@ -255,7 +255,7 @@ int main(int argc, char * argv[]){
    * Copied from https://www.guyrutenberg.com/2007/09/22/profiling-code-using-clock_gettime/
    * and modified.
    */
-  void diff(struct timespec * start, struct timespec * end, struct timespec * difference){
+  static void diff(struct timespec * start, struct timespec * end, struct timespec * difference){
     if ( ( end->tv_nsec - start->tv_nsec ) < 0 ) {
       difference->tv_sec = end->tv_sec - start->tv_sec - 1;
       difference->tv_nsec = 1000000000 + end->tv_nsec - start->tv_nsec;
@@ -267,7 +267,7 @@ int main(int argc, char * argv[]){
   }
 #endif
 
-EdgeType reverseEdgeType(EdgeType input){ 
+static EdgeType reverseEdgeType(EdgeType input){ 
   EdgeType output;
   switch(input){
   case GRAY_FORWARD:
@@ -282,7 +282,7 @@ EdgeType reverseEdgeType(EdgeType input){
   return output;
 }
 
-void fputEdge(Edge * edge, FILE * output){
+static void fputEdge(Edge * edge, FILE * output){
   char sign[2];
   switch(edge->type){
   case WHITE:
@@ -311,7 +311,7 @@ void fputEdge(Edge * edge, FILE * output){
   fprintf(output, "<= %i\n", edge->weight);
 }
 
-void initializeSystem(void * object, int n, Parser * parser){
+static void initializeSystem(void * object, int n, Parser * parser){
   System * system = (System *) object;
   system->vertexCount = n + 1;
   system->graph = (Vertex *) malloc( sizeof(Vertex) * system->vertexCount );
@@ -350,7 +350,7 @@ void initializeSystem(void * object, int n, Parser * parser){
    }
 }
 
-void addConstraint(void * object, Constraint * constraint, Parser * parser){
+static void addConstraint(void * object, Constraint * constraint, Parser * parser){
   System * system = (System *) object;
   if( abs( constraint->weight ) > system->C ){
     system->C = abs( constraint->weight );
@@ -385,7 +385,7 @@ void addConstraint(void * object, Constraint * constraint, Parser * parser){
   }
 }
 
-void addEdge(System * system, Constraint * constraint){
+static void addEdge(System * system, Constraint * constraint){
   Edge * newEdges[2];
   newEdges[0] = (Edge *) malloc( sizeof(Edge) );
   newEdges[1] = (Edge *) malloc( sizeof(Edge) );
@@ -445,7 +445,7 @@ void addEdge(System * system, Constraint * constraint){
   newEdges[1]->inAllEdgeList = false;
 }
 
-void finishSystemCreation(System * system){
+static void finishSystemCreation(System * system){
   int sourceEdgeWeights = (2 * system->n + 1) * system->C;
   for(int i = 0; i < system->vertexCount; i++){
     for(EdgeType j = WHITE; j <= GRAY_REVERSE; j++){
@@ -495,11 +495,11 @@ void finishSystemCreation(System * system){
   }
 }
 
-int edgeCompare(const void * edge1, const void * edge2){
+static int edgeCompare(const void * edge1, const void * edge2){
   return (*(Edge **)edge1)->head->index - (*(Edge **)edge2)->head->index;
 }
 
-void removeFromAllEdgeList(System * system, Edge * edge){
+static void removeFromAllEdgeList(System * system, Edge * edge){
   if( edge->inAllEdgeList == true ){
     if( edge->allNext != NULL ){
       edge->allNext->allPrev = edge->allPrev;
@@ -516,7 +516,7 @@ void removeFromAllEdgeList(System * system, Edge * edge){
   }
 }
 
-bool relaxNetwork(System * system){
+static bool relaxNetwork(System * system){
   //Lines 3-6 of algorithm implemented in finishSystemCreation().
   for(int r = 1; r <= 2 * system->n; r++){
     Edge * e = system->allEdgeFirst;
@@ -589,7 +589,7 @@ bool relaxNetwork(System * system){
   return true;
 }
 
-void relaxEdge(Edge * e){
+static void relaxEdge(Edge * e){
   switch(e->type){
   case WHITE:
     if( e->head->D[GRAY_REVERSE] + e->weight < e->tail->D[WHITE] ){
@@ -665,7 +665,7 @@ void relaxEdge(Edge * e){
   }
 }
 
-bool backtrack(System * system, Vertex * x_i, EdgeType t, Edge * e){
+static bool backtrack(System * system, Vertex * x_i, EdgeType t, Edge * e){
   Vertex * x_c = x_i;
   Edge * e_c = e;
   EdgeType t_c = t;
@@ -768,7 +768,7 @@ bool backtrack(System * system, Vertex * x_i, EdgeType t, Edge * e){
   return false;
 }
 
-bool produceIntegerSolution(System * system){
+static bool produceIntegerSolution(System * system){
 
   bool integrallyFeasible;
   system->infeasibilityProof = generateEdgeRefList();
@@ -807,7 +807,7 @@ bool produceIntegerSolution(System * system){
   return integrallyFeasible;
 }
 
-bool forcedRounding(System * system, Vertex * x_i){
+static bool forcedRounding(System * system, Vertex * x_i){
   bool forcedDown = false;
   Edge * whiteEdge = x_i->first[WHITE];
   Edge * grayReverseEdge = x_i->first[GRAY_REVERSE];
@@ -873,7 +873,7 @@ bool forcedRounding(System * system, Vertex * x_i){
   return true;
 }
 
-bool optionalRoundings(System * system){  
+static bool optionalRoundings(System * system){  
   for(int i = 1; i < system->vertexCount; i++){
     if( system->graph[i].Z[FINAL] == INT_MAX ){
       system->T = generateIntegerTree(system);
@@ -949,7 +949,7 @@ bool optionalRoundings(System * system){
 
 //x_i - must never represent a Vertex where x_i->a is integral. The first for loop in produceIntegerSolution
 //ensures this can never occur
-void checkDependencies(IntegerTree * T, Vertex * x_i, IntegerType integerType){
+static void checkDependencies(IntegerTree * T, Vertex * x_i, IntegerType integerType){
   if( x_i->Z[integerType] == halfIntToInt( halfIntFloor( x_i->a ) ) ){
     Edge * grayForwardEdge = x_i->first[GRAY_FORWARD];
     while( grayForwardEdge != NULL ){
@@ -992,7 +992,7 @@ void checkDependencies(IntegerTree * T, Vertex * x_i, IntegerType integerType){
   }
 }
 
-bool checkAllConstraints(System * system, Vertex * toVertex, IntegerType integerType){
+static bool checkAllConstraints(System * system, Vertex * toVertex, IntegerType integerType){
   Edge * edge = system->allEdgeFirst;
   while( edge != NULL ){
     if( edge->tail->Z[integerType] != INT_MAX && edge->head->Z[integerType] != INT_MAX ){
@@ -1030,7 +1030,7 @@ bool checkAllConstraints(System * system, Vertex * toVertex, IntegerType integer
   return true;
 }
 
-void systemSubset(System * system){
+static void systemSubset(System * system){
   for(int i = 0; i < system->vertexCount; i++){
     for(EdgeType j = WHITE; j <= GRAY_REVERSE; j++){
       Edge * prior = NULL;
@@ -1064,7 +1064,7 @@ void systemSubset(System * system){
 
 //type : WHITE or GRAY_REVERSE for positive variable coefficient
 //       BLACK or GRAY_FORWARD for negative variable coefficient
-Edge * generateAbsoluteConstraint(System * system, Vertex * x_i, int weight, EdgeType type){
+static Edge * generateAbsoluteConstraint(System * system, Vertex * x_i, int weight, EdgeType type){
   Edge * newEdge = (Edge *) malloc( sizeof(Edge) );
   newEdge->weight = weight;
   newEdge->type = type;
@@ -1079,7 +1079,7 @@ Edge * generateAbsoluteConstraint(System * system, Vertex * x_i, int weight, Edg
   return newEdge;
 }
 
-IntegerTree * generateIntegerTree(System * system){
+static IntegerTree * generateIntegerTree(System * system){
   
   IntegerTreeVertex * x0Root = (IntegerTreeVertex *) malloc( sizeof(IntegerTreeVertex) );
   x0Root->parent = NULL;
@@ -1097,7 +1097,7 @@ IntegerTree * generateIntegerTree(System * system){
   return T;
 }
 
-Vertex * pollIntegerTreeQueue(IntegerTree * tree){
+static Vertex * pollIntegerTreeQueue(IntegerTree * tree){
   Vertex * output;
   if( tree->queueOldest != NULL ){
     output = tree->queueOldest->graphVertex;
@@ -1109,7 +1109,7 @@ Vertex * pollIntegerTreeQueue(IntegerTree * tree){
   return output;
 }
 
-void expandIntegerTree(IntegerTree * T, Vertex * active, Vertex * parent, Edge * edge0, Edge * edge1, Edge * edge2){
+static void expandIntegerTree(IntegerTree * T, Vertex * active, Vertex * parent, Edge * edge0, Edge * edge1, Edge * edge2){
   
   IntegerTreeVertex * itv = active->integerTreeVertex;
   if( itv == NULL ){
@@ -1138,7 +1138,7 @@ void expandIntegerTree(IntegerTree * T, Vertex * active, Vertex * parent, Edge *
 
 }
 
-void integerTreeBacktrack(EdgeRefList * list, IntegerTreeVertex * fromVertex, IntegerTreeVertex * toVertex, bool includeToVertex){
+static void integerTreeBacktrack(EdgeRefList * list, IntegerTreeVertex * fromVertex, IntegerTreeVertex * toVertex, bool includeToVertex){
   if( fromVertex != NULL ){ //== NULL probably impossible
     while( fromVertex != toVertex ){
       copyTreeEdgesToList(list, fromVertex);
@@ -1150,7 +1150,7 @@ void integerTreeBacktrack(EdgeRefList * list, IntegerTreeVertex * fromVertex, In
   }
 }
 
-void copyTreeEdgesToList(EdgeRefList * list, IntegerTreeVertex * itv){
+static void copyTreeEdgesToList(EdgeRefList * list, IntegerTreeVertex * itv){
   EdgeRefListNode * treeEdge = itv->graphEdges->first;
   while( treeEdge != NULL ){
     edgeRefListPrepend( list, treeEdge->edge );
@@ -1158,7 +1158,7 @@ void copyTreeEdgesToList(EdgeRefList * list, IntegerTreeVertex * itv){
   }
 }
 
-void freeIntegerTree(IntegerTree * tree){
+static void freeIntegerTree(IntegerTree * tree){
   if( tree != NULL ){
     IntegerTreeVertex * itv = tree->treeRoot;
     while( itv != NULL ){
@@ -1178,14 +1178,14 @@ void freeIntegerTree(IntegerTree * tree){
   }
 }
 
-EdgeRefList * generateEdgeRefList(){
+static EdgeRefList * generateEdgeRefList(){
   EdgeRefList * newERL = (EdgeRefList *) malloc( sizeof(EdgeRefList) );
   newERL->first = NULL;
   newERL->last = NULL;
   return newERL;
 }
 
-void edgeRefListAppend(EdgeRefList * erl, Edge * edge){
+static void edgeRefListAppend(EdgeRefList * erl, Edge * edge){
   EdgeRefListNode * newERLN = (EdgeRefListNode *) malloc( sizeof(EdgeRefListNode) );
   newERLN->edge = edge;
   newERLN->next = NULL;
@@ -1198,7 +1198,7 @@ void edgeRefListAppend(EdgeRefList * erl, Edge * edge){
   erl->last = newERLN;
 }
 
-void edgeRefListPrepend(EdgeRefList * erl, Edge * edge){
+static void edgeRefListPrepend(EdgeRefList * erl, Edge * edge){
   EdgeRefListNode * newERLN = (EdgeRefListNode *) malloc( sizeof(EdgeRefListNode) );
   newERLN->edge = edge;
   newERLN->next = erl->first;
@@ -1208,7 +1208,7 @@ void edgeRefListPrepend(EdgeRefList * erl, Edge * edge){
   }
 }
 
-void freeEdgeRefList(EdgeRefList * erl){
+static void freeEdgeRefList(EdgeRefList * erl){
   if( erl != NULL ){
     EdgeRefListNode * erln = erl->first;
     while( erln != NULL ){
@@ -1220,7 +1220,7 @@ void freeEdgeRefList(EdgeRefList * erl){
   }
 }
 
-void freeSystem(System * system){
+static void freeSystem(System * system){
   for(EdgeType i = WHITE; i <= GRAY_REVERSE; i++){
     for(int j = 0; j < system->vertexCount; j++){
       Edge * e = system->graph[j].first[i];

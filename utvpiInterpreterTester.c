@@ -3,8 +3,8 @@
 #include "utvpiInterpreter.h"
 
 void main(int argc, char * argv[]);
-void initializeSystem(void * object, int vertexCount, Parser * parser);
-void addEdge(void * object, Constraint * constraint, Parser * parser);
+static void initializeSystem(void * object, int vertexCount, Parser * parser);
+static void addEdge(void * object, Constraint * constraint, Parser * parser);
 
 void main(int argc, char * argv[]){
   if( argc == 2 ){
@@ -26,11 +26,11 @@ void main(int argc, char * argv[]){
   }
 }
 
-void initializeSystem(void * object, int vertexCount, Parser * parser){
+static void initializeSystem(void * object, int vertexCount, Parser * parser){
   printf("%i nodes\n", vertexCount);
 }
 
-void addEdge(void * object, Constraint * constraint, Parser * parser){
+static void addEdge(void * object, Constraint * constraint, Parser * parser){
   for(int i = 0; i < 2; i++){
     if( constraint->sign[i] != NONE){
       if( constraint->sign[i] == PLUS){

@@ -25,11 +25,11 @@ struct Edge {
 };
 
 int main(int argc, char * argv[]);
-void initializeSystem(void * object, int n, Parser * parser);
-void addEdge(void * object, Constraint * constraint, Parser * parser);
-bool bellmanFord(System * system);
-void relax(Edge * edge);
-void cleanup(System * system);
+static void initializeSystem(void * object, int n, Parser * parser);
+static void addEdge(void * object, Constraint * constraint, Parser * parser);
+static bool bellmanFord(System * system);
+static void relax(Edge * edge);
+static void cleanup(System * system);
 
 int main(int argc, char * argv[]){
   if( argc != 2 && argc != 3 ){
@@ -74,7 +74,7 @@ int main(int argc, char * argv[]){
   return 0;
 }
 
-void initializeSystem(void * object, int n, Parser * parser){
+static void initializeSystem(void * object, int n, Parser * parser){
   System * system = (System *) object;
   system->vertexCount = n;
   system->graph = (Vertex *) malloc( sizeof(Vertex) * system->vertexCount );
@@ -84,7 +84,7 @@ void initializeSystem(void * object, int n, Parser * parser){
   }
 }
 
-void addEdge(void * object, Constraint * constraint, Parser * parser){
+static void addEdge(void * object, Constraint * constraint, Parser * parser){
   System * system = (System *) object;
   if( constraint->sign[1] == CONSTRAINT_NONE || constraint->sign[0] == constraint->sign[1] ){
     parseError(parser, "The Bellman-Ford algorithm cannot handle this type of constraint." );
@@ -108,7 +108,7 @@ void addEdge(void * object, Constraint * constraint, Parser * parser){
   }
 }
 
-bool bellmanFord(System * system){
+static bool bellmanFord(System * system){
   for(int i = 0; i < system->vertexCount - 1; i++){
     for(int j = 0; j < system->vertexCount; j++){
       Edge * current = system->graph[j].first;
@@ -130,13 +130,13 @@ bool bellmanFord(System * system){
   return true;
 }
 
-void relax(Edge * edge){
+static void relax(Edge * edge){
   if( edge->head->D > edge->tail->D + edge->weight ){
     edge->head->D = edge->tail->D + edge->weight;
   }
 }
 
-void cleanup(System * system){
+static void cleanup(System * system){
   for(int i = 0; i < system->vertexCount; i++){
     Edge * edge = system->graph[i].first;
     while( edge != NULL ){
