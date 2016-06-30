@@ -31,6 +31,7 @@
  *      x2 + x5 <= -7
  *      + x4 - x2 <= 4
  *      - X_3 + x4 <= -2
+ *      -x3 <= 4
  * 
  * As each constraint line is parsed, the Constraint struct defined in constraint.h is filled with information. The first variable
  * discovered provides sign[0] and index[0]. The second variable, if one exists, fills sign[1] and index[1]. If there is no second
