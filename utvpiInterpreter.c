@@ -3,8 +3,8 @@
 
 typedef enum TokenType{
   SIGN,
-  SIGNED_VARIABLE,
-  UNSIGNED_VARIABLE,
+  /*SIGNED_*/VARIABLE,
+  //UNSIGNED_VARIABLE,
   LESS_THAN_OR_EQUAL,
   INTEGER,
   NEWLINE,
@@ -133,14 +133,14 @@ static void parseConstraints(Parser * parser){
       constraint.sign[0] = token.sign;
       afterInitialSign(parser, &constraint);
       break;
-    case SIGNED_VARIABLE:
+/*  case SIGNED_VARIABLE:
       constraint.sign[0] = token.sign;
       constraint.index[0] = token.integerComponent;
       if( variableIndexWithinBounds( parser, &token ) ){
         afterFirstVariable(parser, &constraint);
       }
-      break;
-    case UNSIGNED_VARIABLE:
+      break;*/
+    case /*UNSIGNED_*/VARIABLE:
       constraint.sign[0] = CONSTRAINT_PLUS;
       constraint.index[0] = token.integerComponent;
       if( variableIndexWithinBounds( parser, &token ) ){
@@ -159,7 +159,7 @@ static void parseConstraints(Parser * parser){
 static void afterInitialSign(Parser * parser, Constraint * constraint){
   Token token = getToken(parser);
   switch( token.type ){
-  case UNSIGNED_VARIABLE:
+  case /*UNSIGNED_*/VARIABLE:
     constraint->index[0] = token.integerComponent;
     if( variableIndexWithinBounds( parser, &token ) ){
       afterFirstVariable(parser, constraint);
@@ -177,14 +177,14 @@ static void afterFirstVariable(Parser * parser, Constraint * constraint){
     constraint->sign[1] = token.sign;
     secondVariable(parser, constraint);
     break;
-  case SIGNED_VARIABLE:
+/*case SIGNED_VARIABLE:
     constraint->sign[1] = token.sign;
     constraint->index[1] = token.integerComponent;
     if( variableIndexWithinBounds( parser, &token )
         && variableIndecesDiffer( parser, constraint ) ){
       lessThanOrEqual(parser, constraint);
     }
-    break;
+    break;*/
   case LESS_THAN_OR_EQUAL:
     weight(parser, constraint);
     break;
@@ -196,7 +196,7 @@ static void afterFirstVariable(Parser * parser, Constraint * constraint){
 static void secondVariable(Parser * parser, Constraint * constraint){
   Token token = getToken(parser);
   switch(token.type){
-  case UNSIGNED_VARIABLE:
+  case /*UNSIGNED_*/VARIABLE:
     constraint->index[1] = token.integerComponent;
     if( variableIndexWithinBounds( parser, &token )
         && variableIndecesDiffer( parser, constraint ) ){
@@ -328,7 +328,7 @@ static Token getToken(Parser * parser){
     break;
   case 'x':
   case 'X':
-    token.type = UNSIGNED_VARIABLE;
+    token.type = /*UNSIGNED_*/VARIABLE;
     token.sign = CONSTRAINT_PLUS;
     afterX(parser, &token);
     break;
@@ -363,23 +363,23 @@ static Token getToken(Parser * parser){
 
 static void afterSign(Parser * parser, Token * token){
   int character = myfgetc(parser);
-  if( character == 'x' || character == 'X'){
+/*if( character == 'x' || character == 'X'){
     token->type = SIGNED_VARIABLE;
     afterX(parser, token);
   }
-  else if( isdigit(character) ){
+  else */if( isdigit(character) ){
     token->type = INTEGER;
     token->integerComponent = character - '0';
     continuingInteger(parser, token);
   }
-  else if( isspace(character) || character == EOF ){
+  else/* if( isspace(character) || character == EOF )*/{
     token->type = SIGN;
     myungetc( character, parser );
   }
-  else {
+/*  else {
     token->type = UNDEFINED;
     myungetc( character, parser );
-  }
+  }*/
 }
 
 static void afterX(Parser * parser, Token * token){
