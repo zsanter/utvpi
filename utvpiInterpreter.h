@@ -17,7 +17,8 @@
  * All following statements must be constraint definitions. A constraint definition consists of one or two variables, a less-than-
  * or-equal sign, and an integral weight. The first variable may be implicitly or explicitly positive, or explicitly negative. The
  * second variable, if one is present, must be explicitly positive or negative. There may or may not be space between the sign and
- * the variable that it modifies.
+ * the variable that it modifies. An integral weight may be implicitly or explicitly positive, or explicitly negative. There must 
+ * be no space between a sign and an integer that it modifies. 
  *
  * A variable consists of an "x", either upper- or lower-case, optionally followed by an underscore, then immediately followed by
  * an unsigned integer representing the index of the variable.
