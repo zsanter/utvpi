@@ -1,3 +1,15 @@
+/*
+ * subWojIntOpt.c
+ * The Subramani Wojciechowski integral UTVPI system solver with further optimization
+ *
+ * Call with [executable] [input file] {output file}
+ * [input file] must be properly formatted to be read by utvpiInterpreter.h
+ * {output file} will contain a linear solution, if one exists, followed by an integral solution, if one exists. If the system is
+ *   not linearly feasible, a proof of linear infeasibility - a negative cost cycle - will be output. If the system is linearly 
+ *   feasible, but not integrally feasible, a proof of integral infeasibility will be output. If {output file} is not specified,
+ *   output will be to stdout.
+ */
+
 #include <stdio.h>
 #include <limits.h>
 #include <stdlib.h>
@@ -6,6 +18,22 @@
 #include "utvpiInterpreter.h"
 #include "halfint.h"
 
+/*
+ * EdgeType is used to specify the color of an edge. The algorithm defines white, black, and gray edges. White and black edges are
+ * non-directional, and gray edges are directional. All edges can be traversed in either direction, so each edge is represented by
+ * a pair of Edge structs, with alternating head and tail pointers. 
+ *
+ * GRAY_FORWARD corresponds to an Edge struct representing a gray edge, where the tail pointer points to the vertex at the tail of
+ * the arrow shown in the algorithm, and the head pointer points to the vertex at the head of the arrow shown in the algorithm. 
+ * GRAY_REVERSE corresponds to the opposite case. A right-facing arrow in the algorithm corresponds to GRAY_FORWARD, and a left-
+ * facing arrow corresponds to GRAY_REVERSE.
+ *
+ * For each white edge that enters the system, two WHITE Edge structs are created. For each black edge that enters the system, two 
+ * BLACK Edge structs are created. For each gray edge that enters the system, one GRAY_FORWARD and one GRAY_REVERSE Edge struct
+ * are created.
+ *
+ * These enums are also used to index into arrays.
+ */
 #define EDGE_TYPE_COUNT 4
 typedef enum EdgeType {
   WHITE,
@@ -14,12 +42,20 @@ typedef enum EdgeType {
   GRAY_REVERSE,
 } EdgeType;
 
+/*
+ * In the Backtrack algorithm, -1 and 1 are used as indeces. The members of the BacktrackingIndex enum take the place of these 
+ * numbers for this purpose.
+ */
 #define BACKTRACKING_INDEX_COUNT 2
 typedef enum BacktrackingIndex {
   NEG_ONE,
   POS_ONE,
 } BacktrackingIndex;
 
+/*
+ * The integral algorithms make use of separate Z and Z^T arrays. Here, these values are stored in two-element Z arrays, contained
+ * within each Vertex struct. Z[FINAL] refers to a variable's Z value, and Z[TEMP] refers to a variable's Z^T value.
+ */
 #define INTEGER_TYPE_COUNT 2
 typedef enum IntegerType {
   FINAL,
@@ -34,6 +70,21 @@ typedef struct EdgeRefListNode EdgeRefListNode;
 typedef struct IntegerTree IntegerTree;
 typedef struct IntegerTreeVertex IntegerTreeVertex;
 
+/*
+ * The System struct contains references to all dynamically-allocated data structures used within the system solver, along with
+ * other information about the system.
+ *
+ * graph - pointer to an array of Vertex structs, defining the structure of the graph
+ * vertexCount - the number of Vertex structs within graph
+ * n - the number of variables represented within the system - always one less than vertexCount, but used for the sake of clarity
+ * C - the greatest absolute value of any edge weight which entered the system as part of a constraint
+ * allEdgeFirst - pointer to the first Edge in a doubly-linked list where only one Edge struct representing each edge is present
+ * infeasibilityProof - pointer to an EdgeRefList storing the current proof of infeasibility
+ * T - pointer to the tree structure used in the integral algorithm
+ * falsePositives - number of false positives thrown by the cycle-originator negative cycle detection mechanism
+ * mainLoopIterations - number of iterations of the main relaxation loop within relaxNetwork()
+ * negativeCycleEdgeCount - number of edges within a detected negative weight cycle
+ */
 struct System {
   Vertex * graph;
   int vertexCount;
@@ -47,6 +98,26 @@ struct System {
   int negativeCycleEdgeCount;
 };
 
+/*
+ * The Vertex struct contains all information about a specific variable, represented by a vertex within the graph.
+ *
+ * index - index of the variable
+ * L - pointer to an edge between this vertex and the vertex's predecessor vertex, for each EdgeType-color path between the source
+ *   vertex and this vertex
+ * D - distance label for each EdgeType-color path between the source vertex and this vertex
+ * cycleOriginator - pointer to an edge serving as a cycle-originator. Cycle-originators are set equal to the L edges after the 
+ *   first iteration of edge relaxation, and then are passed down the predecessor structure, one edge at a time, each time a 
+ *   distance label decreases. After a cycle-originator is passed down one edge, it is compared against the predecessor of the 
+ *   same color. If they match, backtrack() is run on the edge to determine if the edge is part of a negative-weight cycle.
+ * E - pointer to the last Edge traversed on the path from x_i to x, in backtrack()
+ * a - half-integral linear-solution variable value
+ * Z - TEMP and FINAL integral-solution variable values
+ * first - pointer to the first Edge of each EdgeType whose tail Vertex is this Vertex. The remainder of such edges are connected
+ *   together in a singly-linked list
+ * edgeCount - the number of each EdgeType edge whose tail Vertex is this Vertex
+ * integerTreeVertex - pointer to an IntegerTreeVertex representing the same variable as this Vertex, within the IntegerTree data 
+ *   structure
+ */
 struct Vertex {
   int index;
   Edge * L[EDGE_TYPE_COUNT];
@@ -60,6 +131,20 @@ struct Vertex {
   IntegerTreeVertex * integerTreeVertex;
 };
 
+/*
+ * The Edge struct contains all information about a specific constraint, represented by an edge within the graph.
+ *
+ * weight - the weight of the edge
+ * type - the color type of the edge
+ * tail - pointer to the Edge's tail Vertex
+ * head - pointer to the Edge's head Vertex
+ * reverse - pointer to the other Edge representing the same constraint, with reversed tail and head Vertices
+ * next - pointer to the next Edge in the singly-linked list of Edges with the same type and tail Vertex as one another
+ * allNext - pointer to the next Edge in the doubly-linked list pointed to by System.allEdgeFirst
+ * allPrev - pointer to the previous Edge in the doubly-linked list pointed to by System.allEdgeFirst
+ * inAllEdgeList - boolean flag indicating whether or not this Edge occurs within the doubly-linked list pointed to by 
+ *   System.allEdgeFirst
+ */
 struct Edge {
   int weight;
   EdgeType type;
@@ -72,16 +157,39 @@ struct Edge {
   bool inAllEdgeList;
 };
 
+/*
+ * The EdgeRefList is a way to reference a list of Edges without added pointers within each Edge struct
+ *
+ * first - pointer to the first EdgeRefListNode within the EdgeRefList
+ * last - pointer to the last EdgeRefListNode within the EdgeRefList
+ */
 struct EdgeRefList {
   EdgeRefListNode * first;
   EdgeRefListNode * last;
 };
 
+/*
+ * The EdgeRefListNode is one node within the EdgeRefList
+ *
+ * edge - pointer to an Edge
+ * next - pointer to the next EdgeRefListNode within the EdgeRefList
+ */
 struct EdgeRefListNode {
   Edge * edge;
   EdgeRefListNode * next;
 };
 
+/*
+ * The IntegerTree data structure is a combination of the T tree specified in the integral portion of the algorithm and a simple 
+ * FIFO queue used to specify the order in which Vertices are processed.
+ *
+ * treeRoot - pointer to the IntegerTreeVertex that is the root of the overall IntegerTree
+ * queueNewest - pointer to the most-recently-added member of the IntegerTree FIFO queue
+ * queueOldest - pointer to the earliest-added member of the IntegerTree FIFO queue
+ * additionsFirst - whenever an absolute constraint is generated by the integer algorithms, it is represented by a new Edge
+ *   struct. Edge structs generated in this way are linked together through their next pointers and the beginning of this singly-
+ *   linked list is pointed to by additionsFirst, so that these Edges may be properly freed when the IntegerTree is freed.
+ */
 struct IntegerTree {
   IntegerTreeVertex * treeRoot;
   IntegerTreeVertex * queueNewest;
@@ -89,6 +197,14 @@ struct IntegerTree {
   Edge * additionsFirst;
 };
 
+/*
+ * The IntegerTreeVertex is a single vertex within the IntegerTree, corresponding to a single Vertex within the graph.
+ *
+ * parent - pointer to this IntegerTreeVertex's parent vertex
+ * queueNewer - pointer to the IntegerTreeVertex added to the IntegerTree FIFO queue immediately after this one
+ * graphEdges - pointer to the EdgeRefList storing graph Edges listed under this IntegerTreeVertex
+ * graphVertex - pointer to the graph Vertex corresponding to this IntegerTreeVertex
+ */
 struct IntegerTreeVertex {
   IntegerTreeVertex * parent;
   IntegerTreeVertex * queueNewer;
@@ -97,7 +213,7 @@ struct IntegerTreeVertex {
 };
 
 int main(int argc, char * argv[]);
-static EdgeType reverseEdgeType(EdgeType input);
+//static EdgeType reverseEdgeType(EdgeType input);
 static void fputEdge(Edge * edge, FILE * output);
 static void initializeSystem(void * object, int n, Parser * parser);
 static void addConstraint(void * object, Constraint * constraint, Parser * parser);
@@ -131,6 +247,16 @@ static void freeSystem(System * system);
   static void diff(struct timespec * start, struct timespec * end, struct timespec * difference);
 #endif
 
+/*
+ * main()
+ * - handles file input and output
+ * - calls utvpiInterpreter's parseFile() function, which calls initializeSystem() and addConstraint() to build the graph 
+ *   representation corresponding to the constraint system in the input file
+ * - calls finishSystemCreation()
+ * - implements UTVPI-LINEAR-FEAS()
+ * - calls produceIntegerSolution()
+ * - prints profiling information formatted for csv-file input to stdout
+ */
 int main(int argc, char * argv[]){
   #ifdef __HPC__
     struct timespec start;
@@ -265,6 +391,7 @@ int main(int argc, char * argv[]){
 
 #ifdef __HPC__
   /*
+   * diff() takes the difference of two struct timespecs
    * Copied from https://www.guyrutenberg.com/2007/09/22/profiling-code-using-clock_gettime/
    * and modified.
    */
@@ -280,7 +407,7 @@ int main(int argc, char * argv[]){
   }
 #endif
 
-static EdgeType reverseEdgeType(EdgeType input){ 
+/*static EdgeType reverseEdgeType(EdgeType input){ 
   EdgeType output;
   switch(input){
   case GRAY_FORWARD:
@@ -293,7 +420,7 @@ static EdgeType reverseEdgeType(EdgeType input){
     output = input;
   }
   return output;
-}
+}*/
 
 static void fputEdge(Edge * edge, FILE * output){
   char sign[2];
