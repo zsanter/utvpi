@@ -243,21 +243,6 @@ static void fputEdge(Edge * edge, FILE * output){
   fprintf(output, "<= %i\n", edge->weight);
 }
 
-/*static EdgeType reverseEdgeType(EdgeType input){ /////////
-  EdgeType output;
-  switch(input){
-  case GRAY_FORWARD:
-    output = GRAY_REVERSE;
-    break;
-  case GRAY_REVERSE:
-    output = GRAY_FORWARD;
-    break;
-  default:
-    output = input;
-  }
-  return output;
-}*/
-
 /*
  * initializeSystem() initializes an already-declared System struct, given the number of variables that the system must represent
  * object - a void pointer pointing to an already-declared System struct

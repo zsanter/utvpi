@@ -390,21 +390,6 @@ int main(int argc, char * argv[]){
   }
 #endif
 
-/*static EdgeType reverseEdgeType(EdgeType input){ 
-  EdgeType output;
-  switch(input){
-  case GRAY_FORWARD:
-    output = GRAY_REVERSE;
-    break;
-  case GRAY_REVERSE:
-    output = GRAY_FORWARD;
-    break;
-  default:
-    output = input;
-  }
-  return output;
-}*/
-
 /*
  * fputEdge() prints the constraint equation corresponding to edge to output
  * edge - pointer to an Edge struct to convert to a constraint equation
