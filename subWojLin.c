@@ -1,3 +1,16 @@
+/*
+ * subWojLin.c
+ * The Subramani-Wojciechowski linear UTVPI system solver
+ *
+ * Call with [executable] [input file] {output file}
+ * [input file] must be properly formatted to be read by utvpiInterpreter.h
+ * {output file} will contain a linear solution, if one exists. Otherwise, a proof of linear infeasibility - a negative cost cycle
+ *   - will be output. If {output file} is not specified, output will be to stdout.
+ *
+ * Modifications have been made to the linear portion of the algorithm implementation in subWojInt and subWojIntOpt in the time 
+ * since this implementation was completed.
+ */
+
 #include <stdio.h>
 #include <limits.h>
 #include <stdlib.h>
@@ -6,6 +19,22 @@
 #include "utvpiInterpreter.h"
 #include "halfint.h"
 
+/*
+ * EdgeType is used to specify the color of an edge. The algorithm defines white, black, and gray edges. White and black edges are
+ * non-directional, and gray edges are directional. All edges can be traversed in either direction, so each edge is represented by
+ * a pair of Edge structs, with alternating head and tail pointers. 
+ *
+ * GRAY_FORWARD corresponds to an Edge struct representing a gray edge, where the tail pointer points to the vertex at the tail of
+ * the arrow shown in the algorithm, and the head pointer points to the vertex at the head of the arrow shown in the algorithm. 
+ * GRAY_REVERSE corresponds to the opposite case. A right-facing arrow in the algorithm corresponds to GRAY_FORWARD, and a left-
+ * facing arrow corresponds to GRAY_REVERSE.
+ *
+ * For each white edge that enters the system, two WHITE Edge structs are created. For each black edge that enters the system, two 
+ * BLACK Edge structs are created. For each gray edge that enters the system, one GRAY_FORWARD and one GRAY_REVERSE Edge struct
+ * are created.
+ *
+ * These enums are also used to index into arrays.
+ */
 #define EDGE_TYPE_COUNT 4
 typedef enum EdgeType {
   WHITE,
@@ -14,6 +43,10 @@ typedef enum EdgeType {
   GRAY_REVERSE,
 } EdgeType;
 
+/*
+ * In the Backtrack algorithm, -1 and 1 are used as indeces. The members of the BacktrackingIndex enum take the place of these 
+ * numbers for this purpose.
+ */
 #define BACKTRACKING_INDEX_COUNT 2
 typedef enum BacktrackingIndex {
   NEG_ONE,
@@ -25,14 +58,36 @@ typedef struct Vertex Vertex;
 typedef struct Edge Edge;
 typedef struct EdgeRefList EdgeRefList;
 
+/*
+ * The System struct contains references to all dynamically-allocated data structures used within the system solver, along with
+ * other information about the system.
+ *
+ * graph - pointer to an array of Vertex structs, defining the structure of the graph representation
+ * vertexCount - the number of Vertex structs within graph
+ * n - the number of variables represented within the system - always one less than vertexCount, but used for the sake of clarity
+ * C - the greatest absolute value of any edge weight which entered the system as part of a constraint
+ * allEdgeFirst - pointer to the first Edge in a singly-linked list where only one Edge struct representing each edge is present
+ */
 struct System {
   Vertex * graph;
   int vertexCount;
   int n;
-  int C; //largestWeight
+  int C;
   Edge * allEdgeFirst;
 };
 
+/*
+ * The Vertex struct contains all information about a specific variable, represented by a vertex within the graph.
+ *
+ * index - index of the variable
+ * L - pointer to an edge between this vertex and the vertex's predecessor vertex, for each EdgeType-color path between the source
+ *   vertex and this vertex
+ * D - distance label for each EdgeType-color path between the source vertex and this vertex
+ * E - pointer to the last Edge traversed on the path from x_i to x, in backtrack()
+ * x - half-integral linear-solution variable value
+ * first - pointer to the first Edge of each EdgeType whose tail Vertex is this Vertex. The remainder of such edges are connected
+ *   together in a singly-linked list
+ */
 struct Vertex {
   int index;
   Edge * L[EDGE_TYPE_COUNT];
@@ -42,6 +97,17 @@ struct Vertex {
   Edge * first[EDGE_TYPE_COUNT];
 };
 
+/*
+ * The Edge struct contains all information about a specific constraint, represented by an edge within the graph.
+ *
+ * weight - the weight of the edge
+ * type - the color type of the edge
+ * tail - pointer to the Edge's tail Vertex
+ * head - pointer to the Edge's head Vertex
+ * reverse - pointer to the other Edge representing the same constraint, with reversed tail and head Vertices
+ * next - pointer to the next Edge in the singly-linked list of Edges with the same type and tail Vertex as one another
+ * allNext - pointer to the next Edge in the singly-linked list pointed to by System.allEdgeFirst
+ */
 struct Edge {
   int weight;
   EdgeType type;
@@ -52,6 +118,12 @@ struct Edge {
   Edge * allNext;
 };
 
+/*
+ * The EdgeRefList is a way to reference a list of Edges without added pointers within each Edge struct
+ *
+ * edge - pointer to an Edge
+ * next - pointer to the next EdgeRefList struct within the overall EdgeRefList
+ */
 struct EdgeRefList {
   Edge * edge;
   EdgeRefList * next;
@@ -59,7 +131,7 @@ struct EdgeRefList {
 
 int main(int argc, char * argv[]);
 static void fputEdge(Edge * edge, FILE * output);
-static EdgeType reverseEdgeType(EdgeType input);
+//static EdgeType reverseEdgeType(EdgeType input);
 static void initializeSystem(void * object, int n, Parser * parser);
 static void addConstraint(void * object, Constraint * constraint, Parser * parser);
 static void addEdge(System * system, Constraint * constraint);
@@ -69,6 +141,15 @@ static void relaxEdge(Edge * e);
 static EdgeRefList * backtrack(Vertex * x_i, EdgeType t, Edge * e);
 static void cleanupSystem(System * system);
 
+/*
+ * main()
+ * - handles file input and output
+ * - calls utvpiInterpreter's parseFile() function, which calls initializeSystem() and addConstraint() to build the graph 
+ *   representation corresponding to the constraint system in the input file
+ * - calls finishSystemCreation()
+ * - implements UTVPI-LINEAR-FEAS()
+ * - prints profiling information formatted for csv-file input to stdout
+ */
 int main(int argc, char * argv[]){
   clock_t beginning = clock();
   if( argc != 2 && argc != 3 ){
@@ -128,6 +209,11 @@ int main(int argc, char * argv[]){
   return 0;
 }
 
+/*
+ * fputEdge() prints the constraint equation corresponding to edge to output
+ * edge - pointer to an Edge struct to convert to a constraint equation
+ * output - FILE pointer to print the constraint equation to
+ */
 static void fputEdge(Edge * edge, FILE * output){
   char sign[2];
   switch(edge->type){
@@ -157,7 +243,7 @@ static void fputEdge(Edge * edge, FILE * output){
   fprintf(output, "<= %i\n", edge->weight);
 }
 
-static EdgeType reverseEdgeType(EdgeType input){ /////////
+/*static EdgeType reverseEdgeType(EdgeType input){ /////////
   EdgeType output;
   switch(input){
   case GRAY_FORWARD:
@@ -170,8 +256,15 @@ static EdgeType reverseEdgeType(EdgeType input){ /////////
     output = input;
   }
   return output;
-}
+}*/
 
+/*
+ * initializeSystem() initializes an already-declared System struct, given the number of variables that the system must represent
+ * object - a void pointer pointing to an already-declared System struct
+ * n - the number of variables that the graph representation held by the System struct must represent
+ * parser - pointer to the Parser struct that utvpiInterpreter uses during the input file parsing process, so that parseError() 
+ *   can be called, if need be
+ */
 static void initializeSystem(void * object, int n, Parser * parser){
   System * system = (System *) object;
   system->vertexCount = n + 1;
@@ -201,6 +294,14 @@ static void initializeSystem(void * object, int n, Parser * parser){
   }
 }
 
+/*
+ * addConstraint() adds a constraint to the graph representation held by the System struct. Also sets distance and predecessor 
+ *   labels associated with absolute constraints.
+ * object - a void pointer pointing to an already-initialized System struct
+ * constraint - pointer to a Constraint struct describing a constraint
+ * parser - pointer to the Parser struct that utvpiInterpreter uses during the input file parsing process, so that parseError() 
+ *   can be called, if need be
+ */
 static void addConstraint(void * object, Constraint * constraint, Parser * parser){
   System * system = (System *) object;
   if( abs( constraint->weight ) > system->C ){
@@ -236,6 +337,14 @@ static void addConstraint(void * object, Constraint * constraint, Parser * parse
   }
 }
 
+/*
+ * addEdge() adds a pair of Edge structs representing the input constraint to the graph representation held by the System struct.
+ *   Each Edge struct will be the reverse of the other. This function can not handle absolute constraints. In the case of an 
+ *   absolute constraint, addConstraint() modifies the input Constraint struct twice, passing the modified Constraint struct to 
+ *   this function each time.
+ * system - pointer to the overall System struct
+ * constraint - pointer to a constraint struct describing a constraint, which can not be an absolute constraint
+ */
 static void addEdge(System * system, Constraint * constraint){
   Edge * newEdges[2];
   newEdges[0] = (Edge *) malloc( sizeof(Edge) );
@@ -287,6 +396,10 @@ static void addEdge(System * system, Constraint * constraint){
   newEdges[1]->allNext = NULL;
 }
 
+/*
+ * finishSystemCreation() sets all distance labels not set by an absolute constraint
+ * system - pointer to the overall System struct containing the graph representation
+ */
 static void finishSystemCreation(System * system){
   int sourceEdgeWeights = (2 * system->n + 1) * system->C;
   for(EdgeType i = WHITE; i <= GRAY_REVERSE; i++){
@@ -298,6 +411,11 @@ static void finishSystemCreation(System * system){
   }
 }
 
+/*
+ * relaxNetwork() implements RELAX-NETWORK(). The function returns NULL for a linearly feasible system. Otherwise, a pointer to an
+ *   EdgeRefList containing a negative cost cycle is returned.
+ * system - pointer to the System struct storing the overall graph representation
+ */
 static EdgeRefList * relaxNetwork(System * system){
   //Lines 3-6 of algorithm implemented in finishSystemCreation().
   for(int r = 1; r <= 2 * system->n; r++){
@@ -382,6 +500,10 @@ static EdgeRefList * relaxNetwork(System * system){
   return NULL;
 }
 
+/*
+ * relaxEdge() implements RELAX-EDGE().
+ * e - pointer to the Edge to be relaxed
+ */
 static void relaxEdge(Edge * e){
   switch(e->type){
   case WHITE:
@@ -458,6 +580,12 @@ static void relaxEdge(Edge * e){
   }
 }
 
+/*
+ * backtrack() implements BACKTRACK(). This function returns a pointer to an EdgeRefList storing a negative cost cycle.
+ * x_i - pointer to the initial Vertex
+ * t - initial path type
+ * e - pointer to the initial edge
+ */
 static EdgeRefList * backtrack(Vertex * x_i, EdgeType t, Edge * e){
   Vertex * x_c = x_i;
   Edge * e_c = e;
@@ -567,6 +695,10 @@ static EdgeRefList * backtrack(Vertex * x_i, EdgeType t, Edge * e){
   return R;
 }
 
+/*
+ * cleanupSystem() frees the graph representation stored within system.
+ * system - pointer to the System struct, whose contents are to be freed
+ */
 static void cleanupSystem(System * system){
   for(EdgeType i = WHITE; i <= GRAY_REVERSE; i++){
     for(int j = 0; j < system->vertexCount; j++){

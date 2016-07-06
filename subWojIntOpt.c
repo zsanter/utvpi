@@ -1,6 +1,6 @@
 /*
  * subWojIntOpt.c
- * The Subramani Wojciechowski integral UTVPI system solver with further optimization
+ * The Subramani-Wojciechowski integral UTVPI system solver with further optimization
  *
  * Call with [executable] [input file] {output file}
  * [input file] must be properly formatted to be read by utvpiInterpreter.h
@@ -74,7 +74,7 @@ typedef struct IntegerTreeVertex IntegerTreeVertex;
  * The System struct contains references to all dynamically-allocated data structures used within the system solver, along with
  * other information about the system.
  *
- * graph - pointer to an array of Vertex structs, defining the structure of the graph
+ * graph - pointer to an array of Vertex structs, defining the structure of the graph representation
  * vertexCount - the number of Vertex structs within graph
  * n - the number of variables represented within the system - always one less than vertexCount, but used for the sake of clarity
  * C - the greatest absolute value of any edge weight which entered the system as part of a constraint
@@ -108,7 +108,7 @@ struct System {
  * cycleOriginator - pointer to an edge serving as a cycle-originator. Cycle-originators are set equal to the L edges after the 
  *   first iteration of edge relaxation, and then are passed down the predecessor structure, one edge at a time, each time a 
  *   distance label decreases. After a cycle-originator is passed down one edge, it is compared against the predecessor of the 
- *   same color. If they match, backtrack() is run on the edge to determine if the edge is part of a negative-weight cycle.
+ *   same color. If they match, backtrack() is run on the edge to determine if the edge is part of a negative cost cycle.
  * E - pointer to the last Edge traversed on the path from x_i to x, in backtrack()
  * a - half-integral linear-solution variable value
  * Z - TEMP and FINAL integral-solution variable values
@@ -1401,7 +1401,7 @@ static void checkDependencies(IntegerTree * T, Vertex * x_i, IntegerType integer
  *   returned. The edges added to system->infeasibilityProof during one call to this function make up no more than one helf of a 
  *   full proof of integral infeasibility.
  * system - pointer to the System struct storing the overall graph representation
- * toVertex - pointer to the vertex where integerTreeBacktrack() should stop when backtracking up the integerTree
+ * toVertex - pointer to the vertex where integerTreeBacktrack() should stop when backtracking up the IntegerTree
  * integerType - type of Z value being checked against constraints during this call
  */
 static bool checkAllConstraints(System * system, Vertex * toVertex, IntegerType integerType){
@@ -1548,10 +1548,11 @@ static Vertex * pollIntegerTreeQueue(IntegerTree * tree){
 
 /*
  * expandIntegerTree() adds a new IntegerTreeVertex corresponding to active to the input IntegerTree as the child of the 
- *   IntegerTreeVertex corresponding to parent, if there is not already an IntegerTreeVertex corresponding to active. It then adds 
- *   references to edges edge0, edge1, and edge2 under the IntegerTreeVertex corresponding to active. The first of edge0, edge1, 
- *   and edge2 set to NULL will cause all further edge inputs to be ignored. If only one edge is to be added under the 
- *   IntegerTreeVertex corresponding to active, edge0 should be set to it, and edge1 and edge2 should be set to NULL.
+ *   IntegerTreeVertex corresponding to parent, if there is not already an IntegerTreeVertex corresponding to active. The new 
+ *   IntegerTreeVertex is also added to the FIFO queue running through the overall IntegerTree. It then adds references to edges 
+ *   edge0, edge1, and edge2 under the IntegerTreeVertex corresponding to active. The first of edge0, edge1, and edge2 set to NULL
+ *   will cause all further edge inputs to be ignored. If only one edge is to be added under the IntegerTreeVertex corresponding 
+ *   to active, edge0 should be set to it, and edge1 and edge2 should be set to NULL.
  * T - pointer to the IntegerTree to be expanded
  * active - pointer to the graph Vertex which should have a corresponding IntegerTreeVertex added for it, if one is not already 
  *   present
