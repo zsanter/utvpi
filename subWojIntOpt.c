@@ -394,6 +394,9 @@ int main(int argc, char * argv[]){
    * diff() takes the difference of two struct timespecs
    * Copied from https://www.guyrutenberg.com/2007/09/22/profiling-code-using-clock_gettime/
    * and modified.
+   * start - pointer to a struct timespec from the beginning of a time period
+   * end - pointer to a struct timespec from the end of a time period
+   * difference - pointer to an already-declared struct timespec to be filled with the time difference between start and end
    */
   static void diff(struct timespec * start, struct timespec * end, struct timespec * difference){
     if ( ( end->tv_nsec - start->tv_nsec ) < 0 ) {
@@ -422,6 +425,11 @@ int main(int argc, char * argv[]){
   return output;
 }*/
 
+/*
+ * fputEdge() prints the constraint equation corresponding to edge to output
+ * edge - pointer to an Edge struct to convert to a constraint equation
+ * output - FILE pointer to print the constraint equation to
+ */
 static void fputEdge(Edge * edge, FILE * output){
   char sign[2];
   switch(edge->type){
@@ -451,6 +459,13 @@ static void fputEdge(Edge * edge, FILE * output){
   fprintf(output, "<= %i\n", edge->weight);
 }
 
+/*
+ * initializeSystem() initializes an already-declared System struct, given the number of variables that the system must represent
+ * object - a void pointer pointing to an already-declared System struct
+ * n - the number of variables that the graph representation held by the System struct must represent
+ * parser - pointer to the Parser struct that utvpiInterpreter uses during the input file parsing process, so that parseError() 
+ *   can be called, if need be
+ */
 static void initializeSystem(void * object, int n, Parser * parser){
   System * system = (System *) object;
   system->vertexCount = n + 1;
@@ -495,6 +510,14 @@ static void initializeSystem(void * object, int n, Parser * parser){
   }
 }
 
+/*
+ * addConstraint() adds a constraint to the graph representation held by the System struct. Also sets distance and predecessor 
+ *   labels associated with absolute constraints.
+ * object - a void pointer pointing to an already-initialized System struct
+ * constraint - pointer to a Constraint struct describing a constraint
+ * parser - pointer to the Parser struct that utvpiInterpreter uses during the input file parsing process, so that parseError() 
+ *   can be called, if need be
+ */
 static void addConstraint(void * object, Constraint * constraint, Parser * parser){
   System * system = (System *) object;
   if( abs( constraint->weight ) > system->C ){
@@ -530,6 +553,14 @@ static void addConstraint(void * object, Constraint * constraint, Parser * parse
   }
 }
 
+/*
+ * addEdge() adds a pair of Edge structs representing the input constraint to the graph representation held by the System struct.
+ *   Each Edge struct will be the reverse of the other. This function can not handle absolute constraints. In the case of an 
+ *   absolute constraint, addConstraint() modifies the input Constraint struct twice, passing the modified Constraint struct to 
+ *   this function each time.
+ * system - pointer to the overall System struct
+ * constraint - pointer to a constraint struct describing a constraint, which can not be an absolute constraint
+ */
 static void addEdge(System * system, Constraint * constraint){
   Edge * newEdges[2];
   newEdges[0] = (Edge *) malloc( sizeof(Edge) );
@@ -590,6 +621,13 @@ static void addEdge(System * system, Constraint * constraint){
   newEdges[1]->inAllEdgeList = false;
 }
 
+/*
+ * finishSystemCreation()
+ * - sets all distance labels not set by an absolute constraint
+ * - sorts all edge lists (not including the allEdge doubly-linked list) by increasing head vertex index
+ * - removes duplicate edges with equal or greater weight
+ * system - pointer to the overall System struct containing the graph representation
+ */
 static void finishSystemCreation(System * system){
   int sourceEdgeWeights = (2 * system->n + 1) * system->C;
   for(int i = 0; i < system->vertexCount; i++){
@@ -640,10 +678,18 @@ static void finishSystemCreation(System * system){
   }
 }
 
+/*
+ * edgeCompare() is the comparison function used by qsort in finishSystemCreation().
+ */
 static int edgeCompare(const void * edge1, const void * edge2){
   return (*(Edge **)edge1)->head->index - (*(Edge **)edge2)->head->index;
 }
 
+/*
+ * removeFromAllEdgeList() removes edge from the allEdge doubly-linked list stored in system.
+ * system - pointer to the System struct storing the overall graph representation
+ * edge - pointer to the edge to be removed from the allEdge list
+ */
 static void removeFromAllEdgeList(System * system, Edge * edge){
   if( edge->inAllEdgeList == true ){
     if( edge->allNext != NULL ){
@@ -661,8 +707,19 @@ static void removeFromAllEdgeList(System * system, Edge * edge){
   }
 }
 
+/*
+ * relaxNetwork() implements RELAX-NETWORK(), with further optimizations. This runs one relaxation loop before setting cycle-
+ *   originators equal to predecessors. It then runs the relaxation loop until 
+ *   - no distance-label change occurs during an entire iteration,
+ *   - a negative cost cycle has been correctly identified via cycle-originator, or
+ *   - as many iterations as could possibly be necessary for a feasible system have been completed
+ *   If a distance label changes after the end of the main relaxation loop, a negative cost cycle is detected. The function 
+ *   returns true for a linearly feasible system. False otherwise. If at any stage a negative cost cycle is detected, it is placed
+ *   in system->infeasibilityProof.
+ * system - pointer to the System struct storing the overall graph representation
+ */
 static bool relaxNetwork(System * system){
-  //Lines 3-6 of algorithm implemented in finishSystemCreation().
+  //Lines 3-6 of RELAX-NETWORK() implemented in finishSystemCreation().
   bool anyChange = false;
   Edge * e = system->allEdgeFirst;
   while( e != NULL ){
@@ -754,6 +811,16 @@ static bool relaxNetwork(System * system){
   return true;
 }
 
+/*
+ * relaxEdge() implements RELAX-EDGE(), with further optimizations. Cycle-orginator edges are passed down the predecessor
+ *   structure, toward the leaves, each time a distance label decreases. If this occurs, and the cycle-originator is then equal to
+ *   the predecessor, backtrack() is called to determine if the predecessor is part of a negative cost cycle. If a negative
+ *   cost cycle is discovered this way, system->infeasibilityProof is filled with the negative cost cycle and false is 
+ *   returned. Otherwise, true is returned.
+ * system - pointer to the System struct storing the overall graph representation
+ * e - pointer to the Edge to be relaxed
+ * anyChange - pointer to a boolean which will be set to true if any distance label is changed during this call to relaxEdge()
+ */
 static bool relaxEdge(System * system, Edge * e, bool * anyChange){
   switch(e->type){
   case WHITE:
@@ -959,6 +1026,16 @@ static bool relaxEdge(System * system, Edge * e, bool * anyChange){
   return true;
 }
 
+/*
+ * backtrack() implements BACKTRACK(), with modifications to handle false-positives generated by cycle-originators. If the 
+ *   predecessor structure is backtracked through, up to the source node, indicated with a NULL predecessor, the E arrays are
+ *   reinitialized, and true is returned. Otherwise, system->infeasibilityProof is filled with a negative cost cycle and false is
+ *   returned.
+ * system - pointer to the System struct storing the overall graph representation
+ * x_i - pointer to the initial Vertex
+ * t - initial path type
+ * e - pointer to the initial edge
+ */
 static bool backtrack(System * system, Vertex * x_i, EdgeType t, Edge * e){
   Vertex * x_c = x_i;
   Edge * e_c = e;
@@ -1072,6 +1149,11 @@ static bool backtrack(System * system, Vertex * x_i, EdgeType t, Edge * e){
   return false;
 }
 
+/*
+ * produceIntegerSolution() implements PRODUCE-INTEGER-SOLUTION(). If the system is not integrally feasible, system->
+ *   infeasibilityProof is filled with a proof of integral infeasibility and false is returned. Otherwise, true is returned.
+ * system - pointer to the System struct storing the overall graph representation
+ */
 static bool produceIntegerSolution(System * system){
 
   bool integrallyFeasible;
@@ -1111,6 +1193,12 @@ static bool produceIntegerSolution(System * system){
   return integrallyFeasible;
 }
 
+/*
+ * forcedRounding() implements FORCED-ROUNDING(). If a contradiction is detected within this function, the proof of integral 
+ *   infeasibility arising from it is placed in system->infeasibilityProof, and false is returned. Otherwise, true is returned.
+ * system - pointer to the System struct storing the overall graph representation
+ * x_i - pointer to the current variable
+ */
 static bool forcedRounding(System * system, Vertex * x_i){
   bool forcedDown = false;
   Edge * whiteEdge = x_i->first[WHITE];
@@ -1177,6 +1265,12 @@ static bool forcedRounding(System * system, Vertex * x_i){
   return true;
 }
 
+/*
+ * optionalRoundings() implements OPTIONAL-ROUNDINGS(). If contradictions are detected when rounding a variable down and when 
+ *   rounding the same variable up, the proof of integral infeasibility arising from this is placed in system->infeasibilityProof,
+ *   and false is returned. Otherwise, true is returned.
+ * system - pointer to the System struct storing the overall graph representation
+ */
 static bool optionalRoundings(System * system){  
   for(int i = 1; i < system->vertexCount; i++){
     if( system->graph[i].Z[FINAL] == INT_MAX ){
@@ -1251,8 +1345,13 @@ static bool optionalRoundings(System * system){
   return true;
 }
 
-//x_i - must never represent a Vertex where x_i->a is integral. The first for loop in produceIntegerSolution
-//ensures this can never occur
+/*
+ * checkDependencies() implements CHECK-DEPENDENCIES().
+ * T - pointer to the IntegerTree to be expanded with dependencies
+ * x_i - pointer to the variable whose dependencies are checked. Must never represent a variable where x_i->a is integral. The 
+ *   first for loop in produceIntegerSolution() ensures this can never occur.
+ * integerType - type of Z value being filled in during this call
+ */
 static void checkDependencies(IntegerTree * T, Vertex * x_i, IntegerType integerType){
   if( x_i->Z[integerType] == halfIntToInt( halfIntFloor( x_i->a ) ) ){
     Edge * grayForwardEdge = x_i->first[GRAY_FORWARD];
@@ -1296,6 +1395,15 @@ static void checkDependencies(IntegerTree * T, Vertex * x_i, IntegerType integer
   }
 }
 
+/*
+ * checkAllConstraints() checks all constraints to determine if they are satisfied by integral assignments. If all are, true is 
+ *   returned. Otherwise, system->infeasibilityProof is filled with the set of edges leading to a contradiction, and false is 
+ *   returned. The edges added to system->infeasibilityProof during one call to this function make up no more than one helf of a 
+ *   full proof of integral infeasibility.
+ * system - pointer to the System struct storing the overall graph representation
+ * toVertex - pointer to the vertex where integerTreeBacktrack() should stop when backtracking up the integerTree
+ * integerType - type of Z value being checked against constraints during this call
+ */
 static bool checkAllConstraints(System * system, Vertex * toVertex, IntegerType integerType){
   Edge * edge = system->allEdgeFirst;
   while( edge != NULL ){
@@ -1334,6 +1442,11 @@ static bool checkAllConstraints(System * system, Vertex * toVertex, IntegerType 
   return true;
 }
 
+/*
+ * systemSubset() removes all edges from the system where tail->Z[FINAL] and head->Z[FINAL] don't both equal INT_MAX, in 
+ *   accordance with line 23 of PRODUCE-INTEGER-SOLUTION().
+ * system - pointer to the System struct storing the overall graph representation
+ */
 static void systemSubset(System * system){
   for(int i = 0; i < system->vertexCount; i++){
     for(EdgeType j = WHITE; j <= GRAY_REVERSE; j++){
@@ -1366,8 +1479,18 @@ static void systemSubset(System * system){
   }
 }
 
-//type : WHITE or GRAY_REVERSE for positive variable coefficient
-//       BLACK or GRAY_FORWARD for negative variable coefficient
+/*
+ * generateAbsoluteConstraint() allocates and initializes an Edge struct representing an absolute constraint. This Edge struct can
+ *   only be used for the purpose of representing a constraint derived during the production of an integral solution. The Edge 
+ *   struct is not added into the overall graph representation, and is instead added into a list of similarly-generated absolute
+ *   constraint Edges tied together through their next pointers and referenced by the additionsFirst pointer in the IntegerTree
+ *   struct. Returns a pointer to the newly allocated and initialized Edge struct.
+ * system - pointer to the System struct storing the overall graph representation
+ * x_i - pointer to the vertex involved in the absolute constraint
+ * weight - weight of the absolute constraint
+ * type - type of absolute constraint edge. WHITE or GRAY_REVERSE for positive variable coefficient. BLACK or GRAY_FORWARD for 
+ *   negative variable coefficient.
+ */
 static Edge * generateAbsoluteConstraint(System * system, Vertex * x_i, int weight, EdgeType type){
   Edge * newEdge = (Edge *) malloc( sizeof(Edge) );
   newEdge->weight = weight;
@@ -1383,6 +1506,10 @@ static Edge * generateAbsoluteConstraint(System * system, Vertex * x_i, int weig
   return newEdge;
 }
 
+/*
+ * generateIntegerTree() allocates and initializes an IntegerTree rooted at x0, returning a pointer to the new IntegerTree.
+ * system - pointer to the System struct storing the overall graph representation
+ */
 static IntegerTree * generateIntegerTree(System * system){
   
   IntegerTreeVertex * x0Root = (IntegerTreeVertex *) malloc( sizeof(IntegerTreeVertex) );
@@ -1401,6 +1528,12 @@ static IntegerTree * generateIntegerTree(System * system){
   return T;
 }
 
+/*
+ * pollIntegerTreeQueue() polls the FIFO queue stored within the input IntegerTree, returning a pointer to the next Vertex to 
+ *   check for dependencies. Returns NULL if the FIFO queue is empty. (tree->queueNewest is never set to NULL, so that all 
+ *   IntegerTreeVertices may be tied together through their queueNewer pointers, for freeing later.)
+ * tree - pointer to the IntegerTree whose FIFO queue is to be polled
+ */
 static Vertex * pollIntegerTreeQueue(IntegerTree * tree){
   Vertex * output;
   if( tree->queueOldest != NULL ){
@@ -1413,7 +1546,25 @@ static Vertex * pollIntegerTreeQueue(IntegerTree * tree){
   return output;
 }
 
-static void expandIntegerTree(IntegerTree * T, Vertex * active, Vertex * parent, Edge * edge0, Edge * edge1, Edge * edge2){
+/*
+ * expandIntegerTree() adds a new IntegerTreeVertex corresponding to active to the input IntegerTree as the child of the 
+ *   IntegerTreeVertex corresponding to parent, if there is not already an IntegerTreeVertex corresponding to active. It then adds 
+ *   references to edges edge0, edge1, and edge2 under the IntegerTreeVertex corresponding to active. The first of edge0, edge1, 
+ *   and edge2 set to NULL will cause all further edge inputs to be ignored. If only one edge is to be added under the 
+ *   IntegerTreeVertex corresponding to active, edge0 should be set to it, and edge1 and edge2 should be set to NULL.
+ * T - pointer to the IntegerTree to be expanded
+ * active - pointer to the graph Vertex which should have a corresponding IntegerTreeVertex added for it, if one is not already 
+ *   present
+ * parent - pointer to the graph Vertex whose corresponding IntegerTreeVertex should serve as the parent IntegerTreeVertex for the
+ *   active graph Vertex
+ * edge0 - pointer to the first Edge to be added under the IntegerTreeVertex corresponding to the active graph Vertex. If NULL, no
+ *   edges are added.
+ * edge1 - pointer to the second Edge to be added under the IntegerTreeVertex corresponding to the active graph Vertex. If NULL,
+ *   only edge0 is added.
+ * edge2 - pointer to the third Edge to be added under the IntegerTreeVertex corresponding to the active graph Vertex. If NULL, 
+ *   only edge0 and edge1 are added.
+ */
+ static void expandIntegerTree(IntegerTree * T, Vertex * active, Vertex * parent, Edge * edge0, Edge * edge1, Edge * edge2){
   
   IntegerTreeVertex * itv = active->integerTreeVertex;
   if( itv == NULL ){
@@ -1442,6 +1593,14 @@ static void expandIntegerTree(IntegerTree * T, Vertex * active, Vertex * parent,
 
 }
 
+/*
+ * integerTreeBacktrack() copies Edge pointers from the IntegerTree data structure to the input list, backtracking from fromVertex
+ *   through parent vertices, to toVertex.
+ * list - pointer to an EdgeRefList to which Edge pointers are copied from the IntegerTree data structure
+ * fromVertex - pointer to the IntegerTreeVertex where backtracking begins
+ * toVertex - pointer to the IntegerTreeVertex where backtracking ends
+ * includeToVertex - true if Edge pointers from the toVertex should be added to list. false otherwise.
+ */
 static void integerTreeBacktrack(EdgeRefList * list, IntegerTreeVertex * fromVertex, IntegerTreeVertex * toVertex, bool includeToVertex){
   if( fromVertex != NULL ){ //== NULL probably impossible
     while( fromVertex != toVertex ){
@@ -1454,6 +1613,11 @@ static void integerTreeBacktrack(EdgeRefList * list, IntegerTreeVertex * fromVer
   }
 }
 
+/*
+ * copyTreeEdgesToList() copies any Edge pointers listed under itv to list.
+ * list - pointer to an EdgeRefList to copy Edge pointers to
+ * itv - pointer to an IntegerTreeVertex to copy Edge pointers from
+ */
 static void copyTreeEdgesToList(EdgeRefList * list, IntegerTreeVertex * itv){
   EdgeRefListNode * treeEdge = itv->graphEdges->first;
   while( treeEdge != NULL ){
@@ -1462,6 +1626,11 @@ static void copyTreeEdgesToList(EdgeRefList * list, IntegerTreeVertex * itv){
   }
 }
 
+/*
+ * freeIntegerTree() frees the input IntegerTree, including all Edges representing absolute constraints derived within this 
+ *   IntegerTree.
+ * tree - pointer to the IntegerTree to be freed
+ */
 static void freeIntegerTree(IntegerTree * tree){
   if( tree != NULL ){
     IntegerTreeVertex * itv = tree->treeRoot;
@@ -1482,6 +1651,9 @@ static void freeIntegerTree(IntegerTree * tree){
   }
 }
 
+/*
+ * generateEdgeRefList() allocates and initializes an EdgeRefList, returning a pointer to it.
+ */
 static EdgeRefList * generateEdgeRefList(){
   EdgeRefList * newERL = (EdgeRefList *) malloc( sizeof(EdgeRefList) );
   newERL->first = NULL;
@@ -1489,6 +1661,11 @@ static EdgeRefList * generateEdgeRefList(){
   return newERL;
 }
 
+/*
+ * edgeRefListAppend() adds an Edge pointer to the end of an EdgeRefList.
+ * erl - pointer to an EdgeRefList to append an Edge pointer to
+ * edge - pointer to an Edge, which will be added to the end of erl
+ */
 static void edgeRefListAppend(EdgeRefList * erl, Edge * edge){
   EdgeRefListNode * newERLN = (EdgeRefListNode *) malloc( sizeof(EdgeRefListNode) );
   newERLN->edge = edge;
@@ -1502,6 +1679,11 @@ static void edgeRefListAppend(EdgeRefList * erl, Edge * edge){
   erl->last = newERLN;
 }
 
+/*
+ * edgeRefListPrepend() adds an Edge pointer to the beginning of an EdgeRefList.
+ * erl - pointer to an EdgeRefList to prepend with an Edge pointer
+ * edge - pointer to an Edge, which will be added to the beginning of erl
+ */
 static void edgeRefListPrepend(EdgeRefList * erl, Edge * edge){
   EdgeRefListNode * newERLN = (EdgeRefListNode *) malloc( sizeof(EdgeRefListNode) );
   newERLN->edge = edge;
@@ -1512,6 +1694,10 @@ static void edgeRefListPrepend(EdgeRefList * erl, Edge * edge){
   }
 }
 
+/*
+ * freeEdgeRefList() frees the input EdgeRefList.
+ * erl - pointer to the EdgeRefList to be freed
+ */
 static void freeEdgeRefList(EdgeRefList * erl){
   if( erl != NULL ){
     EdgeRefListNode * erln = erl->first;
@@ -1524,6 +1710,11 @@ static void freeEdgeRefList(EdgeRefList * erl){
   }
 }
 
+/*
+ * freeSystem() frees the graph representation stored within system, along with system->infeasibilityProof and system->T, if 
+ *   those have yet to be freed.
+ * system - pointer to the System struct, whose contents are to be freed
+ */
 static void freeSystem(System * system){
   for(EdgeType i = WHITE; i <= GRAY_REVERSE; i++){
     for(int j = 0; j < system->vertexCount; j++){
