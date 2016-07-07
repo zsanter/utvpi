@@ -1416,7 +1416,7 @@ static void copyTreeEdgesToList(EdgeRefList * list, IntegerTreeVertex * itv){
 
 /*
  * freeIntegerTree() frees the input IntegerTree, including all Edges representing absolute constraints derived within this 
- *   IntegerTree.
+ *   IntegerTree. Also sets integerTreeVertex in each associated graph Vertex to NULL.
  * tree - pointer to the IntegerTree to be freed
  */
 static void freeIntegerTree(IntegerTree * tree){
