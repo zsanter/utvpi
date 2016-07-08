@@ -605,7 +605,8 @@ static int vertexCompareFinishingTimes(const void * vertex1, const void * vertex
 
 /*
  * Fills Cstar with the transitive and tight closure of Gphi
- * but only adding edges where head->index <= tail->index
+ * but only adding edges where head->index <= tail->index.
+ * Leaves Gphi with modified edge weights, which is fine, because Gphi's edges are no longer used after this function call.
  */
 static void johnsonAllPairs(System * Gphi, System * Cstar){
   initializeSystem( Cstar, Gphi->n, NULL );
