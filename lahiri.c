@@ -87,7 +87,7 @@ static void stronglyConnectedComponents(System * system);
 static void dfsVisit(Vertex * vertex, int * time, int sccNumber);
 static void transposeSystem(System * original, System * transpose);
 static int vertexCompareFinishingTimes(const void * vertex1, const void * vertex2);
-static void johnsonAllPairs(System * Gphi/*, System * Cstar*/);
+static void johnsonAllPairs(System * Gphi);
 static void dijkstra(System * system, Vertex * vertex);
 static void fibHeapInsert(FibHeap * fibHeap, Vertex * vertex);
 static Vertex * fibHeapExtractMin(FibHeap * fibHeap);
@@ -427,74 +427,7 @@ static int lahiri(System * Gphi){
     return output;
   }
   setSystemForJohnson( Gphi );
-  //System Cstar;
-  johnsonAllPairs( Gphi/*, &Cstar*/ );
-  /*for(int j = 0; j < Cstar.n; j++){
-    int upperBound = INT_MAX;
-    int lowerBound = INT_MIN;
-    for(VertexSign i = POSITIVE; i <= NEGATIVE; i++){
-      Edge * edge = Cstar.graph[i][j].first;
-      while( edge != NULL ){
-        int potentialNewUpperBound = INT_MAX;
-        int potentialNewLowerBound = INT_MIN;
-        if( edge->tail->index == edge->head->index ){
-          switch( edge->tail->sign ){
-          case POSITIVE:
-            potentialNewLowerBound = -edge->weight/2;
-            break;
-          case NEGATIVE:
-            potentialNewUpperBound = edge->weight/2;
-          }
-        }
-        else{
-          if( edge->tail->sign == edge->head->sign ){
-            switch( edge->tail->sign ){
-            case POSITIVE:
-              potentialNewLowerBound = -edge->weight + edge->head->rho;
-              break;
-            case NEGATIVE:
-              potentialNewUpperBound = edge->weight + edge->head->rho;
-            }
-          }
-          else{
-            switch( edge->tail->sign ){
-            case POSITIVE:
-              potentialNewLowerBound = -edge->weight - edge->head->rho;
-              break;
-            case NEGATIVE:
-              potentialNewUpperBound = edge->weight - edge->head->rho;
-            }
-          }
-        }
-        if( potentialNewUpperBound < upperBound ){
-          upperBound = potentialNewUpperBound;
-        }
-        if( potentialNewLowerBound > lowerBound ){
-          lowerBound = potentialNewLowerBound;
-        }
-        
-        edge = edge->next;
-      }  
-    }
-    int solution;
-    if( upperBound == INT_MAX && lowerBound == INT_MIN ){
-      solution = 0;
-    }
-    else if( upperBound == INT_MAX ){
-      solution = lowerBound;
-    }
-    else if( lowerBound == INT_MIN ){
-      solution = upperBound;
-    }
-    else {
-      solution = (upperBound + lowerBound)/2;
-    }
-    Cstar.graph[POSITIVE][j].rho = solution;
-    Cstar.graph[NEGATIVE][j].rho = solution;
-    Gphi->graph[POSITIVE][j].rho = solution;
-    Gphi->graph[NEGATIVE][j].rho = solution;
-  }*/
-  //freeSystem( &Cstar );
+  johnsonAllPairs( Gphi );
   return output;
 }
 
@@ -604,13 +537,12 @@ static int vertexCompareFinishingTimes(const void * vertex1, const void * vertex
 }
 
 /*
- * Fills Cstar with the transitive and tight closure of Gphi
- * but only adding edges where head->index <= tail->index.
+ * Lahiri's Model Generation algorithm is integrated into Johnson All-Pairs, such that this function leaves Gphi with an integral 
+ * solution in Vertex.rho, without generating a graphical representation of the transitive and tight closure C*, thus avoiding the
+ * O(n^2) space complexity term.
  * Leaves Gphi with modified edge weights, which is fine, because Gphi's edges are no longer used after this function call.
  */
-static void johnsonAllPairs(System * Gphi/*, System * Cstar*/){
-  //initializeSystem( Cstar, Gphi->n, NULL );
-  //setSystemForJohnson( Cstar );
+static void johnsonAllPairs(System * Gphi){
   for(VertexSign i = POSITIVE; i <= NEGATIVE; i++){
     for(int j = 0; j < Gphi->n; j++){
       Gphi->graph[i][j].h = Gphi->graph[i][j].D;
@@ -669,13 +601,6 @@ static void johnsonAllPairs(System * Gphi/*, System * Cstar*/){
                 }
               }
             }
-            /*Edge * newEdge = (Edge *) malloc( sizeof(Edge) );
-            newEdge->weight = weight;
-            newEdge->head = &Cstar->graph[k][m];
-            newEdge->tail = &Cstar->graph[i][j];
-            newEdge->next = Cstar->graph[i][j].first;
-            Cstar->graph[i][j].first = newEdge;
-            newEdge->backtrackSeen = false;*/
           }
         }
       }
@@ -700,13 +625,6 @@ static void johnsonAllPairs(System * Gphi/*, System * Cstar*/){
             upperBound = potentialNewUpperBound;
           }
         }
-        /*Edge * newEdge = (Edge *) malloc( sizeof(Edge) );
-        newEdge->weight = weight;
-        newEdge->head = &Cstar->graph[!i][j];
-        newEdge->tail = &Cstar->graph[i][j];
-        newEdge->next = Cstar->graph[i][j].first;
-        Cstar->graph[i][j].first = newEdge;
-        newEdge->backtrackSeen = false;*/
       }
     }
     int solution;
