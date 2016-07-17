@@ -820,7 +820,7 @@ static bool relaxEdge(System * system, Edge * e, bool * anyChange){
       Edge * priorL = e->tail->L[GRAY_FORWARD];
       e->tail->D[GRAY_FORWARD] = e->head->D[BLACK] + e->weight;
       e->tail->L[GRAY_FORWARD] = e->reverse;
-      if( priorL != e->reverse )[
+      if( priorL != e->reverse ){
         e->tail->cycleOriginator[GRAY_FORWARD] = e->reverse;
       }
       else {
