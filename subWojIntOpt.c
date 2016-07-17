@@ -1,6 +1,7 @@
 /*
  * subWojIntOpt.c
  * The Subramani-Wojciechowski integral UTVPI system solver with further optimization
+ * Referenced in the COCOA paper.
  *
  * Call with [executable] [input file] {output file}
  * [input file] must be properly formatted to be read by utvpiInterpreter.h
