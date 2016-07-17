@@ -520,16 +520,20 @@ static void addConstraint(void * object, Constraint * constraint, Parser * parse
       if( constraint->weight < system->graph[ constraint->index[0] ].D[WHITE] ){
         system->graph[ constraint->index[0] ].D[WHITE] = constraint->weight;
         system->graph[ constraint->index[0] ].L[WHITE] = system->graph[0].first[WHITE];
+        system->graph[ constraint->index[0] ].cycleOriginator[WHITE] = system->graph[0].first[WHITE];
         system->graph[ constraint->index[0] ].D[GRAY_FORWARD] = constraint->weight;
         system->graph[ constraint->index[0] ].L[GRAY_FORWARD] = system->graph[0].first[GRAY_FORWARD];
+        system->graph[ constraint->index[0] ].cycleOriginator[GRAY_FORWARD] = system->graph[0].first[GRAY_FORWARD];
       }
     }
     else{
       if( constraint->weight < system->graph[ constraint->index[0] ].D[BLACK] ){
         system->graph[ constraint->index[0] ].D[BLACK] = constraint->weight;
         system->graph[ constraint->index[0] ].L[BLACK] = system->graph[0].first[BLACK];
+        system->graph[ constraint->index[0] ].cycleOriginator[BLACK] = system->graph[0].first[BLACK];
         system->graph[ constraint->index[0] ].D[GRAY_REVERSE] = constraint->weight;
         system->graph[ constraint->index[0] ].L[GRAY_REVERSE] = system->graph[0].first[GRAY_REVERSE];
+        system->graph[ constraint->index[0] ].cycleOriginator[GRAY_REVERSE] = system->graph[0].first[GRAY_REVERSE];
       }
     }
   }
