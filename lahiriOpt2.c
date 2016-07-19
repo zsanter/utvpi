@@ -446,7 +446,7 @@ static Edge * backtrack(Edge * edge){
   }
   if( edge == NULL ){
     edge = input;
-    while( edge != NULL && edge->backtrackSeen == true ){
+    while( edge != NULL ){
       edge->backtrackSeen = false;
       edge = edge->tail->L;
     }
