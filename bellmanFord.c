@@ -127,7 +127,7 @@ static void addEdge(void * object, Constraint * constraint, Parser * parser){
 }
 
 static Edge * bellmanFord(System * system){
-  for(int i = 0; i < system->n - 1; i++){
+  for(int i = 1; i <= system->n - 1; i++){
     for(int j = 0; j < system->n; j++){
       Edge * current = system->graph[j].first;
       while( current != NULL ){
