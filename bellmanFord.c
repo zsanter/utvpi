@@ -13,7 +13,9 @@ struct System {
 };
 
 struct Vertex {
+  int index;
   int D;
+  Edge * L;
   Edge * first;
 };
 
@@ -22,14 +24,16 @@ struct Edge {
   Vertex * tail;
   Vertex * head;
   Edge * next;
+  bool backtrackSeen;
 };
 
 int main(int argc, char * argv[]);
 static void initializeSystem(void * object, int n, Parser * parser);
 static void addEdge(void * object, Constraint * constraint, Parser * parser);
-static bool bellmanFord(System * system);
+static Edge * bellmanFord(System * system);
 static void relax(Edge * edge);
-static void cleanup(System * system);
+static Edge * backtrack(Edge * edge);
+static void freeSystem(System * system);
 
 int main(int argc, char * argv[]){
   if( argc != 2 && argc != 3 ){
@@ -59,19 +63,29 @@ int main(int argc, char * argv[]){
     fprintf( stderr, "Parsing of \"%s\" failed.\n", argv[1] );
     exit(1);
   }
-  bool solutionExists = bellmanFord(&system);
-  if( solutionExists ){
+  Edge * negativeCycle = bellmanFord(&system);
+  if( negativeCycle != NULL ){
+    fputs("The following negative cost cycle was detected:\n", output);
+    Edge * edge = negativeCycle;
+    while( edge->backtrackSeen == true ){
+      fputEdge( edge, output );
+      edge->backtrackSeen = false;
+      edge = edge->tail->L;
+    }
+  }
+  else {
     fputs("The following solution satisfies the given constraints:\n", output);
     for(int i = 0; i < system.vertexCount; i++){
       fprintf(output, "x%i = %i\n", i+1, system.graph[i].D); 
     }
   }
-  else{
-    fputs("Negative cost cycle detected.\n", output);
-  }
   fclose(output);
-  cleanup(&system);
+  freeSystem(&system);
   return 0;
+}
+
+static void fputEdge(Edge * edge, FILE * output){
+  fprintf(output, "+x%d -x%d <= %d\n", edge->head->index, edge->tail->index, edge->weight);
 }
 
 static void initializeSystem(void * object, int n, Parser * parser){
@@ -79,7 +93,9 @@ static void initializeSystem(void * object, int n, Parser * parser){
   system->vertexCount = n;
   system->graph = (Vertex *) malloc( sizeof(Vertex) * system->vertexCount );
   for(int i = 0; i < system->vertexCount; i++){
+    system->graph[i].index = i+1;
     system->graph[i].D = 0;
+    system->graph[i].L = NULL;
     system->graph[i].first = NULL;
   }
 }
@@ -87,7 +103,7 @@ static void initializeSystem(void * object, int n, Parser * parser){
 static void addEdge(void * object, Constraint * constraint, Parser * parser){
   System * system = (System *) object;
   if( constraint->sign[1] == CONSTRAINT_NONE || constraint->sign[0] == constraint->sign[1] ){
-    parseError(parser, "The Bellman-Ford algorithm cannot handle this type of constraint." );
+    parseError(parser, "The Bellman-Ford algorithm can only handle difference constraints." );
   }
   else{
     int tailIndex, headIndex;
@@ -105,10 +121,11 @@ static void addEdge(void * object, Constraint * constraint, Parser * parser){
     newEdge->head = &system->graph[headIndex];
     newEdge->next = system->graph[tailIndex].first;
     system->graph[tailIndex].first = newEdge;
+    newEdge->backtrackSeen = false;
   }
 }
 
-static bool bellmanFord(System * system){
+static Edge * bellmanFord(System * system){
   for(int i = 0; i < system->vertexCount - 1; i++){
     for(int j = 0; j < system->vertexCount; j++){
       Edge * current = system->graph[j].first;
@@ -122,21 +139,30 @@ static bool bellmanFord(System * system){
     Edge * current = system->graph[i].first;
     while( current != NULL ){
       if( current->head->D > current->tail->D + current->weight ){
-        return false;
+        return backtrack( current );
       }
       current = current->next;
     }
   }
-  return true;
+  return NULL;
 }
 
 static void relax(Edge * edge){
   if( edge->head->D > edge->tail->D + edge->weight ){
     edge->head->D = edge->tail->D + edge->weight;
+    edge->head->L = edge;
   }
 }
 
-static void cleanup(System * system){
+static Edge * backtrack(Edge * edge){
+  while( edge->backtrackSeen == false ){
+    edge->backtrackSeen = true;
+    edge = edge->tail->L;
+  }
+  return edge;
+}
+
+static void freeSystem(System * system){
   for(int i = 0; i < system->vertexCount; i++){
     Edge * edge = system->graph[i].first;
     while( edge != NULL ){
