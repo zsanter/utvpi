@@ -155,7 +155,6 @@ int main(int argc, char * argv[]){
   int f;
   if( negativeCycle != NULL ){
     f = 0;
-    int negativeCycleEdgeCount = 0;
     fputs("The following negative cost cycle was detected:\n", output);
     Edge * edge = negativeCycle;
     while( edge->backtrackSeen == true ){
