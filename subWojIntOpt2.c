@@ -715,7 +715,7 @@ static void removeFromAllEdgeList(System * system, Edge * edge){
 static bool relaxNetwork(System * system){
   //Lines 3-6 of RELAX-NETWORK() implemented in finishSystemCreation().
   bool anyChange = true;
-  for(int r = 1; r <= 2 * system->n && anyChange; r++){
+  for(int r = 1; r <= /*2*/10 * system->n && anyChange; r++){
     printf("Round %d\n", r);
     anyChange = false;
     Edge * e = system->allEdgeFirst;
