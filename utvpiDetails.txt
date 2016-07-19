@@ -1,0 +1,2013 @@
+Round 1
+Relaxing +x1 +x2 <= 0
+Edge state before:
+Head: x2
+D[WHITE] = 130
+L[WHITE] = (nil)
+cycleOriginator[WHITE] = (nil)
+D[BLACK] = 130
+L[BLACK] = (nil)
+cycleOriginator[BLACK] = (nil)
+D[GRAY_FORWARD] = 130
+L[GRAY_FORWARD] = (nil)
+cycleOriginator[GRAY_FORWARD] = (nil)
+D[GRAY_REVERSE] = 130
+L[GRAY_REVERSE] = (nil)
+cycleOriginator[GRAY_REVERSE] = (nil)
+Tail: x1
+D[WHITE] = 130
+L[WHITE] = (nil)
+cycleOriginator[WHITE] = (nil)
+D[BLACK] = 130
+L[BLACK] = (nil)
+cycleOriginator[BLACK] = (nil)
+D[GRAY_FORWARD] = 130
+L[GRAY_FORWARD] = (nil)
+cycleOriginator[GRAY_FORWARD] = (nil)
+D[GRAY_REVERSE] = 130
+L[GRAY_REVERSE] = (nil)
+cycleOriginator[GRAY_REVERSE] = (nil)
+Edge state after:
+Head: x2
+D[WHITE] = 130
+L[WHITE] = (nil)
+cycleOriginator[WHITE] = (nil)
+D[BLACK] = 130
+L[BLACK] = (nil)
+cycleOriginator[BLACK] = (nil)
+D[GRAY_FORWARD] = 130
+L[GRAY_FORWARD] = (nil)
+cycleOriginator[GRAY_FORWARD] = (nil)
+D[GRAY_REVERSE] = 130
+L[GRAY_REVERSE] = (nil)
+cycleOriginator[GRAY_REVERSE] = (nil)
+Tail: x1
+D[WHITE] = 130
+L[WHITE] = (nil)
+cycleOriginator[WHITE] = (nil)
+D[BLACK] = 130
+L[BLACK] = (nil)
+cycleOriginator[BLACK] = (nil)
+D[GRAY_FORWARD] = 130
+L[GRAY_FORWARD] = (nil)
+cycleOriginator[GRAY_FORWARD] = (nil)
+D[GRAY_REVERSE] = 130
+L[GRAY_REVERSE] = (nil)
+cycleOriginator[GRAY_REVERSE] = (nil)
+Relaxing -x1 -x2 <= -1
+Edge state before:
+Head: x2
+D[WHITE] = 130
+L[WHITE] = (nil)
+cycleOriginator[WHITE] = (nil)
+D[BLACK] = 130
+L[BLACK] = (nil)
+cycleOriginator[BLACK] = (nil)
+D[GRAY_FORWARD] = 130
+L[GRAY_FORWARD] = (nil)
+cycleOriginator[GRAY_FORWARD] = (nil)
+D[GRAY_REVERSE] = 130
+L[GRAY_REVERSE] = (nil)
+cycleOriginator[GRAY_REVERSE] = (nil)
+Tail: x1
+D[WHITE] = 130
+L[WHITE] = (nil)
+cycleOriginator[WHITE] = (nil)
+D[BLACK] = 130
+L[BLACK] = (nil)
+cycleOriginator[BLACK] = (nil)
+D[GRAY_FORWARD] = 130
+L[GRAY_FORWARD] = (nil)
+cycleOriginator[GRAY_FORWARD] = (nil)
+D[GRAY_REVERSE] = 130
+L[GRAY_REVERSE] = (nil)
+cycleOriginator[GRAY_REVERSE] = (nil)
+Edge state after:
+Head: x2
+D[WHITE] = 130
+L[WHITE] = (nil)
+cycleOriginator[WHITE] = (nil)
+D[BLACK] = 129
+L[BLACK] = -x1 -x2 <= -1
+cycleOriginator[BLACK] = -x1 -x2 <= -1
+D[GRAY_FORWARD] = 130
+L[GRAY_FORWARD] = (nil)
+cycleOriginator[GRAY_FORWARD] = (nil)
+D[GRAY_REVERSE] = 129
+L[GRAY_REVERSE] = -x1 -x2 <= -1
+cycleOriginator[GRAY_REVERSE] = -x1 -x2 <= -1
+Tail: x1
+D[WHITE] = 130
+L[WHITE] = (nil)
+cycleOriginator[WHITE] = (nil)
+D[BLACK] = 129
+L[BLACK] = -x2 -x1 <= -1
+cycleOriginator[BLACK] = -x2 -x1 <= -1
+D[GRAY_FORWARD] = 130
+L[GRAY_FORWARD] = (nil)
+cycleOriginator[GRAY_FORWARD] = (nil)
+D[GRAY_REVERSE] = 129
+L[GRAY_REVERSE] = -x2 -x1 <= -1
+cycleOriginator[GRAY_REVERSE] = -x2 -x1 <= -1
+Relaxing -x3 +x6 <= -8
+Edge state before:
+Head: x6
+D[WHITE] = 130
+L[WHITE] = (nil)
+cycleOriginator[WHITE] = (nil)
+D[BLACK] = 130
+L[BLACK] = (nil)
+cycleOriginator[BLACK] = (nil)
+D[GRAY_FORWARD] = 130
+L[GRAY_FORWARD] = (nil)
+cycleOriginator[GRAY_FORWARD] = (nil)
+D[GRAY_REVERSE] = 130
+L[GRAY_REVERSE] = (nil)
+cycleOriginator[GRAY_REVERSE] = (nil)
+Tail: x3
+D[WHITE] = 130
+L[WHITE] = (nil)
+cycleOriginator[WHITE] = (nil)
+D[BLACK] = 130
+L[BLACK] = (nil)
+cycleOriginator[BLACK] = (nil)
+D[GRAY_FORWARD] = 130
+L[GRAY_FORWARD] = (nil)
+cycleOriginator[GRAY_FORWARD] = (nil)
+D[GRAY_REVERSE] = 130
+L[GRAY_REVERSE] = (nil)
+cycleOriginator[GRAY_REVERSE] = (nil)
+Edge state after:
+Head: x6
+D[WHITE] = 122
+L[WHITE] = -x3 +x6 <= -8
+cycleOriginator[WHITE] = -x3 +x6 <= -8
+D[BLACK] = 130
+L[BLACK] = (nil)
+cycleOriginator[BLACK] = (nil)
+D[GRAY_FORWARD] = 122
+L[GRAY_FORWARD] = -x3 +x6 <= -8
+cycleOriginator[GRAY_FORWARD] = -x3 +x6 <= -8
+D[GRAY_REVERSE] = 130
+L[GRAY_REVERSE] = (nil)
+cycleOriginator[GRAY_REVERSE] = (nil)
+Tail: x3
+D[WHITE] = 130
+L[WHITE] = (nil)
+cycleOriginator[WHITE] = (nil)
+D[BLACK] = 122
+L[BLACK] = +x6 -x3 <= -8
+cycleOriginator[BLACK] = +x6 -x3 <= -8
+D[GRAY_FORWARD] = 130
+L[GRAY_FORWARD] = (nil)
+cycleOriginator[GRAY_FORWARD] = (nil)
+D[GRAY_REVERSE] = 122
+L[GRAY_REVERSE] = +x6 -x3 <= -8
+cycleOriginator[GRAY_REVERSE] = +x6 -x3 <= -8
+Relaxing -x4 +x5 <= 3
+Edge state before:
+Head: x5
+D[WHITE] = 130
+L[WHITE] = (nil)
+cycleOriginator[WHITE] = (nil)
+D[BLACK] = 130
+L[BLACK] = (nil)
+cycleOriginator[BLACK] = (nil)
+D[GRAY_FORWARD] = 130
+L[GRAY_FORWARD] = (nil)
+cycleOriginator[GRAY_FORWARD] = (nil)
+D[GRAY_REVERSE] = 130
+L[GRAY_REVERSE] = (nil)
+cycleOriginator[GRAY_REVERSE] = (nil)
+Tail: x4
+D[WHITE] = 130
+L[WHITE] = (nil)
+cycleOriginator[WHITE] = (nil)
+D[BLACK] = 130
+L[BLACK] = (nil)
+cycleOriginator[BLACK] = (nil)
+D[GRAY_FORWARD] = 130
+L[GRAY_FORWARD] = (nil)
+cycleOriginator[GRAY_FORWARD] = (nil)
+D[GRAY_REVERSE] = 130
+L[GRAY_REVERSE] = (nil)
+cycleOriginator[GRAY_REVERSE] = (nil)
+Edge state after:
+Head: x5
+D[WHITE] = 130
+L[WHITE] = (nil)
+cycleOriginator[WHITE] = (nil)
+D[BLACK] = 130
+L[BLACK] = (nil)
+cycleOriginator[BLACK] = (nil)
+D[GRAY_FORWARD] = 130
+L[GRAY_FORWARD] = (nil)
+cycleOriginator[GRAY_FORWARD] = (nil)
+D[GRAY_REVERSE] = 130
+L[GRAY_REVERSE] = (nil)
+cycleOriginator[GRAY_REVERSE] = (nil)
+Tail: x4
+D[WHITE] = 130
+L[WHITE] = (nil)
+cycleOriginator[WHITE] = (nil)
+D[BLACK] = 130
+L[BLACK] = (nil)
+cycleOriginator[BLACK] = (nil)
+D[GRAY_FORWARD] = 130
+L[GRAY_FORWARD] = (nil)
+cycleOriginator[GRAY_FORWARD] = (nil)
+D[GRAY_REVERSE] = 130
+L[GRAY_REVERSE] = (nil)
+cycleOriginator[GRAY_REVERSE] = (nil)
+Relaxing -x1 +x5 <= -1
+Edge state before:
+Head: x5
+D[WHITE] = 130
+L[WHITE] = (nil)
+cycleOriginator[WHITE] = (nil)
+D[BLACK] = 130
+L[BLACK] = (nil)
+cycleOriginator[BLACK] = (nil)
+D[GRAY_FORWARD] = 130
+L[GRAY_FORWARD] = (nil)
+cycleOriginator[GRAY_FORWARD] = (nil)
+D[GRAY_REVERSE] = 130
+L[GRAY_REVERSE] = (nil)
+cycleOriginator[GRAY_REVERSE] = (nil)
+Tail: x1
+D[WHITE] = 130
+L[WHITE] = (nil)
+cycleOriginator[WHITE] = (nil)
+D[BLACK] = 129
+L[BLACK] = -x2 -x1 <= -1
+cycleOriginator[BLACK] = -x2 -x1 <= -1
+D[GRAY_FORWARD] = 130
+L[GRAY_FORWARD] = (nil)
+cycleOriginator[GRAY_FORWARD] = (nil)
+D[GRAY_REVERSE] = 129
+L[GRAY_REVERSE] = -x2 -x1 <= -1
+cycleOriginator[GRAY_REVERSE] = -x2 -x1 <= -1
+Edge state after:
+Head: x5
+D[WHITE] = 129
+L[WHITE] = -x1 +x5 <= -1
+cycleOriginator[WHITE] = -x1 +x5 <= -1
+D[BLACK] = 130
+L[BLACK] = (nil)
+cycleOriginator[BLACK] = (nil)
+D[GRAY_FORWARD] = 129
+L[GRAY_FORWARD] = -x1 +x5 <= -1
+cycleOriginator[GRAY_FORWARD] = -x1 +x5 <= -1
+D[GRAY_REVERSE] = 130
+L[GRAY_REVERSE] = (nil)
+cycleOriginator[GRAY_REVERSE] = (nil)
+Tail: x1
+D[WHITE] = 130
+L[WHITE] = (nil)
+cycleOriginator[WHITE] = (nil)
+D[BLACK] = 129
+L[BLACK] = -x2 -x1 <= -1
+cycleOriginator[BLACK] = -x2 -x1 <= -1
+D[GRAY_FORWARD] = 130
+L[GRAY_FORWARD] = (nil)
+cycleOriginator[GRAY_FORWARD] = (nil)
+D[GRAY_REVERSE] = 129
+L[GRAY_REVERSE] = -x2 -x1 <= -1
+cycleOriginator[GRAY_REVERSE] = -x2 -x1 <= -1
+Relaxing -x2 +x4 <= 2
+Edge state before:
+Head: x4
+D[WHITE] = 130
+L[WHITE] = (nil)
+cycleOriginator[WHITE] = (nil)
+D[BLACK] = 130
+L[BLACK] = (nil)
+cycleOriginator[BLACK] = (nil)
+D[GRAY_FORWARD] = 130
+L[GRAY_FORWARD] = (nil)
+cycleOriginator[GRAY_FORWARD] = (nil)
+D[GRAY_REVERSE] = 130
+L[GRAY_REVERSE] = (nil)
+cycleOriginator[GRAY_REVERSE] = (nil)
+Tail: x2
+D[WHITE] = 130
+L[WHITE] = (nil)
+cycleOriginator[WHITE] = (nil)
+D[BLACK] = 129
+L[BLACK] = -x1 -x2 <= -1
+cycleOriginator[BLACK] = -x1 -x2 <= -1
+D[GRAY_FORWARD] = 130
+L[GRAY_FORWARD] = (nil)
+cycleOriginator[GRAY_FORWARD] = (nil)
+D[GRAY_REVERSE] = 129
+L[GRAY_REVERSE] = -x1 -x2 <= -1
+cycleOriginator[GRAY_REVERSE] = -x1 -x2 <= -1
+Edge state after:
+Head: x4
+D[WHITE] = 130
+L[WHITE] = (nil)
+cycleOriginator[WHITE] = (nil)
+D[BLACK] = 130
+L[BLACK] = (nil)
+cycleOriginator[BLACK] = (nil)
+D[GRAY_FORWARD] = 130
+L[GRAY_FORWARD] = (nil)
+cycleOriginator[GRAY_FORWARD] = (nil)
+D[GRAY_REVERSE] = 130
+L[GRAY_REVERSE] = (nil)
+cycleOriginator[GRAY_REVERSE] = (nil)
+Tail: x2
+D[WHITE] = 130
+L[WHITE] = (nil)
+cycleOriginator[WHITE] = (nil)
+D[BLACK] = 129
+L[BLACK] = -x1 -x2 <= -1
+cycleOriginator[BLACK] = -x1 -x2 <= -1
+D[GRAY_FORWARD] = 130
+L[GRAY_FORWARD] = (nil)
+cycleOriginator[GRAY_FORWARD] = (nil)
+D[GRAY_REVERSE] = 129
+L[GRAY_REVERSE] = -x1 -x2 <= -1
+cycleOriginator[GRAY_REVERSE] = -x1 -x2 <= -1
+Relaxing -x6 +x3 <= 10
+Edge state before:
+Head: x3
+D[WHITE] = 130
+L[WHITE] = (nil)
+cycleOriginator[WHITE] = (nil)
+D[BLACK] = 122
+L[BLACK] = +x6 -x3 <= -8
+cycleOriginator[BLACK] = +x6 -x3 <= -8
+D[GRAY_FORWARD] = 130
+L[GRAY_FORWARD] = (nil)
+cycleOriginator[GRAY_FORWARD] = (nil)
+D[GRAY_REVERSE] = 122
+L[GRAY_REVERSE] = +x6 -x3 <= -8
+cycleOriginator[GRAY_REVERSE] = +x6 -x3 <= -8
+Tail: x6
+D[WHITE] = 122
+L[WHITE] = -x3 +x6 <= -8
+cycleOriginator[WHITE] = -x3 +x6 <= -8
+D[BLACK] = 130
+L[BLACK] = (nil)
+cycleOriginator[BLACK] = (nil)
+D[GRAY_FORWARD] = 122
+L[GRAY_FORWARD] = -x3 +x6 <= -8
+cycleOriginator[GRAY_FORWARD] = -x3 +x6 <= -8
+D[GRAY_REVERSE] = 130
+L[GRAY_REVERSE] = (nil)
+cycleOriginator[GRAY_REVERSE] = (nil)
+Edge state after:
+Head: x3
+D[WHITE] = 130
+L[WHITE] = (nil)
+cycleOriginator[WHITE] = (nil)
+D[BLACK] = 122
+L[BLACK] = +x6 -x3 <= -8
+cycleOriginator[BLACK] = +x6 -x3 <= -8
+D[GRAY_FORWARD] = 130
+L[GRAY_FORWARD] = (nil)
+cycleOriginator[GRAY_FORWARD] = (nil)
+D[GRAY_REVERSE] = 122
+L[GRAY_REVERSE] = +x6 -x3 <= -8
+cycleOriginator[GRAY_REVERSE] = +x6 -x3 <= -8
+Tail: x6
+D[WHITE] = 122
+L[WHITE] = -x3 +x6 <= -8
+cycleOriginator[WHITE] = -x3 +x6 <= -8
+D[BLACK] = 130
+L[BLACK] = (nil)
+cycleOriginator[BLACK] = (nil)
+D[GRAY_FORWARD] = 122
+L[GRAY_FORWARD] = -x3 +x6 <= -8
+cycleOriginator[GRAY_FORWARD] = -x3 +x6 <= -8
+D[GRAY_REVERSE] = 130
+L[GRAY_REVERSE] = (nil)
+cycleOriginator[GRAY_REVERSE] = (nil)
+Relaxing -x6 +x2 <= 5
+Edge state before:
+Head: x2
+D[WHITE] = 130
+L[WHITE] = (nil)
+cycleOriginator[WHITE] = (nil)
+D[BLACK] = 129
+L[BLACK] = -x1 -x2 <= -1
+cycleOriginator[BLACK] = -x1 -x2 <= -1
+D[GRAY_FORWARD] = 130
+L[GRAY_FORWARD] = (nil)
+cycleOriginator[GRAY_FORWARD] = (nil)
+D[GRAY_REVERSE] = 129
+L[GRAY_REVERSE] = -x1 -x2 <= -1
+cycleOriginator[GRAY_REVERSE] = -x1 -x2 <= -1
+Tail: x6
+D[WHITE] = 122
+L[WHITE] = -x3 +x6 <= -8
+cycleOriginator[WHITE] = -x3 +x6 <= -8
+D[BLACK] = 130
+L[BLACK] = (nil)
+cycleOriginator[BLACK] = (nil)
+D[GRAY_FORWARD] = 122
+L[GRAY_FORWARD] = -x3 +x6 <= -8
+cycleOriginator[GRAY_FORWARD] = -x3 +x6 <= -8
+D[GRAY_REVERSE] = 130
+L[GRAY_REVERSE] = (nil)
+cycleOriginator[GRAY_REVERSE] = (nil)
+Edge state after:
+Head: x2
+D[WHITE] = 127
+L[WHITE] = -x6 +x2 <= 5
+cycleOriginator[WHITE] = -x6 +x2 <= 5
+D[BLACK] = 129
+L[BLACK] = -x1 -x2 <= -1
+cycleOriginator[BLACK] = -x1 -x2 <= -1
+D[GRAY_FORWARD] = 127
+L[GRAY_FORWARD] = -x6 +x2 <= 5
+cycleOriginator[GRAY_FORWARD] = -x6 +x2 <= 5
+D[GRAY_REVERSE] = 129
+L[GRAY_REVERSE] = -x1 -x2 <= -1
+cycleOriginator[GRAY_REVERSE] = -x1 -x2 <= -1
+Tail: x6
+D[WHITE] = 122
+L[WHITE] = -x3 +x6 <= -8
+cycleOriginator[WHITE] = -x3 +x6 <= -8
+D[BLACK] = 130
+L[BLACK] = (nil)
+cycleOriginator[BLACK] = (nil)
+D[GRAY_FORWARD] = 122
+L[GRAY_FORWARD] = -x3 +x6 <= -8
+cycleOriginator[GRAY_FORWARD] = -x3 +x6 <= -8
+D[GRAY_REVERSE] = 130
+L[GRAY_REVERSE] = (nil)
+cycleOriginator[GRAY_REVERSE] = (nil)
+Relaxing -x5 +x2 <= 7
+Edge state before:
+Head: x2
+D[WHITE] = 127
+L[WHITE] = -x6 +x2 <= 5
+cycleOriginator[WHITE] = -x6 +x2 <= 5
+D[BLACK] = 129
+L[BLACK] = -x1 -x2 <= -1
+cycleOriginator[BLACK] = -x1 -x2 <= -1
+D[GRAY_FORWARD] = 127
+L[GRAY_FORWARD] = -x6 +x2 <= 5
+cycleOriginator[GRAY_FORWARD] = -x6 +x2 <= 5
+D[GRAY_REVERSE] = 129
+L[GRAY_REVERSE] = -x1 -x2 <= -1
+cycleOriginator[GRAY_REVERSE] = -x1 -x2 <= -1
+Tail: x5
+D[WHITE] = 129
+L[WHITE] = -x1 +x5 <= -1
+cycleOriginator[WHITE] = -x1 +x5 <= -1
+D[BLACK] = 130
+L[BLACK] = (nil)
+cycleOriginator[BLACK] = (nil)
+D[GRAY_FORWARD] = 129
+L[GRAY_FORWARD] = -x1 +x5 <= -1
+cycleOriginator[GRAY_FORWARD] = -x1 +x5 <= -1
+D[GRAY_REVERSE] = 130
+L[GRAY_REVERSE] = (nil)
+cycleOriginator[GRAY_REVERSE] = (nil)
+Edge state after:
+Head: x2
+D[WHITE] = 127
+L[WHITE] = -x6 +x2 <= 5
+cycleOriginator[WHITE] = -x6 +x2 <= 5
+D[BLACK] = 129
+L[BLACK] = -x1 -x2 <= -1
+cycleOriginator[BLACK] = -x1 -x2 <= -1
+D[GRAY_FORWARD] = 127
+L[GRAY_FORWARD] = -x6 +x2 <= 5
+cycleOriginator[GRAY_FORWARD] = -x6 +x2 <= 5
+D[GRAY_REVERSE] = 129
+L[GRAY_REVERSE] = -x1 -x2 <= -1
+cycleOriginator[GRAY_REVERSE] = -x1 -x2 <= -1
+Tail: x5
+D[WHITE] = 129
+L[WHITE] = -x1 +x5 <= -1
+cycleOriginator[WHITE] = -x1 +x5 <= -1
+D[BLACK] = 130
+L[BLACK] = (nil)
+cycleOriginator[BLACK] = (nil)
+D[GRAY_FORWARD] = 129
+L[GRAY_FORWARD] = -x1 +x5 <= -1
+cycleOriginator[GRAY_FORWARD] = -x1 +x5 <= -1
+D[GRAY_REVERSE] = 130
+L[GRAY_REVERSE] = (nil)
+cycleOriginator[GRAY_REVERSE] = (nil)
+Relaxing -x3 +x2 <= 2
+Edge state before:
+Head: x2
+D[WHITE] = 127
+L[WHITE] = -x6 +x2 <= 5
+cycleOriginator[WHITE] = -x6 +x2 <= 5
+D[BLACK] = 129
+L[BLACK] = -x1 -x2 <= -1
+cycleOriginator[BLACK] = -x1 -x2 <= -1
+D[GRAY_FORWARD] = 127
+L[GRAY_FORWARD] = -x6 +x2 <= 5
+cycleOriginator[GRAY_FORWARD] = -x6 +x2 <= 5
+D[GRAY_REVERSE] = 129
+L[GRAY_REVERSE] = -x1 -x2 <= -1
+cycleOriginator[GRAY_REVERSE] = -x1 -x2 <= -1
+Tail: x3
+D[WHITE] = 130
+L[WHITE] = (nil)
+cycleOriginator[WHITE] = (nil)
+D[BLACK] = 122
+L[BLACK] = +x6 -x3 <= -8
+cycleOriginator[BLACK] = +x6 -x3 <= -8
+D[GRAY_FORWARD] = 130
+L[GRAY_FORWARD] = (nil)
+cycleOriginator[GRAY_FORWARD] = (nil)
+D[GRAY_REVERSE] = 122
+L[GRAY_REVERSE] = +x6 -x3 <= -8
+cycleOriginator[GRAY_REVERSE] = +x6 -x3 <= -8
+Edge state after:
+Head: x2
+D[WHITE] = 127
+L[WHITE] = -x6 +x2 <= 5
+cycleOriginator[WHITE] = -x6 +x2 <= 5
+D[BLACK] = 129
+L[BLACK] = -x1 -x2 <= -1
+cycleOriginator[BLACK] = -x1 -x2 <= -1
+D[GRAY_FORWARD] = 127
+L[GRAY_FORWARD] = -x6 +x2 <= 5
+cycleOriginator[GRAY_FORWARD] = -x6 +x2 <= 5
+D[GRAY_REVERSE] = 129
+L[GRAY_REVERSE] = -x1 -x2 <= -1
+cycleOriginator[GRAY_REVERSE] = -x1 -x2 <= -1
+Tail: x3
+D[WHITE] = 130
+L[WHITE] = (nil)
+cycleOriginator[WHITE] = (nil)
+D[BLACK] = 122
+L[BLACK] = +x6 -x3 <= -8
+cycleOriginator[BLACK] = +x6 -x3 <= -8
+D[GRAY_FORWARD] = 130
+L[GRAY_FORWARD] = (nil)
+cycleOriginator[GRAY_FORWARD] = (nil)
+D[GRAY_REVERSE] = 122
+L[GRAY_REVERSE] = +x6 -x3 <= -8
+cycleOriginator[GRAY_REVERSE] = +x6 -x3 <= -8
+Relaxing -x4 +x1 <= -4
+Edge state before:
+Head: x1
+D[WHITE] = 130
+L[WHITE] = (nil)
+cycleOriginator[WHITE] = (nil)
+D[BLACK] = 129
+L[BLACK] = -x2 -x1 <= -1
+cycleOriginator[BLACK] = -x2 -x1 <= -1
+D[GRAY_FORWARD] = 130
+L[GRAY_FORWARD] = (nil)
+cycleOriginator[GRAY_FORWARD] = (nil)
+D[GRAY_REVERSE] = 129
+L[GRAY_REVERSE] = -x2 -x1 <= -1
+cycleOriginator[GRAY_REVERSE] = -x2 -x1 <= -1
+Tail: x4
+D[WHITE] = 130
+L[WHITE] = (nil)
+cycleOriginator[WHITE] = (nil)
+D[BLACK] = 130
+L[BLACK] = (nil)
+cycleOriginator[BLACK] = (nil)
+D[GRAY_FORWARD] = 130
+L[GRAY_FORWARD] = (nil)
+cycleOriginator[GRAY_FORWARD] = (nil)
+D[GRAY_REVERSE] = 130
+L[GRAY_REVERSE] = (nil)
+cycleOriginator[GRAY_REVERSE] = (nil)
+Edge state after:
+Head: x1
+D[WHITE] = 126
+L[WHITE] = -x4 +x1 <= -4
+cycleOriginator[WHITE] = -x4 +x1 <= -4
+D[BLACK] = 129
+L[BLACK] = -x2 -x1 <= -1
+cycleOriginator[BLACK] = -x2 -x1 <= -1
+D[GRAY_FORWARD] = 126
+L[GRAY_FORWARD] = -x4 +x1 <= -4
+cycleOriginator[GRAY_FORWARD] = -x4 +x1 <= -4
+D[GRAY_REVERSE] = 129
+L[GRAY_REVERSE] = -x2 -x1 <= -1
+cycleOriginator[GRAY_REVERSE] = -x2 -x1 <= -1
+Tail: x4
+D[WHITE] = 130
+L[WHITE] = (nil)
+cycleOriginator[WHITE] = (nil)
+D[BLACK] = 125
+L[BLACK] = +x1 -x4 <= -4
+cycleOriginator[BLACK] = +x1 -x4 <= -4
+D[GRAY_FORWARD] = 130
+L[GRAY_FORWARD] = (nil)
+cycleOriginator[GRAY_FORWARD] = (nil)
+D[GRAY_REVERSE] = 125
+L[GRAY_REVERSE] = +x1 -x4 <= -4
+cycleOriginator[GRAY_REVERSE] = +x1 -x4 <= -4
+Relaxing -x2 +x1 <= 1
+Edge state before:
+Head: x1
+D[WHITE] = 126
+L[WHITE] = -x4 +x1 <= -4
+cycleOriginator[WHITE] = -x4 +x1 <= -4
+D[BLACK] = 129
+L[BLACK] = -x2 -x1 <= -1
+cycleOriginator[BLACK] = -x2 -x1 <= -1
+D[GRAY_FORWARD] = 126
+L[GRAY_FORWARD] = -x4 +x1 <= -4
+cycleOriginator[GRAY_FORWARD] = -x4 +x1 <= -4
+D[GRAY_REVERSE] = 129
+L[GRAY_REVERSE] = -x2 -x1 <= -1
+cycleOriginator[GRAY_REVERSE] = -x2 -x1 <= -1
+Tail: x2
+D[WHITE] = 127
+L[WHITE] = -x6 +x2 <= 5
+cycleOriginator[WHITE] = -x6 +x2 <= 5
+D[BLACK] = 129
+L[BLACK] = -x1 -x2 <= -1
+cycleOriginator[BLACK] = -x1 -x2 <= -1
+D[GRAY_FORWARD] = 127
+L[GRAY_FORWARD] = -x6 +x2 <= 5
+cycleOriginator[GRAY_FORWARD] = -x6 +x2 <= 5
+D[GRAY_REVERSE] = 129
+L[GRAY_REVERSE] = -x1 -x2 <= -1
+cycleOriginator[GRAY_REVERSE] = -x1 -x2 <= -1
+Edge state after:
+Head: x1
+D[WHITE] = 126
+L[WHITE] = -x4 +x1 <= -4
+cycleOriginator[WHITE] = -x4 +x1 <= -4
+D[BLACK] = 129
+L[BLACK] = -x2 -x1 <= -1
+cycleOriginator[BLACK] = -x2 -x1 <= -1
+D[GRAY_FORWARD] = 126
+L[GRAY_FORWARD] = -x4 +x1 <= -4
+cycleOriginator[GRAY_FORWARD] = -x4 +x1 <= -4
+D[GRAY_REVERSE] = 129
+L[GRAY_REVERSE] = -x2 -x1 <= -1
+cycleOriginator[GRAY_REVERSE] = -x2 -x1 <= -1
+Tail: x2
+D[WHITE] = 127
+L[WHITE] = -x6 +x2 <= 5
+cycleOriginator[WHITE] = -x6 +x2 <= 5
+D[BLACK] = 129
+L[BLACK] = -x1 -x2 <= -1
+cycleOriginator[BLACK] = -x1 -x2 <= -1
+D[GRAY_FORWARD] = 127
+L[GRAY_FORWARD] = -x6 +x2 <= 5
+cycleOriginator[GRAY_FORWARD] = -x6 +x2 <= 5
+D[GRAY_REVERSE] = 129
+L[GRAY_REVERSE] = -x1 -x2 <= -1
+cycleOriginator[GRAY_REVERSE] = -x1 -x2 <= -1
+Round 2
+Relaxing +x1 +x2 <= 0
+Edge state before:
+Head: x2
+D[WHITE] = 127
+L[WHITE] = -x6 +x2 <= 5
+cycleOriginator[WHITE] = -x6 +x2 <= 5
+D[BLACK] = 129
+L[BLACK] = -x1 -x2 <= -1
+cycleOriginator[BLACK] = -x1 -x2 <= -1
+D[GRAY_FORWARD] = 127
+L[GRAY_FORWARD] = -x6 +x2 <= 5
+cycleOriginator[GRAY_FORWARD] = -x6 +x2 <= 5
+D[GRAY_REVERSE] = 129
+L[GRAY_REVERSE] = -x1 -x2 <= -1
+cycleOriginator[GRAY_REVERSE] = -x1 -x2 <= -1
+Tail: x1
+D[WHITE] = 126
+L[WHITE] = -x4 +x1 <= -4
+cycleOriginator[WHITE] = -x4 +x1 <= -4
+D[BLACK] = 129
+L[BLACK] = -x2 -x1 <= -1
+cycleOriginator[BLACK] = -x2 -x1 <= -1
+D[GRAY_FORWARD] = 126
+L[GRAY_FORWARD] = -x4 +x1 <= -4
+cycleOriginator[GRAY_FORWARD] = -x4 +x1 <= -4
+D[GRAY_REVERSE] = 129
+L[GRAY_REVERSE] = -x2 -x1 <= -1
+cycleOriginator[GRAY_REVERSE] = -x2 -x1 <= -1
+Edge state after:
+Head: x2
+D[WHITE] = 127
+L[WHITE] = -x6 +x2 <= 5
+cycleOriginator[WHITE] = -x6 +x2 <= 5
+D[BLACK] = 129
+L[BLACK] = -x1 -x2 <= -1
+cycleOriginator[BLACK] = -x1 -x2 <= -1
+D[GRAY_FORWARD] = 127
+L[GRAY_FORWARD] = -x6 +x2 <= 5
+cycleOriginator[GRAY_FORWARD] = -x6 +x2 <= 5
+D[GRAY_REVERSE] = 129
+L[GRAY_REVERSE] = -x1 -x2 <= -1
+cycleOriginator[GRAY_REVERSE] = -x1 -x2 <= -1
+Tail: x1
+D[WHITE] = 126
+L[WHITE] = -x4 +x1 <= -4
+cycleOriginator[WHITE] = -x4 +x1 <= -4
+D[BLACK] = 129
+L[BLACK] = -x2 -x1 <= -1
+cycleOriginator[BLACK] = -x2 -x1 <= -1
+D[GRAY_FORWARD] = 126
+L[GRAY_FORWARD] = -x4 +x1 <= -4
+cycleOriginator[GRAY_FORWARD] = -x4 +x1 <= -4
+D[GRAY_REVERSE] = 129
+L[GRAY_REVERSE] = -x2 -x1 <= -1
+cycleOriginator[GRAY_REVERSE] = -x2 -x1 <= -1
+Relaxing -x1 -x2 <= -1
+Edge state before:
+Head: x2
+D[WHITE] = 127
+L[WHITE] = -x6 +x2 <= 5
+cycleOriginator[WHITE] = -x6 +x2 <= 5
+D[BLACK] = 129
+L[BLACK] = -x1 -x2 <= -1
+cycleOriginator[BLACK] = -x1 -x2 <= -1
+D[GRAY_FORWARD] = 127
+L[GRAY_FORWARD] = -x6 +x2 <= 5
+cycleOriginator[GRAY_FORWARD] = -x6 +x2 <= 5
+D[GRAY_REVERSE] = 129
+L[GRAY_REVERSE] = -x1 -x2 <= -1
+cycleOriginator[GRAY_REVERSE] = -x1 -x2 <= -1
+Tail: x1
+D[WHITE] = 126
+L[WHITE] = -x4 +x1 <= -4
+cycleOriginator[WHITE] = -x4 +x1 <= -4
+D[BLACK] = 129
+L[BLACK] = -x2 -x1 <= -1
+cycleOriginator[BLACK] = -x2 -x1 <= -1
+D[GRAY_FORWARD] = 126
+L[GRAY_FORWARD] = -x4 +x1 <= -4
+cycleOriginator[GRAY_FORWARD] = -x4 +x1 <= -4
+D[GRAY_REVERSE] = 129
+L[GRAY_REVERSE] = -x2 -x1 <= -1
+cycleOriginator[GRAY_REVERSE] = -x2 -x1 <= -1
+Edge state after:
+Head: x2
+D[WHITE] = 127
+L[WHITE] = -x6 +x2 <= 5
+cycleOriginator[WHITE] = -x6 +x2 <= 5
+D[BLACK] = 125
+L[BLACK] = -x1 -x2 <= -1
+cycleOriginator[BLACK] = -x4 +x1 <= -4
+D[GRAY_FORWARD] = 127
+L[GRAY_FORWARD] = -x6 +x2 <= 5
+cycleOriginator[GRAY_FORWARD] = -x6 +x2 <= 5
+D[GRAY_REVERSE] = 125
+L[GRAY_REVERSE] = -x1 -x2 <= -1
+cycleOriginator[GRAY_REVERSE] = -x4 +x1 <= -4
+Tail: x1
+D[WHITE] = 126
+L[WHITE] = -x4 +x1 <= -4
+cycleOriginator[WHITE] = -x4 +x1 <= -4
+D[BLACK] = 126
+L[BLACK] = -x2 -x1 <= -1
+cycleOriginator[BLACK] = -x6 +x2 <= 5
+D[GRAY_FORWARD] = 126
+L[GRAY_FORWARD] = -x4 +x1 <= -4
+cycleOriginator[GRAY_FORWARD] = -x4 +x1 <= -4
+D[GRAY_REVERSE] = 126
+L[GRAY_REVERSE] = -x2 -x1 <= -1
+cycleOriginator[GRAY_REVERSE] = -x6 +x2 <= 5
+Relaxing -x3 +x6 <= -8
+Edge state before:
+Head: x6
+D[WHITE] = 122
+L[WHITE] = -x3 +x6 <= -8
+cycleOriginator[WHITE] = -x3 +x6 <= -8
+D[BLACK] = 130
+L[BLACK] = (nil)
+cycleOriginator[BLACK] = (nil)
+D[GRAY_FORWARD] = 122
+L[GRAY_FORWARD] = -x3 +x6 <= -8
+cycleOriginator[GRAY_FORWARD] = -x3 +x6 <= -8
+D[GRAY_REVERSE] = 130
+L[GRAY_REVERSE] = (nil)
+cycleOriginator[GRAY_REVERSE] = (nil)
+Tail: x3
+D[WHITE] = 130
+L[WHITE] = (nil)
+cycleOriginator[WHITE] = (nil)
+D[BLACK] = 122
+L[BLACK] = +x6 -x3 <= -8
+cycleOriginator[BLACK] = +x6 -x3 <= -8
+D[GRAY_FORWARD] = 130
+L[GRAY_FORWARD] = (nil)
+cycleOriginator[GRAY_FORWARD] = (nil)
+D[GRAY_REVERSE] = 122
+L[GRAY_REVERSE] = +x6 -x3 <= -8
+cycleOriginator[GRAY_REVERSE] = +x6 -x3 <= -8
+Edge state after:
+Head: x6
+D[WHITE] = 122
+L[WHITE] = -x3 +x6 <= -8
+cycleOriginator[WHITE] = -x3 +x6 <= -8
+D[BLACK] = 130
+L[BLACK] = (nil)
+cycleOriginator[BLACK] = (nil)
+D[GRAY_FORWARD] = 122
+L[GRAY_FORWARD] = -x3 +x6 <= -8
+cycleOriginator[GRAY_FORWARD] = -x3 +x6 <= -8
+D[GRAY_REVERSE] = 130
+L[GRAY_REVERSE] = (nil)
+cycleOriginator[GRAY_REVERSE] = (nil)
+Tail: x3
+D[WHITE] = 130
+L[WHITE] = (nil)
+cycleOriginator[WHITE] = (nil)
+D[BLACK] = 122
+L[BLACK] = +x6 -x3 <= -8
+cycleOriginator[BLACK] = +x6 -x3 <= -8
+D[GRAY_FORWARD] = 130
+L[GRAY_FORWARD] = (nil)
+cycleOriginator[GRAY_FORWARD] = (nil)
+D[GRAY_REVERSE] = 122
+L[GRAY_REVERSE] = +x6 -x3 <= -8
+cycleOriginator[GRAY_REVERSE] = +x6 -x3 <= -8
+Relaxing -x4 +x5 <= 3
+Edge state before:
+Head: x5
+D[WHITE] = 129
+L[WHITE] = -x1 +x5 <= -1
+cycleOriginator[WHITE] = -x1 +x5 <= -1
+D[BLACK] = 130
+L[BLACK] = (nil)
+cycleOriginator[BLACK] = (nil)
+D[GRAY_FORWARD] = 129
+L[GRAY_FORWARD] = -x1 +x5 <= -1
+cycleOriginator[GRAY_FORWARD] = -x1 +x5 <= -1
+D[GRAY_REVERSE] = 130
+L[GRAY_REVERSE] = (nil)
+cycleOriginator[GRAY_REVERSE] = (nil)
+Tail: x4
+D[WHITE] = 130
+L[WHITE] = (nil)
+cycleOriginator[WHITE] = (nil)
+D[BLACK] = 125
+L[BLACK] = +x1 -x4 <= -4
+cycleOriginator[BLACK] = +x1 -x4 <= -4
+D[GRAY_FORWARD] = 130
+L[GRAY_FORWARD] = (nil)
+cycleOriginator[GRAY_FORWARD] = (nil)
+D[GRAY_REVERSE] = 125
+L[GRAY_REVERSE] = +x1 -x4 <= -4
+cycleOriginator[GRAY_REVERSE] = +x1 -x4 <= -4
+Edge state after:
+Head: x5
+D[WHITE] = 129
+L[WHITE] = -x1 +x5 <= -1
+cycleOriginator[WHITE] = -x1 +x5 <= -1
+D[BLACK] = 130
+L[BLACK] = (nil)
+cycleOriginator[BLACK] = (nil)
+D[GRAY_FORWARD] = 129
+L[GRAY_FORWARD] = -x1 +x5 <= -1
+cycleOriginator[GRAY_FORWARD] = -x1 +x5 <= -1
+D[GRAY_REVERSE] = 130
+L[GRAY_REVERSE] = (nil)
+cycleOriginator[GRAY_REVERSE] = (nil)
+Tail: x4
+D[WHITE] = 130
+L[WHITE] = (nil)
+cycleOriginator[WHITE] = (nil)
+D[BLACK] = 125
+L[BLACK] = +x1 -x4 <= -4
+cycleOriginator[BLACK] = +x1 -x4 <= -4
+D[GRAY_FORWARD] = 130
+L[GRAY_FORWARD] = (nil)
+cycleOriginator[GRAY_FORWARD] = (nil)
+D[GRAY_REVERSE] = 125
+L[GRAY_REVERSE] = +x1 -x4 <= -4
+cycleOriginator[GRAY_REVERSE] = +x1 -x4 <= -4
+Relaxing -x1 +x5 <= -1
+Edge state before:
+Head: x5
+D[WHITE] = 129
+L[WHITE] = -x1 +x5 <= -1
+cycleOriginator[WHITE] = -x1 +x5 <= -1
+D[BLACK] = 130
+L[BLACK] = (nil)
+cycleOriginator[BLACK] = (nil)
+D[GRAY_FORWARD] = 129
+L[GRAY_FORWARD] = -x1 +x5 <= -1
+cycleOriginator[GRAY_FORWARD] = -x1 +x5 <= -1
+D[GRAY_REVERSE] = 130
+L[GRAY_REVERSE] = (nil)
+cycleOriginator[GRAY_REVERSE] = (nil)
+Tail: x1
+D[WHITE] = 126
+L[WHITE] = -x4 +x1 <= -4
+cycleOriginator[WHITE] = -x4 +x1 <= -4
+D[BLACK] = 126
+L[BLACK] = -x2 -x1 <= -1
+cycleOriginator[BLACK] = -x6 +x2 <= 5
+D[GRAY_FORWARD] = 126
+L[GRAY_FORWARD] = -x4 +x1 <= -4
+cycleOriginator[GRAY_FORWARD] = -x4 +x1 <= -4
+D[GRAY_REVERSE] = 126
+L[GRAY_REVERSE] = -x2 -x1 <= -1
+cycleOriginator[GRAY_REVERSE] = -x6 +x2 <= 5
+Edge state after:
+Head: x5
+D[WHITE] = 125
+L[WHITE] = -x1 +x5 <= -1
+cycleOriginator[WHITE] = -x4 +x1 <= -4
+D[BLACK] = 130
+L[BLACK] = (nil)
+cycleOriginator[BLACK] = (nil)
+D[GRAY_FORWARD] = 125
+L[GRAY_FORWARD] = -x1 +x5 <= -1
+cycleOriginator[GRAY_FORWARD] = -x4 +x1 <= -4
+D[GRAY_REVERSE] = 130
+L[GRAY_REVERSE] = (nil)
+cycleOriginator[GRAY_REVERSE] = (nil)
+Tail: x1
+D[WHITE] = 126
+L[WHITE] = -x4 +x1 <= -4
+cycleOriginator[WHITE] = -x4 +x1 <= -4
+D[BLACK] = 126
+L[BLACK] = -x2 -x1 <= -1
+cycleOriginator[BLACK] = -x6 +x2 <= 5
+D[GRAY_FORWARD] = 126
+L[GRAY_FORWARD] = -x4 +x1 <= -4
+cycleOriginator[GRAY_FORWARD] = -x4 +x1 <= -4
+D[GRAY_REVERSE] = 126
+L[GRAY_REVERSE] = -x2 -x1 <= -1
+cycleOriginator[GRAY_REVERSE] = -x6 +x2 <= 5
+Relaxing -x2 +x4 <= 2
+Edge state before:
+Head: x4
+D[WHITE] = 130
+L[WHITE] = (nil)
+cycleOriginator[WHITE] = (nil)
+D[BLACK] = 125
+L[BLACK] = +x1 -x4 <= -4
+cycleOriginator[BLACK] = +x1 -x4 <= -4
+D[GRAY_FORWARD] = 130
+L[GRAY_FORWARD] = (nil)
+cycleOriginator[GRAY_FORWARD] = (nil)
+D[GRAY_REVERSE] = 125
+L[GRAY_REVERSE] = +x1 -x4 <= -4
+cycleOriginator[GRAY_REVERSE] = +x1 -x4 <= -4
+Tail: x2
+D[WHITE] = 127
+L[WHITE] = -x6 +x2 <= 5
+cycleOriginator[WHITE] = -x6 +x2 <= 5
+D[BLACK] = 125
+L[BLACK] = -x1 -x2 <= -1
+cycleOriginator[BLACK] = -x4 +x1 <= -4
+D[GRAY_FORWARD] = 127
+L[GRAY_FORWARD] = -x6 +x2 <= 5
+cycleOriginator[GRAY_FORWARD] = -x6 +x2 <= 5
+D[GRAY_REVERSE] = 125
+L[GRAY_REVERSE] = -x1 -x2 <= -1
+cycleOriginator[GRAY_REVERSE] = -x4 +x1 <= -4
+Edge state after:
+Head: x4
+D[WHITE] = 129
+L[WHITE] = -x2 +x4 <= 2
+cycleOriginator[WHITE] = -x2 +x4 <= 2
+D[BLACK] = 125
+L[BLACK] = +x1 -x4 <= -4
+cycleOriginator[BLACK] = +x1 -x4 <= -4
+D[GRAY_FORWARD] = 129
+L[GRAY_FORWARD] = -x2 +x4 <= 2
+cycleOriginator[GRAY_FORWARD] = -x2 +x4 <= 2
+D[GRAY_REVERSE] = 125
+L[GRAY_REVERSE] = +x1 -x4 <= -4
+cycleOriginator[GRAY_REVERSE] = +x1 -x4 <= -4
+Tail: x2
+D[WHITE] = 127
+L[WHITE] = -x6 +x2 <= 5
+cycleOriginator[WHITE] = -x6 +x2 <= 5
+D[BLACK] = 125
+L[BLACK] = -x1 -x2 <= -1
+cycleOriginator[BLACK] = -x4 +x1 <= -4
+D[GRAY_FORWARD] = 127
+L[GRAY_FORWARD] = -x6 +x2 <= 5
+cycleOriginator[GRAY_FORWARD] = -x6 +x2 <= 5
+D[GRAY_REVERSE] = 125
+L[GRAY_REVERSE] = -x1 -x2 <= -1
+cycleOriginator[GRAY_REVERSE] = -x4 +x1 <= -4
+Relaxing -x6 +x3 <= 10
+Edge state before:
+Head: x3
+D[WHITE] = 130
+L[WHITE] = (nil)
+cycleOriginator[WHITE] = (nil)
+D[BLACK] = 122
+L[BLACK] = +x6 -x3 <= -8
+cycleOriginator[BLACK] = +x6 -x3 <= -8
+D[GRAY_FORWARD] = 130
+L[GRAY_FORWARD] = (nil)
+cycleOriginator[GRAY_FORWARD] = (nil)
+D[GRAY_REVERSE] = 122
+L[GRAY_REVERSE] = +x6 -x3 <= -8
+cycleOriginator[GRAY_REVERSE] = +x6 -x3 <= -8
+Tail: x6
+D[WHITE] = 122
+L[WHITE] = -x3 +x6 <= -8
+cycleOriginator[WHITE] = -x3 +x6 <= -8
+D[BLACK] = 130
+L[BLACK] = (nil)
+cycleOriginator[BLACK] = (nil)
+D[GRAY_FORWARD] = 122
+L[GRAY_FORWARD] = -x3 +x6 <= -8
+cycleOriginator[GRAY_FORWARD] = -x3 +x6 <= -8
+D[GRAY_REVERSE] = 130
+L[GRAY_REVERSE] = (nil)
+cycleOriginator[GRAY_REVERSE] = (nil)
+Edge state after:
+Head: x3
+D[WHITE] = 130
+L[WHITE] = (nil)
+cycleOriginator[WHITE] = (nil)
+D[BLACK] = 122
+L[BLACK] = +x6 -x3 <= -8
+cycleOriginator[BLACK] = +x6 -x3 <= -8
+D[GRAY_FORWARD] = 130
+L[GRAY_FORWARD] = (nil)
+cycleOriginator[GRAY_FORWARD] = (nil)
+D[GRAY_REVERSE] = 122
+L[GRAY_REVERSE] = +x6 -x3 <= -8
+cycleOriginator[GRAY_REVERSE] = +x6 -x3 <= -8
+Tail: x6
+D[WHITE] = 122
+L[WHITE] = -x3 +x6 <= -8
+cycleOriginator[WHITE] = -x3 +x6 <= -8
+D[BLACK] = 130
+L[BLACK] = (nil)
+cycleOriginator[BLACK] = (nil)
+D[GRAY_FORWARD] = 122
+L[GRAY_FORWARD] = -x3 +x6 <= -8
+cycleOriginator[GRAY_FORWARD] = -x3 +x6 <= -8
+D[GRAY_REVERSE] = 130
+L[GRAY_REVERSE] = (nil)
+cycleOriginator[GRAY_REVERSE] = (nil)
+Relaxing -x6 +x2 <= 5
+Edge state before:
+Head: x2
+D[WHITE] = 127
+L[WHITE] = -x6 +x2 <= 5
+cycleOriginator[WHITE] = -x6 +x2 <= 5
+D[BLACK] = 125
+L[BLACK] = -x1 -x2 <= -1
+cycleOriginator[BLACK] = -x4 +x1 <= -4
+D[GRAY_FORWARD] = 127
+L[GRAY_FORWARD] = -x6 +x2 <= 5
+cycleOriginator[GRAY_FORWARD] = -x6 +x2 <= 5
+D[GRAY_REVERSE] = 125
+L[GRAY_REVERSE] = -x1 -x2 <= -1
+cycleOriginator[GRAY_REVERSE] = -x4 +x1 <= -4
+Tail: x6
+D[WHITE] = 122
+L[WHITE] = -x3 +x6 <= -8
+cycleOriginator[WHITE] = -x3 +x6 <= -8
+D[BLACK] = 130
+L[BLACK] = (nil)
+cycleOriginator[BLACK] = (nil)
+D[GRAY_FORWARD] = 122
+L[GRAY_FORWARD] = -x3 +x6 <= -8
+cycleOriginator[GRAY_FORWARD] = -x3 +x6 <= -8
+D[GRAY_REVERSE] = 130
+L[GRAY_REVERSE] = (nil)
+cycleOriginator[GRAY_REVERSE] = (nil)
+Edge state after:
+Head: x2
+D[WHITE] = 127
+L[WHITE] = -x6 +x2 <= 5
+cycleOriginator[WHITE] = -x6 +x2 <= 5
+D[BLACK] = 125
+L[BLACK] = -x1 -x2 <= -1
+cycleOriginator[BLACK] = -x4 +x1 <= -4
+D[GRAY_FORWARD] = 127
+L[GRAY_FORWARD] = -x6 +x2 <= 5
+cycleOriginator[GRAY_FORWARD] = -x6 +x2 <= 5
+D[GRAY_REVERSE] = 125
+L[GRAY_REVERSE] = -x1 -x2 <= -1
+cycleOriginator[GRAY_REVERSE] = -x4 +x1 <= -4
+Tail: x6
+D[WHITE] = 122
+L[WHITE] = -x3 +x6 <= -8
+cycleOriginator[WHITE] = -x3 +x6 <= -8
+D[BLACK] = 130
+L[BLACK] = (nil)
+cycleOriginator[BLACK] = (nil)
+D[GRAY_FORWARD] = 122
+L[GRAY_FORWARD] = -x3 +x6 <= -8
+cycleOriginator[GRAY_FORWARD] = -x3 +x6 <= -8
+D[GRAY_REVERSE] = 130
+L[GRAY_REVERSE] = (nil)
+cycleOriginator[GRAY_REVERSE] = (nil)
+Relaxing -x5 +x2 <= 7
+Edge state before:
+Head: x2
+D[WHITE] = 127
+L[WHITE] = -x6 +x2 <= 5
+cycleOriginator[WHITE] = -x6 +x2 <= 5
+D[BLACK] = 125
+L[BLACK] = -x1 -x2 <= -1
+cycleOriginator[BLACK] = -x4 +x1 <= -4
+D[GRAY_FORWARD] = 127
+L[GRAY_FORWARD] = -x6 +x2 <= 5
+cycleOriginator[GRAY_FORWARD] = -x6 +x2 <= 5
+D[GRAY_REVERSE] = 125
+L[GRAY_REVERSE] = -x1 -x2 <= -1
+cycleOriginator[GRAY_REVERSE] = -x4 +x1 <= -4
+Tail: x5
+D[WHITE] = 125
+L[WHITE] = -x1 +x5 <= -1
+cycleOriginator[WHITE] = -x4 +x1 <= -4
+D[BLACK] = 130
+L[BLACK] = (nil)
+cycleOriginator[BLACK] = (nil)
+D[GRAY_FORWARD] = 125
+L[GRAY_FORWARD] = -x1 +x5 <= -1
+cycleOriginator[GRAY_FORWARD] = -x4 +x1 <= -4
+D[GRAY_REVERSE] = 130
+L[GRAY_REVERSE] = (nil)
+cycleOriginator[GRAY_REVERSE] = (nil)
+Edge state after:
+Head: x2
+D[WHITE] = 127
+L[WHITE] = -x6 +x2 <= 5
+cycleOriginator[WHITE] = -x6 +x2 <= 5
+D[BLACK] = 125
+L[BLACK] = -x1 -x2 <= -1
+cycleOriginator[BLACK] = -x4 +x1 <= -4
+D[GRAY_FORWARD] = 127
+L[GRAY_FORWARD] = -x6 +x2 <= 5
+cycleOriginator[GRAY_FORWARD] = -x6 +x2 <= 5
+D[GRAY_REVERSE] = 125
+L[GRAY_REVERSE] = -x1 -x2 <= -1
+cycleOriginator[GRAY_REVERSE] = -x4 +x1 <= -4
+Tail: x5
+D[WHITE] = 125
+L[WHITE] = -x1 +x5 <= -1
+cycleOriginator[WHITE] = -x4 +x1 <= -4
+D[BLACK] = 130
+L[BLACK] = (nil)
+cycleOriginator[BLACK] = (nil)
+D[GRAY_FORWARD] = 125
+L[GRAY_FORWARD] = -x1 +x5 <= -1
+cycleOriginator[GRAY_FORWARD] = -x4 +x1 <= -4
+D[GRAY_REVERSE] = 130
+L[GRAY_REVERSE] = (nil)
+cycleOriginator[GRAY_REVERSE] = (nil)
+Relaxing -x3 +x2 <= 2
+Edge state before:
+Head: x2
+D[WHITE] = 127
+L[WHITE] = -x6 +x2 <= 5
+cycleOriginator[WHITE] = -x6 +x2 <= 5
+D[BLACK] = 125
+L[BLACK] = -x1 -x2 <= -1
+cycleOriginator[BLACK] = -x4 +x1 <= -4
+D[GRAY_FORWARD] = 127
+L[GRAY_FORWARD] = -x6 +x2 <= 5
+cycleOriginator[GRAY_FORWARD] = -x6 +x2 <= 5
+D[GRAY_REVERSE] = 125
+L[GRAY_REVERSE] = -x1 -x2 <= -1
+cycleOriginator[GRAY_REVERSE] = -x4 +x1 <= -4
+Tail: x3
+D[WHITE] = 130
+L[WHITE] = (nil)
+cycleOriginator[WHITE] = (nil)
+D[BLACK] = 122
+L[BLACK] = +x6 -x3 <= -8
+cycleOriginator[BLACK] = +x6 -x3 <= -8
+D[GRAY_FORWARD] = 130
+L[GRAY_FORWARD] = (nil)
+cycleOriginator[GRAY_FORWARD] = (nil)
+D[GRAY_REVERSE] = 122
+L[GRAY_REVERSE] = +x6 -x3 <= -8
+cycleOriginator[GRAY_REVERSE] = +x6 -x3 <= -8
+Edge state after:
+Head: x2
+D[WHITE] = 127
+L[WHITE] = -x6 +x2 <= 5
+cycleOriginator[WHITE] = -x6 +x2 <= 5
+D[BLACK] = 125
+L[BLACK] = -x1 -x2 <= -1
+cycleOriginator[BLACK] = -x4 +x1 <= -4
+D[GRAY_FORWARD] = 127
+L[GRAY_FORWARD] = -x6 +x2 <= 5
+cycleOriginator[GRAY_FORWARD] = -x6 +x2 <= 5
+D[GRAY_REVERSE] = 125
+L[GRAY_REVERSE] = -x1 -x2 <= -1
+cycleOriginator[GRAY_REVERSE] = -x4 +x1 <= -4
+Tail: x3
+D[WHITE] = 130
+L[WHITE] = (nil)
+cycleOriginator[WHITE] = (nil)
+D[BLACK] = 122
+L[BLACK] = +x6 -x3 <= -8
+cycleOriginator[BLACK] = +x6 -x3 <= -8
+D[GRAY_FORWARD] = 130
+L[GRAY_FORWARD] = (nil)
+cycleOriginator[GRAY_FORWARD] = (nil)
+D[GRAY_REVERSE] = 122
+L[GRAY_REVERSE] = +x6 -x3 <= -8
+cycleOriginator[GRAY_REVERSE] = +x6 -x3 <= -8
+Relaxing -x4 +x1 <= -4
+Edge state before:
+Head: x1
+D[WHITE] = 126
+L[WHITE] = -x4 +x1 <= -4
+cycleOriginator[WHITE] = -x4 +x1 <= -4
+D[BLACK] = 126
+L[BLACK] = -x2 -x1 <= -1
+cycleOriginator[BLACK] = -x6 +x2 <= 5
+D[GRAY_FORWARD] = 126
+L[GRAY_FORWARD] = -x4 +x1 <= -4
+cycleOriginator[GRAY_FORWARD] = -x4 +x1 <= -4
+D[GRAY_REVERSE] = 126
+L[GRAY_REVERSE] = -x2 -x1 <= -1
+cycleOriginator[GRAY_REVERSE] = -x6 +x2 <= 5
+Tail: x4
+D[WHITE] = 129
+L[WHITE] = -x2 +x4 <= 2
+cycleOriginator[WHITE] = -x2 +x4 <= 2
+D[BLACK] = 125
+L[BLACK] = +x1 -x4 <= -4
+cycleOriginator[BLACK] = +x1 -x4 <= -4
+D[GRAY_FORWARD] = 129
+L[GRAY_FORWARD] = -x2 +x4 <= 2
+cycleOriginator[GRAY_FORWARD] = -x2 +x4 <= 2
+D[GRAY_REVERSE] = 125
+L[GRAY_REVERSE] = +x1 -x4 <= -4
+cycleOriginator[GRAY_REVERSE] = +x1 -x4 <= -4
+Edge state after:
+Head: x1
+D[WHITE] = 125
+L[WHITE] = -x4 +x1 <= -4
+cycleOriginator[WHITE] = -x2 +x4 <= 2
+D[BLACK] = 126
+L[BLACK] = -x2 -x1 <= -1
+cycleOriginator[BLACK] = -x6 +x2 <= 5
+D[GRAY_FORWARD] = 125
+L[GRAY_FORWARD] = -x4 +x1 <= -4
+cycleOriginator[GRAY_FORWARD] = -x2 +x4 <= 2
+D[GRAY_REVERSE] = 126
+L[GRAY_REVERSE] = -x2 -x1 <= -1
+cycleOriginator[GRAY_REVERSE] = -x6 +x2 <= 5
+Tail: x4
+D[WHITE] = 129
+L[WHITE] = -x2 +x4 <= 2
+cycleOriginator[WHITE] = -x2 +x4 <= 2
+D[BLACK] = 122
+L[BLACK] = +x1 -x4 <= -4
+cycleOriginator[BLACK] = -x6 +x2 <= 5
+D[GRAY_FORWARD] = 129
+L[GRAY_FORWARD] = -x2 +x4 <= 2
+cycleOriginator[GRAY_FORWARD] = -x2 +x4 <= 2
+D[GRAY_REVERSE] = 122
+L[GRAY_REVERSE] = +x1 -x4 <= -4
+cycleOriginator[GRAY_REVERSE] = -x6 +x2 <= 5
+Relaxing -x2 +x1 <= 1
+Edge state before:
+Head: x1
+D[WHITE] = 125
+L[WHITE] = -x4 +x1 <= -4
+cycleOriginator[WHITE] = -x2 +x4 <= 2
+D[BLACK] = 126
+L[BLACK] = -x2 -x1 <= -1
+cycleOriginator[BLACK] = -x6 +x2 <= 5
+D[GRAY_FORWARD] = 125
+L[GRAY_FORWARD] = -x4 +x1 <= -4
+cycleOriginator[GRAY_FORWARD] = -x2 +x4 <= 2
+D[GRAY_REVERSE] = 126
+L[GRAY_REVERSE] = -x2 -x1 <= -1
+cycleOriginator[GRAY_REVERSE] = -x6 +x2 <= 5
+Tail: x2
+D[WHITE] = 127
+L[WHITE] = -x6 +x2 <= 5
+cycleOriginator[WHITE] = -x6 +x2 <= 5
+D[BLACK] = 125
+L[BLACK] = -x1 -x2 <= -1
+cycleOriginator[BLACK] = -x4 +x1 <= -4
+D[GRAY_FORWARD] = 127
+L[GRAY_FORWARD] = -x6 +x2 <= 5
+cycleOriginator[GRAY_FORWARD] = -x6 +x2 <= 5
+D[GRAY_REVERSE] = 125
+L[GRAY_REVERSE] = -x1 -x2 <= -1
+cycleOriginator[GRAY_REVERSE] = -x4 +x1 <= -4
+Edge state after:
+Head: x1
+D[WHITE] = 125
+L[WHITE] = -x4 +x1 <= -4
+cycleOriginator[WHITE] = -x2 +x4 <= 2
+D[BLACK] = 126
+L[BLACK] = -x2 -x1 <= -1
+cycleOriginator[BLACK] = -x6 +x2 <= 5
+D[GRAY_FORWARD] = 125
+L[GRAY_FORWARD] = -x4 +x1 <= -4
+cycleOriginator[GRAY_FORWARD] = -x2 +x4 <= 2
+D[GRAY_REVERSE] = 126
+L[GRAY_REVERSE] = -x2 -x1 <= -1
+cycleOriginator[GRAY_REVERSE] = -x6 +x2 <= 5
+Tail: x2
+D[WHITE] = 127
+L[WHITE] = -x6 +x2 <= 5
+cycleOriginator[WHITE] = -x6 +x2 <= 5
+D[BLACK] = 125
+L[BLACK] = -x1 -x2 <= -1
+cycleOriginator[BLACK] = -x4 +x1 <= -4
+D[GRAY_FORWARD] = 127
+L[GRAY_FORWARD] = -x6 +x2 <= 5
+cycleOriginator[GRAY_FORWARD] = -x6 +x2 <= 5
+D[GRAY_REVERSE] = 125
+L[GRAY_REVERSE] = -x1 -x2 <= -1
+cycleOriginator[GRAY_REVERSE] = -x4 +x1 <= -4
+Round 3
+Relaxing +x1 +x2 <= 0
+Edge state before:
+Head: x2
+D[WHITE] = 127
+L[WHITE] = -x6 +x2 <= 5
+cycleOriginator[WHITE] = -x6 +x2 <= 5
+D[BLACK] = 125
+L[BLACK] = -x1 -x2 <= -1
+cycleOriginator[BLACK] = -x4 +x1 <= -4
+D[GRAY_FORWARD] = 127
+L[GRAY_FORWARD] = -x6 +x2 <= 5
+cycleOriginator[GRAY_FORWARD] = -x6 +x2 <= 5
+D[GRAY_REVERSE] = 125
+L[GRAY_REVERSE] = -x1 -x2 <= -1
+cycleOriginator[GRAY_REVERSE] = -x4 +x1 <= -4
+Tail: x1
+D[WHITE] = 125
+L[WHITE] = -x4 +x1 <= -4
+cycleOriginator[WHITE] = -x2 +x4 <= 2
+D[BLACK] = 126
+L[BLACK] = -x2 -x1 <= -1
+cycleOriginator[BLACK] = -x6 +x2 <= 5
+D[GRAY_FORWARD] = 125
+L[GRAY_FORWARD] = -x4 +x1 <= -4
+cycleOriginator[GRAY_FORWARD] = -x2 +x4 <= 2
+D[GRAY_REVERSE] = 126
+L[GRAY_REVERSE] = -x2 -x1 <= -1
+cycleOriginator[GRAY_REVERSE] = -x6 +x2 <= 5
+Edge state after:
+Head: x2
+D[WHITE] = 126
+L[WHITE] = +x1 +x2 <= 0
+cycleOriginator[WHITE] = +x1 +x2 <= 0
+D[BLACK] = 125
+L[BLACK] = -x1 -x2 <= -1
+cycleOriginator[BLACK] = -x4 +x1 <= -4
+D[GRAY_FORWARD] = 126
+L[GRAY_FORWARD] = +x1 +x2 <= 0
+cycleOriginator[GRAY_FORWARD] = +x1 +x2 <= 0
+D[GRAY_REVERSE] = 125
+L[GRAY_REVERSE] = -x1 -x2 <= -1
+cycleOriginator[GRAY_REVERSE] = -x4 +x1 <= -4
+Tail: x1
+D[WHITE] = 125
+L[WHITE] = -x4 +x1 <= -4
+cycleOriginator[WHITE] = -x2 +x4 <= 2
+D[BLACK] = 126
+L[BLACK] = -x2 -x1 <= -1
+cycleOriginator[BLACK] = -x6 +x2 <= 5
+D[GRAY_FORWARD] = 125
+L[GRAY_FORWARD] = -x4 +x1 <= -4
+cycleOriginator[GRAY_FORWARD] = -x2 +x4 <= 2
+D[GRAY_REVERSE] = 126
+L[GRAY_REVERSE] = -x2 -x1 <= -1
+cycleOriginator[GRAY_REVERSE] = -x6 +x2 <= 5
+Relaxing -x1 -x2 <= -1
+Edge state before:
+Head: x2
+D[WHITE] = 126
+L[WHITE] = +x1 +x2 <= 0
+cycleOriginator[WHITE] = +x1 +x2 <= 0
+D[BLACK] = 125
+L[BLACK] = -x1 -x2 <= -1
+cycleOriginator[BLACK] = -x4 +x1 <= -4
+D[GRAY_FORWARD] = 126
+L[GRAY_FORWARD] = +x1 +x2 <= 0
+cycleOriginator[GRAY_FORWARD] = +x1 +x2 <= 0
+D[GRAY_REVERSE] = 125
+L[GRAY_REVERSE] = -x1 -x2 <= -1
+cycleOriginator[GRAY_REVERSE] = -x4 +x1 <= -4
+Tail: x1
+D[WHITE] = 125
+L[WHITE] = -x4 +x1 <= -4
+cycleOriginator[WHITE] = -x2 +x4 <= 2
+D[BLACK] = 126
+L[BLACK] = -x2 -x1 <= -1
+cycleOriginator[BLACK] = -x6 +x2 <= 5
+D[GRAY_FORWARD] = 125
+L[GRAY_FORWARD] = -x4 +x1 <= -4
+cycleOriginator[GRAY_FORWARD] = -x2 +x4 <= 2
+D[GRAY_REVERSE] = 126
+L[GRAY_REVERSE] = -x2 -x1 <= -1
+cycleOriginator[GRAY_REVERSE] = -x6 +x2 <= 5
+Edge state after:
+Head: x2
+D[WHITE] = 126
+L[WHITE] = +x1 +x2 <= 0
+cycleOriginator[WHITE] = +x1 +x2 <= 0
+D[BLACK] = 124
+L[BLACK] = -x1 -x2 <= -1
+cycleOriginator[BLACK] = -x2 +x4 <= 2
+D[GRAY_FORWARD] = 126
+L[GRAY_FORWARD] = +x1 +x2 <= 0
+cycleOriginator[GRAY_FORWARD] = +x1 +x2 <= 0
+D[GRAY_REVERSE] = 124
+L[GRAY_REVERSE] = -x1 -x2 <= -1
+cycleOriginator[GRAY_REVERSE] = -x2 +x4 <= 2
+Tail: x1
+D[WHITE] = 125
+L[WHITE] = -x4 +x1 <= -4
+cycleOriginator[WHITE] = -x2 +x4 <= 2
+D[BLACK] = 125
+L[BLACK] = -x2 -x1 <= -1
+cycleOriginator[BLACK] = +x1 +x2 <= 0
+D[GRAY_FORWARD] = 125
+L[GRAY_FORWARD] = -x4 +x1 <= -4
+cycleOriginator[GRAY_FORWARD] = -x2 +x4 <= 2
+D[GRAY_REVERSE] = 125
+L[GRAY_REVERSE] = -x2 -x1 <= -1
+cycleOriginator[GRAY_REVERSE] = +x1 +x2 <= 0
+Relaxing -x3 +x6 <= -8
+Edge state before:
+Head: x6
+D[WHITE] = 122
+L[WHITE] = -x3 +x6 <= -8
+cycleOriginator[WHITE] = -x3 +x6 <= -8
+D[BLACK] = 130
+L[BLACK] = (nil)
+cycleOriginator[BLACK] = (nil)
+D[GRAY_FORWARD] = 122
+L[GRAY_FORWARD] = -x3 +x6 <= -8
+cycleOriginator[GRAY_FORWARD] = -x3 +x6 <= -8
+D[GRAY_REVERSE] = 130
+L[GRAY_REVERSE] = (nil)
+cycleOriginator[GRAY_REVERSE] = (nil)
+Tail: x3
+D[WHITE] = 130
+L[WHITE] = (nil)
+cycleOriginator[WHITE] = (nil)
+D[BLACK] = 122
+L[BLACK] = +x6 -x3 <= -8
+cycleOriginator[BLACK] = +x6 -x3 <= -8
+D[GRAY_FORWARD] = 130
+L[GRAY_FORWARD] = (nil)
+cycleOriginator[GRAY_FORWARD] = (nil)
+D[GRAY_REVERSE] = 122
+L[GRAY_REVERSE] = +x6 -x3 <= -8
+cycleOriginator[GRAY_REVERSE] = +x6 -x3 <= -8
+Edge state after:
+Head: x6
+D[WHITE] = 122
+L[WHITE] = -x3 +x6 <= -8
+cycleOriginator[WHITE] = -x3 +x6 <= -8
+D[BLACK] = 130
+L[BLACK] = (nil)
+cycleOriginator[BLACK] = (nil)
+D[GRAY_FORWARD] = 122
+L[GRAY_FORWARD] = -x3 +x6 <= -8
+cycleOriginator[GRAY_FORWARD] = -x3 +x6 <= -8
+D[GRAY_REVERSE] = 130
+L[GRAY_REVERSE] = (nil)
+cycleOriginator[GRAY_REVERSE] = (nil)
+Tail: x3
+D[WHITE] = 130
+L[WHITE] = (nil)
+cycleOriginator[WHITE] = (nil)
+D[BLACK] = 122
+L[BLACK] = +x6 -x3 <= -8
+cycleOriginator[BLACK] = +x6 -x3 <= -8
+D[GRAY_FORWARD] = 130
+L[GRAY_FORWARD] = (nil)
+cycleOriginator[GRAY_FORWARD] = (nil)
+D[GRAY_REVERSE] = 122
+L[GRAY_REVERSE] = +x6 -x3 <= -8
+cycleOriginator[GRAY_REVERSE] = +x6 -x3 <= -8
+Relaxing -x4 +x5 <= 3
+Edge state before:
+Head: x5
+D[WHITE] = 125
+L[WHITE] = -x1 +x5 <= -1
+cycleOriginator[WHITE] = -x4 +x1 <= -4
+D[BLACK] = 130
+L[BLACK] = (nil)
+cycleOriginator[BLACK] = (nil)
+D[GRAY_FORWARD] = 125
+L[GRAY_FORWARD] = -x1 +x5 <= -1
+cycleOriginator[GRAY_FORWARD] = -x4 +x1 <= -4
+D[GRAY_REVERSE] = 130
+L[GRAY_REVERSE] = (nil)
+cycleOriginator[GRAY_REVERSE] = (nil)
+Tail: x4
+D[WHITE] = 129
+L[WHITE] = -x2 +x4 <= 2
+cycleOriginator[WHITE] = -x2 +x4 <= 2
+D[BLACK] = 122
+L[BLACK] = +x1 -x4 <= -4
+cycleOriginator[BLACK] = -x6 +x2 <= 5
+D[GRAY_FORWARD] = 129
+L[GRAY_FORWARD] = -x2 +x4 <= 2
+cycleOriginator[GRAY_FORWARD] = -x2 +x4 <= 2
+D[GRAY_REVERSE] = 122
+L[GRAY_REVERSE] = +x1 -x4 <= -4
+cycleOriginator[GRAY_REVERSE] = -x6 +x2 <= 5
+Edge state after:
+Head: x5
+D[WHITE] = 125
+L[WHITE] = -x1 +x5 <= -1
+cycleOriginator[WHITE] = -x4 +x1 <= -4
+D[BLACK] = 130
+L[BLACK] = (nil)
+cycleOriginator[BLACK] = (nil)
+D[GRAY_FORWARD] = 125
+L[GRAY_FORWARD] = -x1 +x5 <= -1
+cycleOriginator[GRAY_FORWARD] = -x4 +x1 <= -4
+D[GRAY_REVERSE] = 130
+L[GRAY_REVERSE] = (nil)
+cycleOriginator[GRAY_REVERSE] = (nil)
+Tail: x4
+D[WHITE] = 129
+L[WHITE] = -x2 +x4 <= 2
+cycleOriginator[WHITE] = -x2 +x4 <= 2
+D[BLACK] = 122
+L[BLACK] = +x1 -x4 <= -4
+cycleOriginator[BLACK] = -x6 +x2 <= 5
+D[GRAY_FORWARD] = 129
+L[GRAY_FORWARD] = -x2 +x4 <= 2
+cycleOriginator[GRAY_FORWARD] = -x2 +x4 <= 2
+D[GRAY_REVERSE] = 122
+L[GRAY_REVERSE] = +x1 -x4 <= -4
+cycleOriginator[GRAY_REVERSE] = -x6 +x2 <= 5
+Relaxing -x1 +x5 <= -1
+Edge state before:
+Head: x5
+D[WHITE] = 125
+L[WHITE] = -x1 +x5 <= -1
+cycleOriginator[WHITE] = -x4 +x1 <= -4
+D[BLACK] = 130
+L[BLACK] = (nil)
+cycleOriginator[BLACK] = (nil)
+D[GRAY_FORWARD] = 125
+L[GRAY_FORWARD] = -x1 +x5 <= -1
+cycleOriginator[GRAY_FORWARD] = -x4 +x1 <= -4
+D[GRAY_REVERSE] = 130
+L[GRAY_REVERSE] = (nil)
+cycleOriginator[GRAY_REVERSE] = (nil)
+Tail: x1
+D[WHITE] = 125
+L[WHITE] = -x4 +x1 <= -4
+cycleOriginator[WHITE] = -x2 +x4 <= 2
+D[BLACK] = 125
+L[BLACK] = -x2 -x1 <= -1
+cycleOriginator[BLACK] = +x1 +x2 <= 0
+D[GRAY_FORWARD] = 125
+L[GRAY_FORWARD] = -x4 +x1 <= -4
+cycleOriginator[GRAY_FORWARD] = -x2 +x4 <= 2
+D[GRAY_REVERSE] = 125
+L[GRAY_REVERSE] = -x2 -x1 <= -1
+cycleOriginator[GRAY_REVERSE] = +x1 +x2 <= 0
+Edge state after:
+Head: x5
+D[WHITE] = 124
+L[WHITE] = -x1 +x5 <= -1
+cycleOriginator[WHITE] = -x2 +x4 <= 2
+D[BLACK] = 130
+L[BLACK] = (nil)
+cycleOriginator[BLACK] = (nil)
+D[GRAY_FORWARD] = 124
+L[GRAY_FORWARD] = -x1 +x5 <= -1
+cycleOriginator[GRAY_FORWARD] = -x2 +x4 <= 2
+D[GRAY_REVERSE] = 130
+L[GRAY_REVERSE] = (nil)
+cycleOriginator[GRAY_REVERSE] = (nil)
+Tail: x1
+D[WHITE] = 125
+L[WHITE] = -x4 +x1 <= -4
+cycleOriginator[WHITE] = -x2 +x4 <= 2
+D[BLACK] = 125
+L[BLACK] = -x2 -x1 <= -1
+cycleOriginator[BLACK] = +x1 +x2 <= 0
+D[GRAY_FORWARD] = 125
+L[GRAY_FORWARD] = -x4 +x1 <= -4
+cycleOriginator[GRAY_FORWARD] = -x2 +x4 <= 2
+D[GRAY_REVERSE] = 125
+L[GRAY_REVERSE] = -x2 -x1 <= -1
+cycleOriginator[GRAY_REVERSE] = +x1 +x2 <= 0
+Relaxing -x2 +x4 <= 2
+Edge state before:
+Head: x4
+D[WHITE] = 129
+L[WHITE] = -x2 +x4 <= 2
+cycleOriginator[WHITE] = -x2 +x4 <= 2
+D[BLACK] = 122
+L[BLACK] = +x1 -x4 <= -4
+cycleOriginator[BLACK] = -x6 +x2 <= 5
+D[GRAY_FORWARD] = 129
+L[GRAY_FORWARD] = -x2 +x4 <= 2
+cycleOriginator[GRAY_FORWARD] = -x2 +x4 <= 2
+D[GRAY_REVERSE] = 122
+L[GRAY_REVERSE] = +x1 -x4 <= -4
+cycleOriginator[GRAY_REVERSE] = -x6 +x2 <= 5
+Tail: x2
+D[WHITE] = 126
+L[WHITE] = +x1 +x2 <= 0
+cycleOriginator[WHITE] = +x1 +x2 <= 0
+D[BLACK] = 124
+L[BLACK] = -x1 -x2 <= -1
+cycleOriginator[BLACK] = -x2 +x4 <= 2
+D[GRAY_FORWARD] = 126
+L[GRAY_FORWARD] = +x1 +x2 <= 0
+cycleOriginator[GRAY_FORWARD] = +x1 +x2 <= 0
+D[GRAY_REVERSE] = 124
+L[GRAY_REVERSE] = -x1 -x2 <= -1
+cycleOriginator[GRAY_REVERSE] = -x2 +x4 <= 2
+Edge state after:
+Head: x4
+D[WHITE] = 128
+L[WHITE] = -x2 +x4 <= 2
+cycleOriginator[WHITE] = +x1 +x2 <= 0
+D[BLACK] = 122
+L[BLACK] = +x1 -x4 <= -4
+cycleOriginator[BLACK] = -x6 +x2 <= 5
+D[GRAY_FORWARD] = 128
+L[GRAY_FORWARD] = -x2 +x4 <= 2
+cycleOriginator[GRAY_FORWARD] = +x1 +x2 <= 0
+D[GRAY_REVERSE] = 122
+L[GRAY_REVERSE] = +x1 -x4 <= -4
+cycleOriginator[GRAY_REVERSE] = -x6 +x2 <= 5
+Tail: x2
+D[WHITE] = 126
+L[WHITE] = +x1 +x2 <= 0
+cycleOriginator[WHITE] = +x1 +x2 <= 0
+D[BLACK] = 124
+L[BLACK] = -x1 -x2 <= -1
+cycleOriginator[BLACK] = -x2 +x4 <= 2
+D[GRAY_FORWARD] = 126
+L[GRAY_FORWARD] = +x1 +x2 <= 0
+cycleOriginator[GRAY_FORWARD] = +x1 +x2 <= 0
+D[GRAY_REVERSE] = 124
+L[GRAY_REVERSE] = -x1 -x2 <= -1
+cycleOriginator[GRAY_REVERSE] = -x2 +x4 <= 2
+Relaxing -x6 +x3 <= 10
+Edge state before:
+Head: x3
+D[WHITE] = 130
+L[WHITE] = (nil)
+cycleOriginator[WHITE] = (nil)
+D[BLACK] = 122
+L[BLACK] = +x6 -x3 <= -8
+cycleOriginator[BLACK] = +x6 -x3 <= -8
+D[GRAY_FORWARD] = 130
+L[GRAY_FORWARD] = (nil)
+cycleOriginator[GRAY_FORWARD] = (nil)
+D[GRAY_REVERSE] = 122
+L[GRAY_REVERSE] = +x6 -x3 <= -8
+cycleOriginator[GRAY_REVERSE] = +x6 -x3 <= -8
+Tail: x6
+D[WHITE] = 122
+L[WHITE] = -x3 +x6 <= -8
+cycleOriginator[WHITE] = -x3 +x6 <= -8
+D[BLACK] = 130
+L[BLACK] = (nil)
+cycleOriginator[BLACK] = (nil)
+D[GRAY_FORWARD] = 122
+L[GRAY_FORWARD] = -x3 +x6 <= -8
+cycleOriginator[GRAY_FORWARD] = -x3 +x6 <= -8
+D[GRAY_REVERSE] = 130
+L[GRAY_REVERSE] = (nil)
+cycleOriginator[GRAY_REVERSE] = (nil)
+Edge state after:
+Head: x3
+D[WHITE] = 130
+L[WHITE] = (nil)
+cycleOriginator[WHITE] = (nil)
+D[BLACK] = 122
+L[BLACK] = +x6 -x3 <= -8
+cycleOriginator[BLACK] = +x6 -x3 <= -8
+D[GRAY_FORWARD] = 130
+L[GRAY_FORWARD] = (nil)
+cycleOriginator[GRAY_FORWARD] = (nil)
+D[GRAY_REVERSE] = 122
+L[GRAY_REVERSE] = +x6 -x3 <= -8
+cycleOriginator[GRAY_REVERSE] = +x6 -x3 <= -8
+Tail: x6
+D[WHITE] = 122
+L[WHITE] = -x3 +x6 <= -8
+cycleOriginator[WHITE] = -x3 +x6 <= -8
+D[BLACK] = 130
+L[BLACK] = (nil)
+cycleOriginator[BLACK] = (nil)
+D[GRAY_FORWARD] = 122
+L[GRAY_FORWARD] = -x3 +x6 <= -8
+cycleOriginator[GRAY_FORWARD] = -x3 +x6 <= -8
+D[GRAY_REVERSE] = 130
+L[GRAY_REVERSE] = (nil)
+cycleOriginator[GRAY_REVERSE] = (nil)
+Relaxing -x6 +x2 <= 5
+Edge state before:
+Head: x2
+D[WHITE] = 126
+L[WHITE] = +x1 +x2 <= 0
+cycleOriginator[WHITE] = +x1 +x2 <= 0
+D[BLACK] = 124
+L[BLACK] = -x1 -x2 <= -1
+cycleOriginator[BLACK] = -x2 +x4 <= 2
+D[GRAY_FORWARD] = 126
+L[GRAY_FORWARD] = +x1 +x2 <= 0
+cycleOriginator[GRAY_FORWARD] = +x1 +x2 <= 0
+D[GRAY_REVERSE] = 124
+L[GRAY_REVERSE] = -x1 -x2 <= -1
+cycleOriginator[GRAY_REVERSE] = -x2 +x4 <= 2
+Tail: x6
+D[WHITE] = 122
+L[WHITE] = -x3 +x6 <= -8
+cycleOriginator[WHITE] = -x3 +x6 <= -8
+D[BLACK] = 130
+L[BLACK] = (nil)
+cycleOriginator[BLACK] = (nil)
+D[GRAY_FORWARD] = 122
+L[GRAY_FORWARD] = -x3 +x6 <= -8
+cycleOriginator[GRAY_FORWARD] = -x3 +x6 <= -8
+D[GRAY_REVERSE] = 130
+L[GRAY_REVERSE] = (nil)
+cycleOriginator[GRAY_REVERSE] = (nil)
+Edge state after:
+Head: x2
+D[WHITE] = 126
+L[WHITE] = +x1 +x2 <= 0
+cycleOriginator[WHITE] = +x1 +x2 <= 0
+D[BLACK] = 124
+L[BLACK] = -x1 -x2 <= -1
+cycleOriginator[BLACK] = -x2 +x4 <= 2
+D[GRAY_FORWARD] = 126
+L[GRAY_FORWARD] = +x1 +x2 <= 0
+cycleOriginator[GRAY_FORWARD] = +x1 +x2 <= 0
+D[GRAY_REVERSE] = 124
+L[GRAY_REVERSE] = -x1 -x2 <= -1
+cycleOriginator[GRAY_REVERSE] = -x2 +x4 <= 2
+Tail: x6
+D[WHITE] = 122
+L[WHITE] = -x3 +x6 <= -8
+cycleOriginator[WHITE] = -x3 +x6 <= -8
+D[BLACK] = 129
+L[BLACK] = +x2 -x6 <= 5
+cycleOriginator[BLACK] = +x2 -x6 <= 5
+D[GRAY_FORWARD] = 122
+L[GRAY_FORWARD] = -x3 +x6 <= -8
+cycleOriginator[GRAY_FORWARD] = -x3 +x6 <= -8
+D[GRAY_REVERSE] = 129
+L[GRAY_REVERSE] = +x2 -x6 <= 5
+cycleOriginator[GRAY_REVERSE] = +x2 -x6 <= 5
+Relaxing -x5 +x2 <= 7
+Edge state before:
+Head: x2
+D[WHITE] = 126
+L[WHITE] = +x1 +x2 <= 0
+cycleOriginator[WHITE] = +x1 +x2 <= 0
+D[BLACK] = 124
+L[BLACK] = -x1 -x2 <= -1
+cycleOriginator[BLACK] = -x2 +x4 <= 2
+D[GRAY_FORWARD] = 126
+L[GRAY_FORWARD] = +x1 +x2 <= 0
+cycleOriginator[GRAY_FORWARD] = +x1 +x2 <= 0
+D[GRAY_REVERSE] = 124
+L[GRAY_REVERSE] = -x1 -x2 <= -1
+cycleOriginator[GRAY_REVERSE] = -x2 +x4 <= 2
+Tail: x5
+D[WHITE] = 124
+L[WHITE] = -x1 +x5 <= -1
+cycleOriginator[WHITE] = -x2 +x4 <= 2
+D[BLACK] = 130
+L[BLACK] = (nil)
+cycleOriginator[BLACK] = (nil)
+D[GRAY_FORWARD] = 124
+L[GRAY_FORWARD] = -x1 +x5 <= -1
+cycleOriginator[GRAY_FORWARD] = -x2 +x4 <= 2
+D[GRAY_REVERSE] = 130
+L[GRAY_REVERSE] = (nil)
+cycleOriginator[GRAY_REVERSE] = (nil)
+Edge state after:
+Head: x2
+D[WHITE] = 126
+L[WHITE] = +x1 +x2 <= 0
+cycleOriginator[WHITE] = +x1 +x2 <= 0
+D[BLACK] = 124
+L[BLACK] = -x1 -x2 <= -1
+cycleOriginator[BLACK] = -x2 +x4 <= 2
+D[GRAY_FORWARD] = 126
+L[GRAY_FORWARD] = +x1 +x2 <= 0
+cycleOriginator[GRAY_FORWARD] = +x1 +x2 <= 0
+D[GRAY_REVERSE] = 124
+L[GRAY_REVERSE] = -x1 -x2 <= -1
+cycleOriginator[GRAY_REVERSE] = -x2 +x4 <= 2
+Tail: x5
+D[WHITE] = 124
+L[WHITE] = -x1 +x5 <= -1
+cycleOriginator[WHITE] = -x2 +x4 <= 2
+D[BLACK] = 130
+L[BLACK] = (nil)
+cycleOriginator[BLACK] = (nil)
+D[GRAY_FORWARD] = 124
+L[GRAY_FORWARD] = -x1 +x5 <= -1
+cycleOriginator[GRAY_FORWARD] = -x2 +x4 <= 2
+D[GRAY_REVERSE] = 130
+L[GRAY_REVERSE] = (nil)
+cycleOriginator[GRAY_REVERSE] = (nil)
+Relaxing -x3 +x2 <= 2
+Edge state before:
+Head: x2
+D[WHITE] = 126
+L[WHITE] = +x1 +x2 <= 0
+cycleOriginator[WHITE] = +x1 +x2 <= 0
+D[BLACK] = 124
+L[BLACK] = -x1 -x2 <= -1
+cycleOriginator[BLACK] = -x2 +x4 <= 2
+D[GRAY_FORWARD] = 126
+L[GRAY_FORWARD] = +x1 +x2 <= 0
+cycleOriginator[GRAY_FORWARD] = +x1 +x2 <= 0
+D[GRAY_REVERSE] = 124
+L[GRAY_REVERSE] = -x1 -x2 <= -1
+cycleOriginator[GRAY_REVERSE] = -x2 +x4 <= 2
+Tail: x3
+D[WHITE] = 130
+L[WHITE] = (nil)
+cycleOriginator[WHITE] = (nil)
+D[BLACK] = 122
+L[BLACK] = +x6 -x3 <= -8
+cycleOriginator[BLACK] = +x6 -x3 <= -8
+D[GRAY_FORWARD] = 130
+L[GRAY_FORWARD] = (nil)
+cycleOriginator[GRAY_FORWARD] = (nil)
+D[GRAY_REVERSE] = 122
+L[GRAY_REVERSE] = +x6 -x3 <= -8
+cycleOriginator[GRAY_REVERSE] = +x6 -x3 <= -8
+Edge state after:
+Head: x2
+D[WHITE] = 126
+L[WHITE] = +x1 +x2 <= 0
+cycleOriginator[WHITE] = +x1 +x2 <= 0
+D[BLACK] = 124
+L[BLACK] = -x1 -x2 <= -1
+cycleOriginator[BLACK] = -x2 +x4 <= 2
+D[GRAY_FORWARD] = 126
+L[GRAY_FORWARD] = +x1 +x2 <= 0
+cycleOriginator[GRAY_FORWARD] = +x1 +x2 <= 0
+D[GRAY_REVERSE] = 124
+L[GRAY_REVERSE] = -x1 -x2 <= -1
+cycleOriginator[GRAY_REVERSE] = -x2 +x4 <= 2
+Tail: x3
+D[WHITE] = 130
+L[WHITE] = (nil)
+cycleOriginator[WHITE] = (nil)
+D[BLACK] = 122
+L[BLACK] = +x6 -x3 <= -8
+cycleOriginator[BLACK] = +x6 -x3 <= -8
+D[GRAY_FORWARD] = 130
+L[GRAY_FORWARD] = (nil)
+cycleOriginator[GRAY_FORWARD] = (nil)
+D[GRAY_REVERSE] = 122
+L[GRAY_REVERSE] = +x6 -x3 <= -8
+cycleOriginator[GRAY_REVERSE] = +x6 -x3 <= -8
+Relaxing -x4 +x1 <= -4
+Edge state before:
+Head: x1
+D[WHITE] = 125
+L[WHITE] = -x4 +x1 <= -4
+cycleOriginator[WHITE] = -x2 +x4 <= 2
+D[BLACK] = 125
+L[BLACK] = -x2 -x1 <= -1
+cycleOriginator[BLACK] = +x1 +x2 <= 0
+D[GRAY_FORWARD] = 125
+L[GRAY_FORWARD] = -x4 +x1 <= -4
+cycleOriginator[GRAY_FORWARD] = -x2 +x4 <= 2
+D[GRAY_REVERSE] = 125
+L[GRAY_REVERSE] = -x2 -x1 <= -1
+cycleOriginator[GRAY_REVERSE] = +x1 +x2 <= 0
+Tail: x4
+D[WHITE] = 128
+L[WHITE] = -x2 +x4 <= 2
+cycleOriginator[WHITE] = +x1 +x2 <= 0
+D[BLACK] = 122
+L[BLACK] = +x1 -x4 <= -4
+cycleOriginator[BLACK] = -x6 +x2 <= 5
+D[GRAY_FORWARD] = 128
+L[GRAY_FORWARD] = -x2 +x4 <= 2
+cycleOriginator[GRAY_FORWARD] = +x1 +x2 <= 0
+D[GRAY_REVERSE] = 122
+L[GRAY_REVERSE] = +x1 -x4 <= -4
+cycleOriginator[GRAY_REVERSE] = -x6 +x2 <= 5
+Edge state after:
+Head: x1
+D[WHITE] = 124
+L[WHITE] = -x4 +x1 <= -4
+cycleOriginator[WHITE] = +x1 +x2 <= 0
+D[BLACK] = 125
+L[BLACK] = -x2 -x1 <= -1
+cycleOriginator[BLACK] = +x1 +x2 <= 0
+D[GRAY_FORWARD] = 124
+L[GRAY_FORWARD] = -x4 +x1 <= -4
+cycleOriginator[GRAY_FORWARD] = +x1 +x2 <= 0
+D[GRAY_REVERSE] = 125
+L[GRAY_REVERSE] = -x2 -x1 <= -1
+cycleOriginator[GRAY_REVERSE] = +x1 +x2 <= 0
+Tail: x4
+D[WHITE] = 128
+L[WHITE] = -x2 +x4 <= 2
+cycleOriginator[WHITE] = +x1 +x2 <= 0
+D[BLACK] = 121
+L[BLACK] = +x1 -x4 <= -4
+cycleOriginator[BLACK] = +x1 +x2 <= 0
+D[GRAY_FORWARD] = 128
+L[GRAY_FORWARD] = -x2 +x4 <= 2
+cycleOriginator[GRAY_FORWARD] = +x1 +x2 <= 0
+D[GRAY_REVERSE] = 121
+L[GRAY_REVERSE] = +x1 -x4 <= -4
+cycleOriginator[GRAY_REVERSE] = +x1 +x2 <= 0
+Relaxing -x2 +x1 <= 1
+Edge state before:
+Head: x1
+D[WHITE] = 124
+L[WHITE] = -x4 +x1 <= -4
+cycleOriginator[WHITE] = +x1 +x2 <= 0
+D[BLACK] = 125
+L[BLACK] = -x2 -x1 <= -1
+cycleOriginator[BLACK] = +x1 +x2 <= 0
+D[GRAY_FORWARD] = 124
+L[GRAY_FORWARD] = -x4 +x1 <= -4
+cycleOriginator[GRAY_FORWARD] = +x1 +x2 <= 0
+D[GRAY_REVERSE] = 125
+L[GRAY_REVERSE] = -x2 -x1 <= -1
+cycleOriginator[GRAY_REVERSE] = +x1 +x2 <= 0
+Tail: x2
+D[WHITE] = 126
+L[WHITE] = +x1 +x2 <= 0
+cycleOriginator[WHITE] = +x1 +x2 <= 0
+D[BLACK] = 124
+L[BLACK] = -x1 -x2 <= -1
+cycleOriginator[BLACK] = -x2 +x4 <= 2
+D[GRAY_FORWARD] = 126
+L[GRAY_FORWARD] = +x1 +x2 <= 0
+cycleOriginator[GRAY_FORWARD] = +x1 +x2 <= 0
+D[GRAY_REVERSE] = 124
+L[GRAY_REVERSE] = -x1 -x2 <= -1
+cycleOriginator[GRAY_REVERSE] = -x2 +x4 <= 2
+Edge state after:
+Head: x1
+D[WHITE] = 124
+L[WHITE] = -x4 +x1 <= -4
+cycleOriginator[WHITE] = +x1 +x2 <= 0
+D[BLACK] = 125
+L[BLACK] = -x2 -x1 <= -1
+cycleOriginator[BLACK] = +x1 +x2 <= 0
+D[GRAY_FORWARD] = 124
+L[GRAY_FORWARD] = -x4 +x1 <= -4
+cycleOriginator[GRAY_FORWARD] = +x1 +x2 <= 0
+D[GRAY_REVERSE] = 125
+L[GRAY_REVERSE] = -x2 -x1 <= -1
+cycleOriginator[GRAY_REVERSE] = +x1 +x2 <= 0
+Tail: x2
+D[WHITE] = 126
+L[WHITE] = +x1 +x2 <= 0
+cycleOriginator[WHITE] = +x1 +x2 <= 0
+D[BLACK] = 124
+L[BLACK] = -x1 -x2 <= -1
+cycleOriginator[BLACK] = -x2 +x4 <= 2
+D[GRAY_FORWARD] = 126
+L[GRAY_FORWARD] = +x1 +x2 <= 0
+cycleOriginator[GRAY_FORWARD] = +x1 +x2 <= 0
+D[GRAY_REVERSE] = 124
+L[GRAY_REVERSE] = -x1 -x2 <= -1
+cycleOriginator[GRAY_REVERSE] = -x2 +x4 <= 2
+Round 4
+Relaxing +x1 +x2 <= 0
+Edge state before:
+Head: x2
+D[WHITE] = 126
+L[WHITE] = +x1 +x2 <= 0
+cycleOriginator[WHITE] = +x1 +x2 <= 0
+D[BLACK] = 124
+L[BLACK] = -x1 -x2 <= -1
+cycleOriginator[BLACK] = -x2 +x4 <= 2
+D[GRAY_FORWARD] = 126
+L[GRAY_FORWARD] = +x1 +x2 <= 0
+cycleOriginator[GRAY_FORWARD] = +x1 +x2 <= 0
+D[GRAY_REVERSE] = 124
+L[GRAY_REVERSE] = -x1 -x2 <= -1
+cycleOriginator[GRAY_REVERSE] = -x2 +x4 <= 2
+Tail: x1
+D[WHITE] = 124
+L[WHITE] = -x4 +x1 <= -4
+cycleOriginator[WHITE] = +x1 +x2 <= 0
+D[BLACK] = 125
+L[BLACK] = -x2 -x1 <= -1
+cycleOriginator[BLACK] = +x1 +x2 <= 0
+D[GRAY_FORWARD] = 124
+L[GRAY_FORWARD] = -x4 +x1 <= -4
+cycleOriginator[GRAY_FORWARD] = +x1 +x2 <= 0
+D[GRAY_REVERSE] = 125
+L[GRAY_REVERSE] = -x2 -x1 <= -1
+cycleOriginator[GRAY_REVERSE] = +x1 +x2 <= 0
+0,0,4,2,0.000360865,0.000481136,0.000008289,0.000133001,0.000983291,
