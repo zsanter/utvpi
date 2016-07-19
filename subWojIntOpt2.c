@@ -416,32 +416,37 @@ int main(int argc, char * argv[]){
  * output - FILE pointer to print the constraint equation to
  */
 static void fputEdge(Edge * edge, FILE * output){
-  char sign[2];
-  switch(edge->type){
-  case WHITE:
-    sign[0] = '+';
-    sign[1] = '+';
-    break;
-  case BLACK:
-    sign[0] = '-';
-    sign[1] = '-';
-    break;
-  case GRAY_FORWARD:
-    sign[0] = '-';
-    sign[1] = '+';
-    break;
-  case GRAY_REVERSE:
-    sign[0] = '+';
-    sign[1] = '-';
-    break;
+  if( edge == NULL ){
+    fputs("(nil)\n", output);
   }
-  if( edge->tail->index != 0 ){
-    fprintf(output, "%cx%i ", sign[0], edge->tail->index);
+  else {
+    char sign[2];
+    switch(edge->type){
+    case WHITE:
+      sign[0] = '+';
+      sign[1] = '+';
+      break;
+    case BLACK:
+      sign[0] = '-';
+      sign[1] = '-';
+      break;
+    case GRAY_FORWARD:
+      sign[0] = '-';
+      sign[1] = '+';
+      break;
+    case GRAY_REVERSE:
+      sign[0] = '+';
+      sign[1] = '-';
+      break;
+    }
+    if( edge->tail->index != 0 ){
+      fprintf(output, "%cx%i ", sign[0], edge->tail->index);
+    }
+    if( edge->head->index != 0 ){
+      fprintf(output, "%cx%i ", sign[1], edge->head->index);
+    }
+    fprintf(output, "<= %i\n", edge->weight);
   }
-  if( edge->head->index != 0 ){
-    fprintf(output, "%cx%i ", sign[1], edge->head->index);
-  }
-  fprintf(output, "<= %i\n", edge->weight);
 }
 
 /*
@@ -711,6 +716,7 @@ static bool relaxNetwork(System * system){
   //Lines 3-6 of RELAX-NETWORK() implemented in finishSystemCreation().
   bool anyChange = true;
   for(int r = 1; r <= 2 * system->n && anyChange; r++){
+    printf("Round %d\n", r);
     anyChange = false;
     Edge * e = system->allEdgeFirst;
     while( e != NULL ){
@@ -800,6 +806,34 @@ static bool relaxNetwork(System * system){
  * anyChange - pointer to a boolean which will be set to true if any distance label is changed during this call to relaxEdge()
  */
 static bool relaxEdge(System * system, Edge * e, bool * anyChange){
+  fputs("Relaxing ", stdout); fputEdge(e, stdout);
+  puts("Edge state before:");
+  puts("Head:");
+  printf("D[WHITE] = %d\n", e->head->D[WHITE]);
+  fputs("L[WHITE] = ", stdout); fputEdge(e->head->L[WHITE], stdout);
+  fputs("cycleOriginator[WHITE] = ", stdout); fputEdge(e->head->cycleOriginator[WHITE], stdout);
+  printf("D[BLACK] = %d\n", e->head->D[BLACK]);
+  fputs("L[BLACK] = ", stdout); fputEdge(e->head->L[BLACK], stdout);
+  fputs("cycleOriginator[BLACK] = ", stdout); fputEdge(e->head->cycleOriginator[BLACK], stdout);
+  printf("D[GRAY_FORWARD] = %d\n", e->head->D[GRAY_FORWARD]);
+  fputs("L[GRAY_FORWARD] = ", stdout); fputEdge(e->head->L[GRAY_FORWARD], stdout);
+  fputs("cycleOriginator[GRAY_FORWARD] = ", stdout); fputEdge(e->head->cycleOriginator[GRAY_FORWARD], stdout);
+  printf("D[GRAY_REVERSE] = %d\n", e->head->D[GRAY_REVERSE]);
+  fputs("L[GRAY_REVERSE] = ", stdout); fputEdge(e->head->L[GRAY_REVERSE], stdout);
+  fputs("cycleOriginator[GRAY_REVERSE] = ", stdout); fputEdge(e->head->cycleOriginator[GRAY_REVERSE], stdout);
+  puts("Tail:");
+  printf("D[WHITE] = %d\n", e->tail->D[WHITE]);
+  fputs("L[WHITE] = ", stdout); fputEdge(e->tail->L[WHITE], stdout);
+  fputs("cycleOriginator[WHITE] = ", stdout); fputEdge(e->tail->cycleOriginator[WHITE], stdout);
+  printf("D[BLACK] = %d\n", e->tail->D[BLACK]);
+  fputs("L[BLACK] = ", stdout); fputEdge(e->tail->L[BLACK], stdout);
+  fputs("cycleOriginator[BLACK] = ", stdout); fputEdge(e->tail->cycleOriginator[BLACK], stdout);
+  printf("D[GRAY_FORWARD] = %d\n", e->tail->D[GRAY_FORWARD]);
+  fputs("L[GRAY_FORWARD] = ", stdout); fputEdge(e->tail->L[GRAY_FORWARD], stdout);
+  fputs("cycleOriginator[GRAY_FORWARD] = ", stdout); fputEdge(e->tail->cycleOriginator[GRAY_FORWARD], stdout);
+  printf("D[GRAY_REVERSE] = %d\n", e->tail->D[GRAY_REVERSE]);
+  fputs("L[GRAY_REVERSE] = ", stdout); fputEdge(e->tail->L[GRAY_REVERSE], stdout);
+  fputs("cycleOriginator[GRAY_REVERSE] = ", stdout); fputEdge(e->tail->cycleOriginator[GRAY_REVERSE], stdout);
   switch( e->type ){
   case WHITE:
     if( e->head->D[GRAY_REVERSE] + e->weight < e->tail->D[WHITE] ){
@@ -1097,6 +1131,33 @@ static bool relaxEdge(System * system, Edge * e, bool * anyChange){
       *anyChange = true;
     }
   }
+  puts("Edge state after:");
+  puts("Head:");
+  printf("D[WHITE] = %d\n", e->head->D[WHITE]);
+  fputs("L[WHITE] = ", stdout); fputEdge(e->head->L[WHITE], stdout);
+  fputs("cycleOriginator[WHITE] = ", stdout); fputEdge(e->head->cycleOriginator[WHITE], stdout);
+  printf("D[BLACK] = %d\n", e->head->D[BLACK]);
+  fputs("L[BLACK] = ", stdout); fputEdge(e->head->L[BLACK], stdout);
+  fputs("cycleOriginator[BLACK] = ", stdout); fputEdge(e->head->cycleOriginator[BLACK], stdout);
+  printf("D[GRAY_FORWARD] = %d\n", e->head->D[GRAY_FORWARD]);
+  fputs("L[GRAY_FORWARD] = ", stdout); fputEdge(e->head->L[GRAY_FORWARD], stdout);
+  fputs("cycleOriginator[GRAY_FORWARD] = ", stdout); fputEdge(e->head->cycleOriginator[GRAY_FORWARD], stdout);
+  printf("D[GRAY_REVERSE] = %d\n", e->head->D[GRAY_REVERSE]);
+  fputs("L[GRAY_REVERSE] = ", stdout); fputEdge(e->head->L[GRAY_REVERSE], stdout);
+  fputs("cycleOriginator[GRAY_REVERSE] = ", stdout); fputEdge(e->head->cycleOriginator[GRAY_REVERSE], stdout);
+  puts("Tail:");
+  printf("D[WHITE] = %d\n", e->tail->D[WHITE]);
+  fputs("L[WHITE] = ", stdout); fputEdge(e->tail->L[WHITE], stdout);
+  fputs("cycleOriginator[WHITE] = ", stdout); fputEdge(e->tail->cycleOriginator[WHITE], stdout);
+  printf("D[BLACK] = %d\n", e->tail->D[BLACK]);
+  fputs("L[BLACK] = ", stdout); fputEdge(e->tail->L[BLACK], stdout);
+  fputs("cycleOriginator[BLACK] = ", stdout); fputEdge(e->tail->cycleOriginator[BLACK], stdout);
+  printf("D[GRAY_FORWARD] = %d\n", e->tail->D[GRAY_FORWARD]);
+  fputs("L[GRAY_FORWARD] = ", stdout); fputEdge(e->tail->L[GRAY_FORWARD], stdout);
+  fputs("cycleOriginator[GRAY_FORWARD] = ", stdout); fputEdge(e->tail->cycleOriginator[GRAY_FORWARD], stdout);
+  printf("D[GRAY_REVERSE] = %d\n", e->tail->D[GRAY_REVERSE]);
+  fputs("L[GRAY_REVERSE] = ", stdout); fputEdge(e->tail->L[GRAY_REVERSE], stdout);
+  fputs("cycleOriginator[GRAY_REVERSE] = ", stdout); fputEdge(e->tail->cycleOriginator[GRAY_REVERSE], stdout);
   return true;
 }
 
