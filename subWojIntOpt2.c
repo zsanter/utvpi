@@ -808,7 +808,7 @@ static bool relaxNetwork(System * system){
 static bool relaxEdge(System * system, Edge * e, bool * anyChange){
   fputs("Relaxing ", stdout); fputEdge(e, stdout);
   puts("Edge state before:");
-  puts("Head:");
+  printf("Head: x%d", e->head->index);
   printf("D[WHITE] = %d\n", e->head->D[WHITE]);
   fputs("L[WHITE] = ", stdout); fputEdge(e->head->L[WHITE], stdout);
   fputs("cycleOriginator[WHITE] = ", stdout); fputEdge(e->head->cycleOriginator[WHITE], stdout);
@@ -821,7 +821,7 @@ static bool relaxEdge(System * system, Edge * e, bool * anyChange){
   printf("D[GRAY_REVERSE] = %d\n", e->head->D[GRAY_REVERSE]);
   fputs("L[GRAY_REVERSE] = ", stdout); fputEdge(e->head->L[GRAY_REVERSE], stdout);
   fputs("cycleOriginator[GRAY_REVERSE] = ", stdout); fputEdge(e->head->cycleOriginator[GRAY_REVERSE], stdout);
-  puts("Tail:");
+  printf("Tail: x%d", e->tail->index);
   printf("D[WHITE] = %d\n", e->tail->D[WHITE]);
   fputs("L[WHITE] = ", stdout); fputEdge(e->tail->L[WHITE], stdout);
   fputs("cycleOriginator[WHITE] = ", stdout); fputEdge(e->tail->cycleOriginator[WHITE], stdout);
@@ -1132,7 +1132,7 @@ static bool relaxEdge(System * system, Edge * e, bool * anyChange){
     }
   }
   puts("Edge state after:");
-  puts("Head:");
+  printf("Head: x%d", e->head->index);
   printf("D[WHITE] = %d\n", e->head->D[WHITE]);
   fputs("L[WHITE] = ", stdout); fputEdge(e->head->L[WHITE], stdout);
   fputs("cycleOriginator[WHITE] = ", stdout); fputEdge(e->head->cycleOriginator[WHITE], stdout);
@@ -1145,7 +1145,7 @@ static bool relaxEdge(System * system, Edge * e, bool * anyChange){
   printf("D[GRAY_REVERSE] = %d\n", e->head->D[GRAY_REVERSE]);
   fputs("L[GRAY_REVERSE] = ", stdout); fputEdge(e->head->L[GRAY_REVERSE], stdout);
   fputs("cycleOriginator[GRAY_REVERSE] = ", stdout); fputEdge(e->head->cycleOriginator[GRAY_REVERSE], stdout);
-  puts("Tail:");
+  printf("Tail: x%d", e->tail->index);
   printf("D[WHITE] = %d\n", e->tail->D[WHITE]);
   fputs("L[WHITE] = ", stdout); fputEdge(e->tail->L[WHITE], stdout);
   fputs("cycleOriginator[WHITE] = ", stdout); fputEdge(e->tail->cycleOriginator[WHITE], stdout);
