@@ -28,6 +28,7 @@ struct Edge {
 };
 
 int main(int argc, char * argv[]);
+static void fputEdge(Edge * edge, FILE * output);
 static void initializeSystem(void * object, int n, Parser * parser);
 static void addEdge(void * object, Constraint * constraint, Parser * parser);
 static Edge * bellmanFord(System * system);
