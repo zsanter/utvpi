@@ -9,7 +9,7 @@ typedef struct Edge Edge;
 
 struct System {
   Vertex * graph;
-  int vertexCount;
+  int n;
 };
 
 struct Vertex {
@@ -91,7 +91,7 @@ static void fputEdge(Edge * edge, FILE * output){
 
 static void initializeSystem(void * object, int n, Parser * parser){
   System * system = (System *) object;
-  system->vertexCount = n;
+  system->n = n;
   system->graph = (Vertex *) malloc( sizeof(Vertex) * system->vertexCount );
   for(int i = 0; i < system->vertexCount; i++){
     system->graph[i].index = i+1;
@@ -127,8 +127,8 @@ static void addEdge(void * object, Constraint * constraint, Parser * parser){
 }
 
 static Edge * bellmanFord(System * system){
-  for(int i = 0; i < system->vertexCount - 1; i++){
-    for(int j = 0; j < system->vertexCount; j++){
+  for(int i = 0; i < system->n - 1; i++){
+    for(int j = 0; j < system->n; j++){
       Edge * current = system->graph[j].first;
       while( current != NULL ){
         relax( current );
@@ -136,7 +136,7 @@ static Edge * bellmanFord(System * system){
       }
     }
   }
-  for(int i = 0; i < system->vertexCount; i++){
+  for(int i = 0; i < system->n; i++){
     Edge * current = system->graph[i].first;
     while( current != NULL ){
       if( current->head->D > current->tail->D + current->weight ){
@@ -164,7 +164,7 @@ static Edge * backtrack(Edge * edge){
 }
 
 static void freeSystem(System * system){
-  for(int i = 0; i < system->vertexCount; i++){
+  for(int i = 0; i < system->n; i++){
     Edge * edge = system->graph[i].first;
     while( edge != NULL ){
       Edge * oldEdge = edge;
