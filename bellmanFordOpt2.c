@@ -75,6 +75,7 @@ int main(int argc, char * argv[]){
     while( edge->backtrackSeen == true ){
       fputEdge( edge, output );
       edge->backtrackSeen = false;
+      system.negativeCycleEdgeCount++;
       edge = edge->tail->L;
     }
     fprintf( output, "\n%d false positives\n", system.falsePositives );
@@ -140,7 +141,7 @@ static void addEdge(void * object, Constraint * constraint, Parser * parser){
 
 static Edge * bellmanFord(System * system){
   bool anyChange = true;
-  for(int i = 1; ( i <= system->n - 1 ) && anyChange; i++){
+  for(int i = 1; ( i <= 5*system->n - 1 ) && anyChange; i++){
     anyChange = false;
     for(int j = 0; j < system->n; j++){
       Edge * edge = system->graph[j].first;
