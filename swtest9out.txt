@@ -1,7 +1,0 @@
-The following negative gray cycle was detected:
-+x1 <= 0
--x1 <= -1
-
-0 false positives
-2147483647 main loop iterations
-2 negative cycle edges
