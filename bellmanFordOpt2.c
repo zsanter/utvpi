@@ -141,7 +141,7 @@ static void addEdge(void * object, Constraint * constraint, Parser * parser){
 
 static Edge * bellmanFord(System * system){
   bool anyChange = true;
-  for(int i = 1; ( i <= 5*system->n - 1 ) && anyChange; i++){
+  for(int i = 1; ( i <= system->n - 1 ) && anyChange; i++){
     anyChange = false;
     for(int j = 0; j < system->n; j++){
       Edge * edge = system->graph[j].first;
