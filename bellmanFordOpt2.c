@@ -176,12 +176,12 @@ static Edge * bellmanFord(System * system){
     }
   }
   for(int i = 0; i < system->n; i++){
-    Edge * current = system->graph[i].first;
-    while( current != NULL ){
-      if( current->head->D > current->tail->D + current->weight ){
-        return backtrack( current );
+    Edge * edge = system->graph[i].first;
+    while( edge != NULL ){
+      if( edge->head->D > edge->tail->D + edge->weight ){
+        return backtrack( edge );
       }
-      current = current->next;
+      edge = edge->next;
     }
   }
   return NULL;
