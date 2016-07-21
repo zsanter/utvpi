@@ -23,10 +23,10 @@
  * non-directional, and gray edges are directional. All edges can be traversed in either direction, so each edge is represented by
  * a pair of Edge structs, with alternating head and tail pointers. 
  *
- * GRAY_FORWARD corresponds to an Edge struct representing a gray edge, where the tail pointer points to the vertex at the tail of
- * the arrow shown in the algorithm, and the head pointer points to the vertex at the head of the arrow shown in the algorithm. 
- * GRAY_REVERSE corresponds to the opposite case. A right-facing arrow in the algorithm corresponds to GRAY_FORWARD, and a left-
- * facing arrow corresponds to GRAY_REVERSE.
+ * GRAY_FORWARD corresponds to an Edge struct representing a gray edge, where the tail pointer points to the vertex on the black 
+ * side of the black and white box shown in the algorithm, and the head pointer points to the vertex on the white side of this 
+ * box. GRAY_REVERSE corresponds to the opposite case. "Gray-Out" in the algorithm corresponds to GRAY_FORWARD, and "Gray-In"
+ * corresponds to GRAY_REVERSE.
  *
  * For each white edge that enters the system, two WHITE Edge structs are created. For each black edge that enters the system, two 
  * BLACK Edge structs are created. For each gray edge that enters the system, one GRAY_FORWARD and one GRAY_REVERSE Edge struct
@@ -123,7 +123,7 @@ struct Vertex {
 /*
  * The Edge struct contains all information about a specific constraint, represented by an edge within the graph.
  *
- * weight - the weight of the edge
+ * weight - the weight of the edge, corresponding to the defining constant of the constraint the edge represents
  * type - the color type of the edge
  * tail - pointer to the Edge's tail Vertex
  * head - pointer to the Edge's head Vertex
@@ -471,8 +471,8 @@ static void initializeSystem(void * object, int n, Parser * parser){
 }
 
 /*
- * addConstraint() adds a constraint to the graph representation held by the System struct. Also sets distance and predecessor 
- *   labels associated with absolute constraints.
+ * addConstraint() adds a constraint to the graph representation held by the System struct. Also sets non-source Vertex distance 
+ *   and predecessor labels associated with absolute constraints.
  * object - a void pointer pointing to an already-initialized System struct
  * constraint - pointer to a Constraint struct describing a constraint
  * parser - pointer to the Parser struct that utvpiInterpreter uses during the input file parsing process, so that parseError() 
@@ -583,7 +583,7 @@ static void addEdge(System * system, Constraint * constraint){
 
 /*
  * finishSystemCreation()
- * - sets all distance labels not set by an absolute constraint
+ * - sets all distance labels not set by absolute constraints
  * - sorts all edge lists (not including the allEdge doubly-linked list) by increasing head vertex index
  * - removes duplicate edges with equal or greater weight
  * system - pointer to the overall System struct containing the graph representation
@@ -639,7 +639,7 @@ static void finishSystemCreation(System * system){
 }
 
 /*
- * edgeCompare() is the comparison function used by qsort in finishSystemCreation().
+ * edgeCompare() is the comparison function used by qsort() in finishSystemCreation().
  */
 static int edgeCompare(const void * edge1, const void * edge2){
   return (*(Edge **)edge1)->head->index - (*(Edge **)edge2)->head->index;

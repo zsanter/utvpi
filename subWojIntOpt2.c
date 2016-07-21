@@ -1,6 +1,6 @@
 /*
- * subWojIntOpt.c
- * The Subramani-Wojciechowski integral UTVPI system solver with further optimization
+ * subWojIntOpt2.c
+ * The Subramani-Wojciechowski integral UTVPI system solver, with proof-backed optimization
  * Not yet referenced in a paper.
  *
  * Call with [executable] [input file] {output file}
@@ -24,10 +24,10 @@
  * non-directional, and gray edges are directional. All edges can be traversed in either direction, so each edge is represented by
  * a pair of Edge structs, with alternating head and tail pointers. 
  *
- * GRAY_FORWARD corresponds to an Edge struct representing a gray edge, where the tail pointer points to the vertex at the tail of
- * the arrow shown in the algorithm, and the head pointer points to the vertex at the head of the arrow shown in the algorithm. 
- * GRAY_REVERSE corresponds to the opposite case. A right-facing arrow in the algorithm corresponds to GRAY_FORWARD, and a left-
- * facing arrow corresponds to GRAY_REVERSE.
+ * GRAY_FORWARD corresponds to an Edge struct representing a gray edge, where the tail pointer points to the vertex on the black 
+ * side of the black and white box shown in the algorithm, and the head pointer points to the vertex on the white side of this 
+ * box. GRAY_REVERSE corresponds to the opposite case. "Gray-Out" in the algorithm corresponds to GRAY_FORWARD, and "Gray-In"
+ * corresponds to GRAY_REVERSE.
  *
  * For each white edge that enters the system, two WHITE Edge structs are created. For each black edge that enters the system, two 
  * BLACK Edge structs are created. For each gray edge that enters the system, one GRAY_FORWARD and one GRAY_REVERSE Edge struct
@@ -106,10 +106,8 @@ struct System {
  * L - pointer to an edge between this vertex and the vertex's predecessor vertex, for each EdgeType-color path between the source
  *   vertex and this vertex
  * D - distance label for each EdgeType-color path between the source vertex and this vertex
- * cycleOriginator - pointer to an edge serving as a cycle-originator. Cycle-originators are set equal to the L edges after the 
- *   first iteration of edge relaxation, and then are passed down the predecessor structure, one edge at a time, each time a 
- *   distance label decreases. After a cycle-originator is passed down one edge, it is compared against the predecessor of the 
- *   same color. If they match, backtrack() is run on the edge to determine if the edge is part of a negative cost cycle.
+ * cycleOriginator - pointer to an edge serving as a cycle-originator. Cycle-originators are used to detect negative cost cycles 
+ *   before the total number of relaxation loop iterations specified by the algorithm run
  * E - pointer to the last Edge traversed on the path from x_i to x, in backtrack()
  * a - half-integral linear-solution variable value
  * Z - TEMP and FINAL integral-solution variable values
@@ -135,7 +133,7 @@ struct Vertex {
 /*
  * The Edge struct contains all information about a specific constraint, represented by an edge within the graph.
  *
- * weight - the weight of the edge
+ * weight - the weight of the edge, corresponding to the defining constant of the constraint the edge represents
  * type - the color type of the edge
  * tail - pointer to the Edge's tail Vertex
  * head - pointer to the Edge's head Vertex
@@ -501,8 +499,8 @@ static void initializeSystem(void * object, int n, Parser * parser){
 }
 
 /*
- * addConstraint() adds a constraint to the graph representation held by the System struct. Also sets distance and predecessor 
- *   labels associated with absolute constraints.
+ * addConstraint() adds a constraint to the graph representation held by the System struct. Also sets non-source Vertex distance 
+ *   and predecessor labels associated with absolute constraints.
  * object - a void pointer pointing to an already-initialized System struct
  * constraint - pointer to a Constraint struct describing a constraint
  * parser - pointer to the Parser struct that utvpiInterpreter uses during the input file parsing process, so that parseError() 
@@ -617,7 +615,7 @@ static void addEdge(System * system, Constraint * constraint){
 
 /*
  * finishSystemCreation()
- * - sets all distance labels not set by an absolute constraint
+ * - sets all distance labels not set by absolute constraints
  * - sorts all edge lists (not including the allEdge doubly-linked list) by increasing head vertex index
  * - removes duplicate edges with equal or greater weight
  * system - pointer to the overall System struct containing the graph representation
@@ -673,7 +671,7 @@ static void finishSystemCreation(System * system){
 }
 
 /*
- * edgeCompare() is the comparison function used by qsort in finishSystemCreation().
+ * edgeCompare() is the comparison function used by qsort() in finishSystemCreation().
  */
 static int edgeCompare(const void * edge1, const void * edge2){
   return (*(Edge **)edge1)->head->index - (*(Edge **)edge2)->head->index;
@@ -702,11 +700,10 @@ static void removeFromAllEdgeList(System * system, Edge * edge){
 }
 
 /*
- * relaxNetwork() implements RELAX-NETWORK(), with further optimizations. This runs one relaxation loop before setting cycle-
- *   originators equal to predecessors. It then runs the relaxation loop until 
+ * relaxNetwork() implements RELAX-NETWORK(), with proof-backed optimizations. This runs the relaxation loop until 
  *   - no distance-label change occurs during an entire iteration,
- *   - a negative cost cycle has been correctly identified via cycle-originator, or
- *   - as many iterations as could possibly be necessary for a feasible system have been completed
+ *   - a negative cost cycle is correctly identified, or
+ *   - as many iterations as could possibly be necessary for a feasible system are completed
  *   If a distance label changes after the end of the main relaxation loop, a negative cost cycle is detected. The function 
  *   returns true for a linearly feasible system. False otherwise. If at any stage a negative cost cycle is detected, it is placed
  *   in system->infeasibilityProof.
@@ -796,11 +793,8 @@ static bool relaxNetwork(System * system){
 }
 
 /*
- * relaxEdge() implements RELAX-EDGE(), with further optimizations. Cycle-orginator edges are passed down the predecessor
- *   structure, toward the leaves, each time a distance label decreases. If this occurs, and the cycle-originator is then equal to
- *   the predecessor, backtrack() is called to determine if the predecessor is part of a negative cost cycle. If a negative
- *   cost cycle is discovered this way, system->infeasibilityProof is filled with the negative cost cycle and false is 
- *   returned. Otherwise, true is returned.
+ * relaxEdge() implements RELAX-EDGE(), with proof-backed optimizations. If a negative cost cycle is detected, system->
+ *   infeasibilityProof is filled with the negative cost cycle and false is returned. Otherwise, true is returned.
  * system - pointer to the System struct storing the overall graph representation
  * e - pointer to the Edge to be relaxed
  * anyChange - pointer to a boolean which will be set to true if any distance label is changed during this call to relaxEdge()
@@ -1274,7 +1268,7 @@ static bool relaxEdge(System * system, Edge * e, bool * anyChange){
 }
 
 /*
- * backtrack() implements BACKTRACK(), with modifications to handle false-positives generated by cycle-originators. If the 
+ * backtrack() implements BACKTRACK(), with modifications to handle false positives generated by cycle-originators. If the 
  *   predecessor structure is backtracked through, up to the source node, indicated with a NULL predecessor, the E arrays are
  *   reinitialized, and true is returned. Otherwise, system->infeasibilityProof is filled with a negative cost cycle and false is
  *   returned.
@@ -1812,7 +1806,7 @@ static Vertex * pollIntegerTreeQueue(IntegerTree * tree){
  * edge2 - pointer to the third Edge to be added under the IntegerTreeVertex corresponding to the active graph Vertex. If NULL, 
  *   only edge0 and edge1 are added.
  */
- static void expandIntegerTree(IntegerTree * T, Vertex * active, Vertex * parent, Edge * edge0, Edge * edge1, Edge * edge2){
+static void expandIntegerTree(IntegerTree * T, Vertex * active, Vertex * parent, Edge * edge0, Edge * edge1, Edge * edge2){
   
   IntegerTreeVertex * itv = active->integerTreeVertex;
   if( itv == NULL ){
