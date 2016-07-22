@@ -96,8 +96,8 @@ struct System {
  * The Vertex struct contains all information about a specific variable, represented by a vertex within the graph.
  *
  * index - index of the variable
- * L - pointer to an edge between this vertex and the vertex's predecessor vertex, for each EdgeType-color path between the source
- *   vertex and this vertex
+ * L - pointer to the predecessor edge between this vertex and the vertex's predecessor vertex, for each EdgeType-color path 
+ *   between the source vertex and this vertex
  * D - distance label for each EdgeType-color path between the source vertex and this vertex
  * E - pointer to the last Edge traversed on the path from x_i to x, in backtrack()
  * a - half-integral linear-solution variable value
