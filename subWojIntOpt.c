@@ -1,6 +1,7 @@
 /*
  * subWojIntOpt.c
- * The Subramani-Wojciechowski integral UTVPI system solver with further optimization
+ * The Subramani-Wojciechowski integral UTVPI system solver with further optimization.
+ * Cycle-originators are more reliable in this version.
  * Referenced in the COCOA paper.
  *
  * Call with [executable] [input file] {output file}
@@ -84,7 +85,7 @@ typedef struct IntegerTreeVertex IntegerTreeVertex;
  * T - pointer to the tree structure used in the integral algorithm
  * falsePositives - number of false positives thrown by the cycle-originator negative cycle detection mechanism
  * mainLoopIterations - number of iterations of the main relaxation loop within relaxNetwork()
- * negativeCycleEdgeCount - number of edges within a detected negative weight cycle
+ * negativeCycleEdgeCount - number of edges within a detected negative cost cycle
  */
 struct System {
   Vertex * graph;
@@ -103,8 +104,8 @@ struct System {
  * The Vertex struct contains all information about a specific variable, represented by a vertex within the graph.
  *
  * index - index of the variable
- * L - pointer to an edge between this vertex and the vertex's predecessor vertex, for each EdgeType-color path between the source
- *   vertex and this vertex
+ * L - pointer to the predecessor edge between this vertex and the vertex's predecessor vertex, for each EdgeType-color path 
+ *   between the source vertex and this vertex
  * D - distance label for each EdgeType-color path between the source vertex and this vertex
  * cycleOriginator - pointer to an edge serving as a cycle-originator. Cycle-originators are set equal to the L edges after the 
  *   first iteration of edge relaxation, and then are passed down the predecessor structure, one edge at a time, each time a 
