@@ -1,3 +1,16 @@
+/*
+ * lahiriOpt2.c
+ * The Lahiri-Musuvathi integral UTVPI system solver, with modified optimizations
+ * Cycle-originators are much less reliable in this version
+ *
+ * Call with [executable] [input file] {output file}
+ * [input file] must be properly formatted to be read by utvpiInterpreter.h
+ * {output file} will contain a linear solution, if one exists, followed by an integral solution, if one exists. If the system is
+ *   not linearly feasible, a proof of linear infeasibility - a negative cost cycle - will be output. If the system is linearly 
+ *   feasible, but not integrally feasible, a proof of integral infeasibility will be output. If {output file} is not specified,
+ *   output will be to stdout.
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -6,12 +19,20 @@
 #include <time.h>
 #include "utvpiInterpreter.h"
 
+/*
+ * This algorithm represents each variable with two vertices, one representing the positive occurrence of the variable, and the 
+ * other representing its negative occurrence. VertexSign specifies the sign of each Vertex.
+ */
 #define VERTEX_SIGN_COUNT 2
 typedef enum VertexSign {
   POSITIVE,
   NEGATIVE,
 } VertexSign;
 
+/*
+ * DFScolor is used to specify the color of a Vertex during the depth-first search process used when detecting strongly-connected 
+ * components.
+ */
 typedef enum DFScolor {
   WHITE,
   GRAY,
@@ -24,6 +45,15 @@ typedef struct Edge Edge;
 typedef struct FibHeap FibHeap;
 typedef struct FibHeapNode FibHeapNode;
 
+/*
+ * The System struct contains the graph representation used by the system solver, along with other information about the system.
+ *
+ * graph - pointers to POSITIVE and NEGATIVE arrays of Vertex structs, defining the structure of the graph representation
+ * n - the number of variables represented within the system, equal to the number of Vertex structs stored within each graph array
+ * falsePositives - number of false positives thrown by the cycle-originator negative cycle detection mechanism
+ * mainLoopIterations - number of iterations of the main relaxation loop within bellmanFord()
+ * negativeCycleEdgeCount - number of edges within a detected negative cost cycle
+ */
 struct System {
   Vertex * graph[VERTEX_SIGN_COUNT];
   int n;
@@ -32,6 +62,28 @@ struct System {
   int negativeCycleEdgeCount;
 };
 
+/*
+ * The Vertex struct contains all information about one signed occurrence of a variable, represented by a vertex within the graph.
+ *
+ * index - index of the variable
+ * sign - the sign of the variable occurrence this Vertex represents
+ * L - pointer to the predecessor Edge between this Vertex and the Vertex's predecessor Vertex
+ * D - distance label
+ * cycleOriginator - pointer to an edge serving as a cycle-originator. Cycle-originators are used to detect negative cost cycles 
+ *   before the total number of relaxation loop iterations specified by the algorithm run
+ * first - pointer to the first Edge whose tail Vertex is this Vertex. The remainder of such edges are connected together in a 
+ *   singly-linked list
+ * dfsColor - the color of a Vertex during the depth-first search process used when detecting strongly-connected components
+ * finishingTime - depth-first search Vertex finishing time
+ * sccNumber - vertices within each strongly-connected component are assigned the same sccNumber as each other
+ * h - Johnson All-Pairs reweighting value
+ * rho - integral-solution variable value
+ * fibHeapNode - pointer to the FibHeapNode corresponding to this Vertex within the FibHeap priority queue data structure
+ *
+ * dfsColor, finishingTime, and sccNumber are no longer in use when h, rho, and fibHeap are used. These two sets of variables are 
+ * contained within anonymous structs within an anonymous union, so that the same space can be used for both sets of data mambers.
+ * This necessitates initializing the second set of data members after the first set is no longer in use.
+ */
 struct Vertex {
   int index;
   VertexSign sign;
@@ -53,6 +105,16 @@ struct Vertex {
   };
 };
 
+/*
+ * The Edge struct contains all information about a specific constraint, represented by an edge within the graph.
+ *
+ * weight - the weight of the edge, corresponding to the defining constant of the constraint the edge represents
+ * head - pointer to the Edge's head Vertex
+ * tail - pointer to the Edge's tail Vertex
+ * next - pointer to the next Edge in the singly-linked list of Edges with the same tail Vertex as one another
+ * backtrackSeen - boolean flag indicating whether or not this Edge has been encountered by the backtrack() function as it 
+ *   attempts to detect a negative cost cycle
+ */
 struct Edge {
   int weight;
   Vertex * head;
@@ -61,11 +123,32 @@ struct Edge {
   bool backtrackSeen;
 };
 
+/*
+ * FibHeap is an implementation of the Fibonacci Heap priority queue structure, as defined in Introduction To Algorithms, Third 
+ * Edition
+ *
+ * min - pointer to the FibHeapNode representing the Vertex with the lowest distance label D
+ * n - the number of FibHeapNodes within the overall FibHeap data structure
+ */
 struct FibHeap {
   FibHeapNode * min;
   int n;
 };
 
+/*
+ * FibHeapNode is a single node within the FibHeap, as defined in Introduction to Algorithms, Third Edition
+ *
+ * parent - pointer to this FibHeapNode's parent FibHeapNode
+ * left - pointer to the FibHeapNode to the left of this FibHeapNode, in the circular, doubly-linked list of sibling FibHeapNodes
+ * right - pointer to the FibHeapNode to the right of this FibHeapNode, in the circular, doubly-linked list of sibling 
+ *   FibHeapNodes
+ * child - pointer to one of this FibHeapNode's child FibHeapNodes
+ * vertex - pointer to the Vertex struct that this FibHeapNode represents within the FibHeap
+ * degree - the number of children of this FibHeapNode
+ * mark - used to indicate if a FibheapNode has lost two of its child FibHeapNodes in a row
+ * rootListTraverseSeen - boolean flag indicating whether or not this FibHeapNode has been encountered by fibHeapConsolidate() as
+ *   it traverses the root list
+ */
 struct FibHeapNode {
   FibHeapNode * parent;
   FibHeapNode * left;
