@@ -66,12 +66,12 @@ struct Edge {
 struct Queue {
   QueueNode * newest;
   QueueNode * oldest;
-}
+};
 
 struct QueueNode {
   Vertex * vertex;
   QueueNode * newer;
-}
+};
 
 struct FibHeap {
   FibHeapNode * min;
@@ -494,7 +494,7 @@ static Vertex * queuePoll(Queue * queue){
 static void freeQueue(Queue * queue){
   QueueNode * qn = queue->oldest;
   while( qn != NULL ){
-    queueNode * oldQN = qn;
+    QueueNode * oldQN = qn;
     qn = qn->newer;
     free( oldQN );
   }
