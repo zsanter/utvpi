@@ -202,7 +202,6 @@ struct IntegerTreeVertex {
 };
 
 int main(int argc, char * argv[]);
-//static EdgeType reverseEdgeType(EdgeType input);
 static void fputEdge(Edge * edge, FILE * output);
 static void initializeSystem(void * object, int n, Parser * parser);
 static void addConstraint(void * object, Constraint * constraint, Parser * parser);
