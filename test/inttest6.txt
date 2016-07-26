@@ -1,6 +1,6 @@
 /*
  * inttest6.txt
- * Fails optional rounding on x1
+ * Fails optional rounding on x1, at line 20 of PRODUCE-INTEGER-SOLUTION()
  * Linear solution from our algorithm is (1/2,1/2,1/2,1/2)
  * No integer solution
  */
