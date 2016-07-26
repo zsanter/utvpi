@@ -244,6 +244,7 @@ static EdgeRefList * generateEdgeRefList();
 static void edgeRefListAppend(EdgeRefList * erl, Edge * edge);
 static void edgeRefListPrepend(EdgeRefList * erl, Edge * edge);
 static void freeEdgeRefList(EdgeRefList * erl);
+static void freeAdditions(System * system);
 static void freeSystem(System * system);
 
 #ifdef __HPC__
