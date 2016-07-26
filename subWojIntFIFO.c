@@ -1068,7 +1068,8 @@ static bool produceIntegerSolution(System * system){
 
   freeEdgeRefList( system->infeasibilityProof );
   freeIntegerTree( system->T );
-
+  freeAdditions( system );
+  
   systemSubset( system );
 
   integrallyFeasible = optionalRoundings(system);
@@ -1219,9 +1220,9 @@ static bool optionalRoundings(System * system){
       
       }
       
-      freeAdditions(system);
       freeIntegerTree(system->T);
       freeEdgeRefList(system->infeasibilityProof);
+      freeAdditions(system);
     }
   }
   system->T = NULL;
@@ -1613,8 +1614,8 @@ static void freeSystem(System * system){
       }
     }
   }
-  freeAdditions( system );
   freeEdgeRefList( system->infeasibilityProof );
   freeIntegerTree( system->T );
+  freeAdditions( system );
   free( system->graph );
 }
