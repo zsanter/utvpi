@@ -97,7 +97,6 @@ static void setSystemForSCC(System * system);
 static void setSystemForJohnson(System * system);
 static void addConstraint(void * object, Constraint * constraint, Parser * parser);
 static Edge * linear(System * system);
-//static void relax(Edge * edge);
 static Edge * backtrack(Edge * edge);
 static void queueOffer(Queue * queue, Vertex * vertex);
 static Vertex * queuePoll(Queue * queue);
