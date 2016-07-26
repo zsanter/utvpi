@@ -1,6 +1,6 @@
 /*
  * inttest7.txt
- * Fails forced roundings on x1 and x_5
+ * Fails forced roundings on x1 and x_5, at line 20 of PRODUCE-INTEGER-SOLUTION()
  * Linear solution from our algorithm is (1/2,1/2,1/2,1/2,1/2,1/2)
  * No integer solution
  */
