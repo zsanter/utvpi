@@ -90,6 +90,7 @@ struct System {
   int n;
   int C;
   Edge * allEdgeFirst;
+  Edge * additionsFirst;
   EdgeRefList * infeasibilityProof;
   IntegerTree * T;
 };
@@ -196,7 +197,6 @@ struct IntegerTree {
   IntegerTreeVertex * treeRoot;
   IntegerTreeVertex * queueNewest;
   IntegerTreeVertex * queueOldest;
-  Edge * additionsFirst;
 };
 
 /*
@@ -452,6 +452,7 @@ static void initializeSystem(void * object, int n, Parser * parser){
   system->n = n;
   system->C = 0;
   system->allEdgeFirst = NULL;
+  system->additionsFirst = NULL;
   system->infeasibilityProof = NULL;
   system->T = NULL;
   system->graph[0].index = 0;
@@ -1219,6 +1220,7 @@ static bool optionalRoundings(System * system){
       
       }
       
+      freeAdditions(system);
       freeIntegerTree(system->T);
       freeEdgeRefList(system->infeasibilityProof);
     }
@@ -1315,7 +1317,7 @@ static bool checkAllConstraints(System * system, Vertex * toVertex, IntegerType 
       }
       if( !feasible ){
         edgeRefListPrepend(system->infeasibilityProof, edge);
-        integerTreeBacktrack(system->infeasibilityProof, edge->tail->integerTreeVertex, toVertex->integerTreeVertex, true); //false
+        integerTreeBacktrack(system->infeasibilityProof, edge->tail->integerTreeVertex, toVertex->integerTreeVertex, false);
         integerTreeBacktrack(system->infeasibilityProof, edge->head->integerTreeVertex, toVertex->integerTreeVertex, true);
         return false;
       }
@@ -1380,8 +1382,8 @@ static Edge * generateAbsoluteConstraint(System * system, Vertex * x_i, int weig
   newEdge->type = type;
   newEdge->tail = x_i;
   newEdge->head = &system->graph[0];
-  newEdge->next = system->T->additionsFirst;
-  system->T->additionsFirst = newEdge;
+  newEdge->next = system->additionsFirst;
+  system->additionsFirst = newEdge;
   newEdge->allNext = NULL;
   newEdge->allPrev = NULL;
   newEdge->inAllEdgeList = false;
@@ -1405,7 +1407,6 @@ static IntegerTree * generateIntegerTree(System * system){
   T->treeRoot = x0Root;
   T->queueNewest = x0Root;
   T->queueOldest = NULL;
-  T->additionsFirst = NULL;
   
   return T;
 }
@@ -1524,12 +1525,6 @@ static void freeIntegerTree(IntegerTree * tree){
       itv = itv->queueNewer;
       free( oldITV );
     }
-    Edge * edge = tree->additionsFirst;
-    while( edge != NULL ){
-      Edge * oldEdge = edge;
-      edge = edge->next;
-      free(oldEdge);
-    }
     free(tree);
   }
 }
@@ -1593,6 +1588,16 @@ static void freeEdgeRefList(EdgeRefList * erl){
   }
 }
 
+static void freeAdditions(System * system){
+  Edge * edge = system->additionsFirst;
+  while( edge != NULL ){
+    Edge * oldEdge = edge;
+    edge = edge->next;
+    free( oldEdge );
+  }
+  system->additionsFirst = NULL;
+}
+
 /*
  * freeSystem() frees the graph representation stored within system, along with system->infeasibilityProof and system->T, if 
  *   those have yet to be freed.
@@ -1609,6 +1614,7 @@ static void freeSystem(System * system){
       }
     }
   }
+  freeAdditions( system );
   freeEdgeRefList( system->infeasibilityProof );
   freeIntegerTree( system->T );
   free( system->graph );
