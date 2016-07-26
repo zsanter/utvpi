@@ -1315,7 +1315,7 @@ static bool checkAllConstraints(System * system, Vertex * toVertex, IntegerType 
       }
       if( !feasible ){
         edgeRefListPrepend(system->infeasibilityProof, edge);
-        integerTreeBacktrack(system->infeasibilityProof, edge->tail->integerTreeVertex, toVertex->integerTreeVertex, false);
+        integerTreeBacktrack(system->infeasibilityProof, edge->tail->integerTreeVertex, toVertex->integerTreeVertex, true); //false
         integerTreeBacktrack(system->infeasibilityProof, edge->head->integerTreeVertex, toVertex->integerTreeVertex, true);
         return false;
       }
