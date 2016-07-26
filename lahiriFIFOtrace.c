@@ -98,7 +98,7 @@ static void setSystemForJohnson(System * system);
 static void addConstraint(void * object, Constraint * constraint, Parser * parser);
 static Edge * linear(System * system);
 static Edge * traceSystem(System * system);
-static Edge * backtrack(Edge * edge);
+static Edge * backtrack(Edge * edge, int traceNumber);
 static void queueOffer(Queue * queue, Vertex * vertex);
 static Vertex * queuePoll(Queue * queue);
 static void freeQueue(Queue * queue);
@@ -353,7 +353,6 @@ static void addConstraint(void * object, Constraint * constraint, Parser * parse
   if( constraint->sign[1] == CONSTRAINT_NONE ){
     Edge * newEdge = (Edge *) malloc( sizeof(Edge) );
     newEdge->weight = 2 * constraint->weight;
-    newEdge->backtrackSeen = false;
     VertexSign tailSign, headSign;
     if( constraint->sign[0] == CONSTRAINT_PLUS ){
       tailSign = NEGATIVE;
@@ -372,10 +371,8 @@ static void addConstraint(void * object, Constraint * constraint, Parser * parse
     Edge * newEdges[2];
     newEdges[0] = (Edge *) malloc( sizeof(Edge) );
     newEdges[0]->weight = constraint->weight;
-    newEdges[0]->backtrackSeen = false;
     newEdges[1] = (Edge *) malloc( sizeof(Edge) );
     newEdges[1]->weight = constraint->weight;
-    newEdges[1]->backtrackSeen = false;
     if( constraint->sign[0] != constraint->sign[1] ){
       int positiveIndex, negativeIndex;
       if( constraint->sign[0] == CONSTRAINT_PLUS ){
@@ -422,7 +419,7 @@ static Edge * linear(System * system){
     }
   }
   
-  int traceInterval = (int) sqrt( 2*n );
+  int traceInterval = (int) sqrt( 2 * system->n );
   int tracePoint = traceInterval;
   
   Vertex * vertex = queuePoll( &queue );
@@ -471,7 +468,7 @@ static Edge * traceSystem(System * system){
         if( negativeCycle != NULL ){
           return negativeCycle;
         }
-        traceNumber++:
+        traceNumber++;
       }
     }
   }
@@ -495,15 +492,6 @@ static Edge * backtrack(Edge * edge, int traceNumber){
     return edge;
   }
   return NULL;
-}
-
-static Vertex * backtrack(Vertex * vertex, int traceNumber){
-  Edge * L = vertex->l;
-  while( vertex != NULL && vertex->traceNumber == 0 ){
-    vertex->traceNumber = traceNumber;
-    edge = edge->tail->L;
-  }
-  return edge;
 }
 
 static void queueOffer(Queue * queue, Vertex * vertex){
@@ -590,7 +578,6 @@ static void onlySlacklessEdges(System * original, System * subgraph){
           subgraphEdge->tail = &subgraph->graph[ originalEdge->tail->sign ][ originalEdge->tail->index - 1 ];
           subgraphEdge->next = subgraphEdge->tail->first;
           subgraphEdge->tail->first = subgraphEdge;
-          subgraphEdge->backtrackSeen = false;
         }
         originalEdge = originalEdge->next;
       }
@@ -667,7 +654,6 @@ static void transposeSystem(System * original, System * transpose){
         transposeEdge->tail = &transpose->graph[ originalEdge->head->sign ][ originalEdge->head->index - 1 ];
         transposeEdge->next = transposeEdge->tail->first;
         transposeEdge->tail->first = transposeEdge;
-        transposeEdge->backtrackSeen = false;
         
         originalEdge = originalEdge->next;
       }
