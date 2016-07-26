@@ -1168,7 +1168,6 @@ static bool optionalRoundings(System * system){
       
       system->graph[i].Z[TEMP] = halfIntToInt( halfIntFloor( system->graph[i].a ) );
       newEdge = generateAbsoluteConstraint(system, &system->graph[i], system->graph[i].Z[TEMP], WHITE);
-      fputs("Floor: ", stdout); fputEdge(newEdge, stdout);
       expandIntegerTree( system->T, &system->graph[i], &system->graph[0], newEdge, NULL, NULL);
 
       vertex = pollIntegerTreeQueue( system->T );
@@ -1197,7 +1196,6 @@ static bool optionalRoundings(System * system){
         
         system->graph[i].Z[TEMP] = halfIntToInt( halfIntCeil( system->graph[i].a ) );
         newEdge = generateAbsoluteConstraint( system, &system->graph[i], -system->graph[i].Z[TEMP], BLACK );
-        fputs("Ceil: ", stdout); fputEdge(newEdge, stdout);
         expandIntegerTree( system->T, &system->graph[i], &system->graph[0], newEdge, NULL, NULL);
 
         vertex = pollIntegerTreeQueue( system->T );
