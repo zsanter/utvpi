@@ -807,7 +807,6 @@ static bool relaxNetwork(System * system){
         bool noNegCycle = traceSystem( system );
         if( !noNegCycle ){
           freeQueue( &queue );
-          puts("Negative cycle found through traceSystem()");
           return false;
         }
       }
