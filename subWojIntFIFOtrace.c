@@ -802,7 +802,7 @@ static bool relaxNetwork(System * system){
         }
       }
       
-      if( vertex->examinationCount == tracePoint ){
+      if( vertex->examinationCount[Dtype] == tracePoint ){
         tracePoint += traceInterval;
         bool noNegCycle = traceSystem( system );
         if( !noNegCycle ){
@@ -917,7 +917,7 @@ static bool traceSystem(System * system){
       }
     }
     if( system->graph[i].traceNumber[POS_ONE] == 0 ){
-      if( system->graph[i].L[WHIYE] != NULL ){
+      if( system->graph[i].L[WHITE] != NULL ){
         bool noNegCycle = backtrack(system, &system->graph[i], WHITE, system->graph[i].L[WHITE], traceNumber);
         if( !noNegCycle ){
           return false;
