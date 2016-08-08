@@ -94,7 +94,7 @@ struct System {
   int vertexCount;
   int n;
   int C;
-  Edge * allEdgeFirst;
+  //Edge * allEdgeFirst;
   Edge * additionsFirst;
   EdgeRefList * infeasibilityProof;
   IntegerTree * T;
@@ -154,9 +154,9 @@ struct Edge {
   Vertex * tail;
   Vertex * head;
   Edge * next;
-  Edge * allNext;
+  /*Edge * allNext;
   Edge * allPrev;
-  bool inAllEdgeList;
+  bool inAllEdgeList;*/
 };
 
 /*
@@ -242,7 +242,7 @@ static void addConstraint(void * object, Constraint * constraint, Parser * parse
 static void addEdge(System * system, Constraint * constraint);
 static void finishSystemCreation(System * system);
 static int edgeCompare(const void * edge1, const void * edge2);
-static void removeFromAllEdgeList(System * system, Edge * edge);
+//static void removeFromAllEdgeList(System * system, Edge * edge);
 static bool relaxNetwork(System * system);
 static bool traceSystem(System * system);
 static bool backtrack(System * system, Vertex * x_i, EdgeType t, Edge * e, int traceNumber);
@@ -253,7 +253,8 @@ static bool produceIntegerSolution(System * system);
 static bool forcedRounding(System * system, Vertex * x_i);
 static bool optionalRoundings(System * system);
 static void checkDependencies(IntegerTree * T, Vertex * x_i, IntegerType integerType);
-static bool checkAllConstraints(System * system, Vertex * toVertex, IntegerType integerType);
+static bool checkConstraints(System * system, Vertex * toVertex, IntegerType integerType);
+static void reportInfeasibleRounding(System * system, Edge * edge, Vertex * toVertex);
 static void systemSubset(System * system);
 static Edge * generateAbsoluteConstraint(System * system, Vertex * x_i, int weight, EdgeType type);
 static IntegerTree * generateIntegerTree(System * system);
@@ -474,7 +475,7 @@ static void initializeSystem(void * object, int n, Parser * parser){
   system->graph = (Vertex *) malloc( sizeof(Vertex) * system->vertexCount );
   system->n = n;
   system->C = 0;
-  system->allEdgeFirst = NULL;
+  //system->allEdgeFirst = NULL;
   system->additionsFirst = NULL;
   system->infeasibilityProof = NULL;
   system->T = NULL;
@@ -610,19 +611,19 @@ static void addEdge(System * system, Constraint * constraint){
   newEdges[0]->next = newEdges[0]->tail->first[ newEdges[0]->type ];
   newEdges[0]->tail->first[ newEdges[0]->type ] = newEdges[0];
   newEdges[0]->tail->edgeCount[ newEdges[0]->type ]++;
-  newEdges[0]->allNext = system->allEdgeFirst;
+  /*newEdges[0]->allNext = system->allEdgeFirst;
   newEdges[0]->allPrev = NULL;
   newEdges[0]->inAllEdgeList = true;
   if( system->allEdgeFirst != NULL ){
     system->allEdgeFirst->allPrev = newEdges[0];
   }
-  system->allEdgeFirst = newEdges[0];
+  system->allEdgeFirst = newEdges[0];*/
   newEdges[1]->next = newEdges[1]->tail->first[ newEdges[1]->type ];
   newEdges[1]->tail->first[ newEdges[1]->type ] = newEdges[1];
   newEdges[1]->tail->edgeCount[ newEdges[1]->type ]++;
-  newEdges[1]->allNext = NULL;
+  /*newEdges[1]->allNext = NULL;
   newEdges[1]->allPrev = NULL;
-  newEdges[1]->inAllEdgeList = false;
+  newEdges[1]->inAllEdgeList = false;*/
 }
 
 /*
@@ -654,7 +655,7 @@ static void finishSystemCreation(System * system){
         for(int k = 1; k < edgeSortArrayLength; k++){
           if( prior->head == edgeSortArray[k]->head ){
             if( prior->weight <= edgeSortArray[k]->weight ){
-              removeFromAllEdgeList( system, edgeSortArray[k] );
+              //removeFromAllEdgeList( system, edgeSortArray[k] );
               free( edgeSortArray[k] );
             }
             else{
@@ -664,7 +665,7 @@ static void finishSystemCreation(System * system){
               else {
                 beforePrior->next = edgeSortArray[k];
               }
-              removeFromAllEdgeList( system, prior );
+              //removeFromAllEdgeList( system, prior );
               free( prior );
               prior = edgeSortArray[k];
             }
@@ -694,7 +695,7 @@ static int edgeCompare(const void * edge1, const void * edge2){
  * system - pointer to the System struct storing the overall graph representation
  * edge - pointer to the edge to be removed from the allEdge list
  */
-static void removeFromAllEdgeList(System * system, Edge * edge){
+/*static void removeFromAllEdgeList(System * system, Edge * edge){
   if( edge->inAllEdgeList == true ){
     if( edge->allNext != NULL ){
       edge->allNext->allPrev = edge->allPrev;
@@ -709,7 +710,7 @@ static void removeFromAllEdgeList(System * system, Edge * edge){
     edge->allPrev = NULL;
     edge->inAllEdgeList = false;
   }
-}
+}*/
 
 /*
  * relaxNetwork() implements RELAX-NETWORK() and RELAX-EDGE(), with modifications to follow the FIFO Label-Correcting Algorithm, 
@@ -1186,7 +1187,7 @@ static bool produceIntegerSolution(System * system){
     vertex = pollIntegerTreeQueue( system->T );
   }
 
-  integrallyFeasible = checkAllConstraints(system, &system->graph[0], FINAL);
+  integrallyFeasible = checkConstraints(system, &system->graph[0], FINAL);
   if( !integrallyFeasible ){
     return false;
   }
@@ -1302,7 +1303,7 @@ static bool optionalRoundings(System * system){
         vertex = pollIntegerTreeQueue( system->T );
       }
 
-      bool floorFeasible = checkAllConstraints(system, &system->graph[i], TEMP);
+      bool floorFeasible = checkConstraints(system, &system->graph[i], TEMP);
       
       if( floorFeasible ){
         for(int j = 1; j < system->vertexCount; j++){
@@ -1330,7 +1331,7 @@ static bool optionalRoundings(System * system){
           vertex = pollIntegerTreeQueue( system->T );
         }
 
-        bool ceilFeasible = checkAllConstraints( system, &system->graph[i], TEMP );
+        bool ceilFeasible = checkConstraints( system, &system->graph[i], TEMP );
         
         if( ceilFeasible ){
           for(int j = 1; j < system->vertexCount; j++){
@@ -1414,7 +1415,7 @@ static void checkDependencies(IntegerTree * T, Vertex * x_i, IntegerType integer
  * toVertex - pointer to the vertex where integerTreeBacktrack() should stop when backtracking up the IntegerTree
  * integerType - type of Z value being checked against constraints during this call
  */
-static bool checkAllConstraints(System * system, Vertex * toVertex, IntegerType integerType){
+/*static bool checkAllConstraints(System * system, Vertex * toVertex, IntegerType integerType){
   Edge * edge = system->allEdgeFirst;
   while( edge != NULL ){
     if( edge->tail->Z[integerType] != INT_MAX && edge->head->Z[integerType] != INT_MAX ){
@@ -1450,6 +1451,57 @@ static bool checkAllConstraints(System * system, Vertex * toVertex, IntegerType 
     edge = edge->allNext;
   }
   return true;
+}*/
+
+static bool checkConstraints(System * system, Vertex * toVertex, IntegerType integerType){
+  IntegerTreeVertex * itv = system->T->treeRoot->queueNewer;
+  while( itv != NULL ){
+    Vertex * vertex = itv->graphVertex;
+    Edge * edge = vertex->first[WHITE];
+    while( edge != NULL ){
+      if( edge->head->Z[integerType] != INT_MAX
+          && edge->tail->Z[integerType] + edge->head->Z[integerType] > edge->weight ){
+        reportInfeasibleRounding(system, edge, toVertex);
+        return false;
+      }
+      edge = edge->next;
+    }
+    edge = vertex->first[BLACK];
+    while( edge != NULL ){
+      if( edge->head->Z[integerType] != INT_MAX
+          && -edge->tail->Z[integerType] - edge->head->Z[integerType] > edge->weight ){
+        reportInfeasibleRounding(system, edge, toVertex);
+        return false;
+      }
+      edge = edge->next;
+    }
+    edge = vertex->first[GRAY_FORWARD];
+    while( edge != NULL ){
+      if( edge->head->Z[integerType] != INT_MAX
+          && -edge->tail->Z[integerType] + edge->head->Z[integerType] > edge->weight ){
+        reportInfeasibleRounding(system, edge, toVertex);
+        return false;
+      }
+      edge = edge->next;
+    }
+    edge = vertex->first[GRAY_REVERSE];
+    while( edge != NULL ){
+      if( edge->head->Z[integerType] != INT_MAX
+          && edge->tail->Z[integerType] - edge->head->Z[integerType] > edge->weight ){
+        reportInfeasibleRounding(system, edge, toVertex);
+        return false;
+      }
+      edge = edge->next;
+    }
+    itv = itv->queueNewer;
+  }
+  return true;
+}
+
+static void reportInfeasibleRounding(System * system, Edge * edge, Vertex * toVertex){
+  edgeRefListPrepend(system->infeasibilityProof, edge);
+  integerTreeBacktrack(system->infeasibilityProof, edge->tail->integerTreeVertex, toVertex->integerTreeVertex, false);
+  integerTreeBacktrack(system->infeasibilityProof, edge->head->integerTreeVertex, toVertex->integerTreeVertex, true);  
 }
 
 /*
