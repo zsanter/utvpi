@@ -216,7 +216,8 @@ static bool produceIntegerSolution(System * system);
 static bool forcedRounding(System * system, Vertex * x_i);
 static bool optionalRoundings(System * system);
 static void checkDependencies(IntegerTree * T, Vertex * x_i, IntegerType integerType);
-static bool checkAllConstraints(System * system, Vertex * toVertex, IntegerType integerType);
+static bool checkConstraints(System * system, Vertex * toVertex, IntegerType integerType);
+static void reportInfeasibleRounding(System * system, Edge * edge, Vertex * toVertex);
 static void systemSubset(System * system);
 static Edge * generateAbsoluteConstraint(System * system, Vertex * x_i, int weight, EdgeType type);
 static IntegerTree * generateIntegerTree(System * system);
@@ -966,7 +967,7 @@ static bool produceIntegerSolution(System * system){
     vertex = pollIntegerTreeQueue( system->T );
   }
 
-  integrallyFeasible = checkAllConstraints(system, &system->graph[0], FINAL);
+  integrallyFeasible = checkConstraints(system, &system->graph[0], FINAL);
   if( !integrallyFeasible ){
     return false;
   }
@@ -1082,7 +1083,7 @@ static bool optionalRoundings(System * system){
         vertex = pollIntegerTreeQueue( system->T );
       }
 
-      bool floorFeasible = checkAllConstraints(system, &system->graph[i], TEMP);
+      bool floorFeasible = checkConstraints(system, &system->graph[i], TEMP);
       
       if( floorFeasible ){
         for(int j = 1; j < system->vertexCount; j++){
@@ -1110,7 +1111,7 @@ static bool optionalRoundings(System * system){
           vertex = pollIntegerTreeQueue( system->T );
         }
 
-        bool ceilFeasible = checkAllConstraints( system, &system->graph[i], TEMP );
+        bool ceilFeasible = checkConstraints( system, &system->graph[i], TEMP );
         
         if( ceilFeasible ){
           for(int j = 1; j < system->vertexCount; j++){
@@ -1186,50 +1187,70 @@ static void checkDependencies(IntegerTree * T, Vertex * x_i, IntegerType integer
 }
 
 /*
- * checkAllConstraints() checks all constraints to determine if they are satisfied by integral assignments. If all are, true is 
- *   returned. Otherwise, system->infeasibilityProof is filled with the set of edges leading to a contradiction, and false is 
- *   returned. The edges added to system->infeasibilityProof during one call to this function make up no more than one helf of a 
- *   full proof of integral infeasibility.
+ * checkConstraints() checks all constraints involving a newly-rounded variable, to determine if they are satisfied by current 
+ *   integral assignments. If all are, true is returned. Otherwise, system->infeasibilityProof is filled with the set of edges 
+ *   leading to a contradiction, and false is returned. The edges added to system->infeasibilityProof during one call to this 
+ *   function make up no more than one helf of a full proof of integral infeasibility.
  * system - pointer to the System struct storing the overall graph representation
  * toVertex - pointer to the vertex where integerTreeBacktrack() should stop when backtracking up the IntegerTree
  * integerType - type of Z value being checked against constraints during this call
  */
-static bool checkAllConstraints(System * system, Vertex * toVertex, IntegerType integerType){
-  Edge * edge = system->allEdgeFirst;
-  while( edge != NULL ){
-    if( edge->tail->Z[integerType] != INT_MAX && edge->head->Z[integerType] != INT_MAX ){
-      bool feasible = true;
-      switch( edge->type ){
-      case WHITE:
-        if( edge->tail->Z[integerType] + edge->head->Z[integerType] > edge->weight ){
-          feasible = false;
-        }
-        break;
-      case BLACK:
-        if( -edge->tail->Z[integerType] - edge->head->Z[integerType] > edge->weight ){
-          feasible = false;
-        }
-        break;
-      case GRAY_FORWARD:
-        if( -edge->tail->Z[integerType] + edge->head->Z[integerType] > edge->weight ){
-          feasible = false;
-        }
-        break;
-      case GRAY_REVERSE:
-        if( edge->tail->Z[integerType] - edge->head->Z[integerType] > edge->weight ){
-          feasible = false;
-        }
-      }
-      if( !feasible ){
-        edgeRefListPrepend(system->infeasibilityProof, edge);
-        integerTreeBacktrack(system->infeasibilityProof, edge->tail->integerTreeVertex, toVertex->integerTreeVertex, false);
-        integerTreeBacktrack(system->infeasibilityProof, edge->head->integerTreeVertex, toVertex->integerTreeVertex, true);
+static bool checkConstraints(System * system, Vertex * toVertex, IntegerType integerType){
+  IntegerTreeVertex * itv = system->T->treeRoot->queueNewer;
+  while( itv != NULL ){
+    Vertex * vertex = itv->graphVertex;
+    Edge * edge = vertex->first[WHITE];
+    while( edge != NULL ){
+      if( edge->head->Z[integerType] != INT_MAX
+          && edge->tail->Z[integerType] + edge->head->Z[integerType] > edge->weight ){
+        reportInfeasibleRounding(system, edge, toVertex);
         return false;
       }
+      edge = edge->next;
     }
-    edge = edge->allNext;
+    edge = vertex->first[BLACK];
+    while( edge != NULL ){
+      if( edge->head->Z[integerType] != INT_MAX
+          && -edge->tail->Z[integerType] - edge->head->Z[integerType] > edge->weight ){
+        reportInfeasibleRounding(system, edge, toVertex);
+        return false;
+      }
+      edge = edge->next;
+    }
+    edge = vertex->first[GRAY_FORWARD];
+    while( edge != NULL ){
+      if( edge->head->Z[integerType] != INT_MAX
+          && -edge->tail->Z[integerType] + edge->head->Z[integerType] > edge->weight ){
+        reportInfeasibleRounding(system, edge, toVertex);
+        return false;
+      }
+      edge = edge->next;
+    }
+    edge = vertex->first[GRAY_REVERSE];
+    while( edge != NULL ){
+      if( edge->head->Z[integerType] != INT_MAX
+          && edge->tail->Z[integerType] - edge->head->Z[integerType] > edge->weight ){
+        reportInfeasibleRounding(system, edge, toVertex);
+        return false;
+      }
+      edge = edge->next;
+    }
+    itv = itv->queueNewer;
   }
   return true;
+}
+
+/*
+ * reportInfeasibleRounding() fills system->infeasibilityProof with the set of edgss leading to a contradiction, which make up no
+ *   more than one helf of a full proof of integral infeasibility.
+ * system - pointer to the System struct storing the overall graph representation
+ * edge - pointer to the edge representing the constraint found to be violated by integral assignments in checkConstraints()
+ * toVertex - pointer to the vertex where integerTreeBacktrack() should stop when backtracking up the IntegerTree
+ */
+static void reportInfeasibleRounding(System * system, Edge * edge, Vertex * toVertex){
+  edgeRefListPrepend(system->infeasibilityProof, edge);
+  integerTreeBacktrack(system->infeasibilityProof, edge->tail->integerTreeVertex, toVertex->integerTreeVertex, false);
+  integerTreeBacktrack(system->infeasibilityProof, edge->head->integerTreeVertex, toVertex->integerTreeVertex, true);  
 }
 
 /*
