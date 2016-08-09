@@ -1526,7 +1526,7 @@ static void systemSubset(System * system){
           prior = edge;
         }
         else {
-          removeFromAllEdgeList(system, edge);
+          //removeFromAllEdgeList(system, edge);
           free(edge);
         }
         edge = next;
@@ -1561,9 +1561,9 @@ static Edge * generateAbsoluteConstraint(System * system, Vertex * x_i, int weig
   newEdge->head = &system->graph[0];
   newEdge->next = system->additionsFirst;
   system->additionsFirst = newEdge;
-  newEdge->allNext = NULL;
+  /*newEdge->allNext = NULL;
   newEdge->allPrev = NULL;
-  newEdge->inAllEdgeList = false;
+  newEdge->inAllEdgeList = false;*/
   return newEdge;
 }
 
