@@ -566,7 +566,8 @@ static void relaxEdge(Edge * e){
 }
 
 /*
- * backtrack() implements BACKTRACK(). This function returns a pointer to an EdgeRefList storing a negative cost cycle.
+ * backtrack() implements BACKTRACK() and GET-CYCLE(). This function returns a pointer to an EdgeRefList storing a negative cost 
+ *   cycle.
  * x_i - pointer to the initial Vertex
  * t - initial path type
  * e - pointer to the initial edge
