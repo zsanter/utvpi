@@ -1,3 +1,20 @@
+/*
+ * mine.c
+ * The Miné linear UTVPI system solver, with simple Bellman-Ford implementation
+ * The Octagon Abstract Domain - Antoine Miné
+ * This serves as an implementation of only the linear portion of the lahiri* implementations.
+ *
+ * Call with [executable] [input file] {output file}
+ * [input file] must be properly formatted to be read by utvpiInterpreter.h
+ * {output file} will contain a linear solution, if one exists, followed by an integral solution, if one exists. If the system is
+ *   not linearly feasible, a proof of linear infeasibility - a negative cost cycle - will be output. If the system is linearly 
+ *   feasible, but not integrally feasible, a proof of integral infeasibility will be output. If {output file} is not specified,
+ *   output will be to stdout.
+ *
+ * Modifications have been made to the linear portion of the algorithm implementation in lahiri and onward in the time since this
+ * implementation was completed.
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -5,6 +22,10 @@
 #include "utvpiInterpreter.h"
 #include "halfint.h"
 
+/*
+ * This algorithm represents each variable with two vertices, one representing the positive occurrence of the variable, and the 
+ * other representing its negative occurrence. VertexSign specifies the sign of each Vertex.
+ */
 #define VERTEX_SIGN_COUNT 2
 typedef enum VertexSign {
   POSITIVE,
@@ -15,11 +36,28 @@ typedef struct System System;
 typedef struct Vertex Vertex;
 typedef struct Edge Edge;
 
+/*
+ * The System struct contains the graph representation used by the system solver, along with other information about the system.
+ *
+ * graph - pointers to POSITIVE and NEGATIVE arrays of Vertex structs, defining the structure of the graph representation
+ * n - the number of variables represented within the system, equal to the number of Vertex structs stored within each graph array
+ */
 struct System {
   Vertex * graph[VERTEX_SIGN_COUNT];
   int n;
 };
 
+/*
+ * The Vertex struct contains all information about one signed occurrence of a variable, represented by a vertex within the graph.
+ *
+ * index - index of the variable
+ * sign - the sign of the variable occurrence this Vertex represents
+ * L - pointer to the predecessor Edge between this Vertex and the Vertex's predecessor Vertex
+ * D - distance label
+ * first - pointer to the first Edge whose tail Vertex is this Vertex. The remainder of such edges are connected together in a 
+ *   singly-linked list
+ * x - half-integral linear-solution variable value, not particular to a signed occurrence
+ */
 struct Vertex {
   int index;
   VertexSign sign;
@@ -29,6 +67,16 @@ struct Vertex {
   half_int x;
 };
 
+/*
+ * The Edge struct contains all information about a specific constraint, represented by an edge within the graph.
+ *
+ * weight - the weight of the edge, corresponding to the defining constant of the constraint the edge represents
+ * head - pointer to the Edge's head Vertex
+ * tail - pointer to the Edge's tail Vertex
+ * next - pointer to the next Edge in the singly-linked list of Edges with the same tail Vertex as one another
+ * backtrackSeen - boolean flag indicating whether or not this Edge has been encountered by the backtrack() function as it 
+ *   attempts to detect a negative cost cycle
+ */
 struct Edge {
   int weight;
   Vertex * head;
@@ -46,6 +94,14 @@ static void relax(Edge * edge);
 static Edge * backtrack(Edge * edge);
 static void cleanup(System * system);
 
+/*
+ * main()
+ * - handles file input and output
+ * - calls utvpiInterpreter's parseFile() function, which calls initializeSystem() and addConstraint() to build the graph 
+ *   representation corresponding to the constraint system in the input file
+ * - calls bellmanFord()
+ * - prints profiling information formatted for csv-file input to stdout
+ */
 int main(int argc, char * argv[]){
   clock_t beginning = clock();
   if( argc != 2 && argc != 3 ){
@@ -106,6 +162,12 @@ int main(int argc, char * argv[]){
   return 0;
 }
 
+/*
+ * fputEdge() prints the constraint equation corresponding to edge to output
+ *
+ * edge - pointer to an Edge struct to convert to a constraint equation
+ * output - FILE pointer to print the constraint equation to
+ */
 static void fputEdge(Edge * edge, FILE * output){
   if( edge->tail->index == edge->head->index ){
     char sign;
@@ -146,6 +208,14 @@ static void fputEdge(Edge * edge, FILE * output){
   }
 }
 
+/*
+ * initializeSystem() initializes an already-declared System struct, given the number of variables that the system must represent
+ *
+ * object - a void pointer pointing to an already-declared System struct
+ * n - the number of variables that the graph representation held by the System struct must represent
+ * parser - pointer to the Parser struct that utvpiInterpreter uses during the input file parsing process, so that parseError() 
+ *   can be called, if need be
+ */
 static void initializeSystem(void * object, int n, Parser * parser){
   System * system = (System *) object;
   system->n = n;
@@ -163,6 +233,14 @@ static void initializeSystem(void * object, int n, Parser * parser){
   }
 }
 
+/*
+ * addConstraint() adds a constraint to the graph representation held by the System struct.
+ *
+ * object - a void pointer pointing to an already-initialized System struct
+ * constraint - pointer to a Constraint struct describing a constraint
+ * parser - pointer to the Parser struct that utvpiInterpreter uses during the input file parsing process, so that parseError() 
+ *   can be called, if need be
+ */
 static void addConstraint(void * object, Constraint * constraint, Parser * parser){
   System * system = (System *) object;
   if( constraint->sign[1] == CONSTRAINT_NONE ){
@@ -225,6 +303,13 @@ static void addConstraint(void * object, Constraint * constraint, Parser * parse
   }
 }
 
+/*
+ * bellmanFord() implements BELLMAN-FORD(), as defined in Introduction to Algorithms, Third Edition. For linearly infeasible 
+ * systems, a pointer to one Edge within the detected negative cost cycle is returned. For linearly feasible systems, NULL is 
+ * returned.
+ *
+ * system - pointer to the overall System struct containing the graph representation
+ */
 static Edge * bellmanFord(System * system){
   for(int i = 1; i <= (2 * system->n - 1); i++){
     for(VertexSign j = POSITIVE; j <= NEGATIVE; j++){
@@ -251,6 +336,11 @@ static Edge * bellmanFord(System * system){
   return NULL;
 }
 
+/*
+ * relax() implements RELAX(), as defined in Introduction to Algorithms, Third Edition. Relaxes a single edge.
+ *
+ * edge - pointer to the edge to be relaxed
+ */
 static void relax(Edge * edge){
   if( edge->head->D > edge->tail->D + edge->weight ){
     edge->head->D = edge->tail->D + edge->weight;
@@ -258,6 +348,13 @@ static void relax(Edge * edge){
   }
 }
 
+/*
+ * backtrack() implements a single backtrack through the predecessor structure, as defined in Network Flows - Ahuja, Magnanti, 
+ * Orlin. This function should only be called in the situation that it is guaranteed that the function will detect a negative cost
+ * cycle. Returns a pointer to an Edge within the detected negative cost cycle. 
+ * 
+ * edge - pointer to an Edge to backtrack from
+ */
 static Edge * backtrack(Edge * edge){
   while( edge->backtrackSeen == false ){
     edge->backtrackSeen = true;
@@ -266,6 +363,11 @@ static Edge * backtrack(Edge * edge){
   return edge;
 }
 
+/*
+ * cleanup() frees the graph representation stored within a System struct
+ *
+ * system - pointer to a System whose graph representation is to be freed
+ */
 static void cleanup(System * system){
   for(VertexSign i = POSITIVE; i <= NEGATIVE; i++){
     for(int j = 0; j < system->n; j++){

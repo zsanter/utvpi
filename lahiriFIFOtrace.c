@@ -1,3 +1,16 @@
+/*
+ * lahiriFIFOtrace.c
+ * The Lahiri-Musuvathi integral UTVPI system solver, with FIFO linear modification and intermittent predecessor structure traces
+ * An Efficient Decision Procedure for UTVPI Constraints - Lahiri, Musuvathi
+ *
+ * Call with [executable] [input file] {output file}
+ * [input file] must be properly formatted to be read by utvpiInterpreter.h
+ * {output file} will contain a linear solution, if one exists, followed by an integral solution, if one exists. If the system is
+ *   not linearly feasible, a proof of linear infeasibility - a negative cost cycle - will be output. If the system is linearly 
+ *   feasible, but not integrally feasible, a proof of integral infeasibility will be output. If {output file} is not specified,
+ *   output will be to stdout.
+ */
+ 
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -6,12 +19,20 @@
 #include <time.h>
 #include "utvpiInterpreter.h"
 
+/*
+ * This algorithm represents each variable with two vertices, one representing the positive occurrence of the variable, and the 
+ * other representing its negative occurrence. VertexSign specifies the sign of each Vertex.
+ */
 #define VERTEX_SIGN_COUNT 2
 typedef enum VertexSign {
   POSITIVE,
   NEGATIVE,
 } VertexSign;
 
+/*
+ * DFScolor is used to specify the color of a Vertex during the depth-first search process used when detecting strongly-connected 
+ * components.
+ */
 typedef enum DFScolor {
   WHITE,
   GRAY,
@@ -26,11 +47,39 @@ typedef struct QueueNode QueueNode;
 typedef struct FibHeap FibHeap;
 typedef struct FibHeapNode FibHeapNode;
 
+/*
+ * The System struct contains the graph representation used by the system solver, along with other information about the system.
+ *
+ * graph - pointers to POSITIVE and NEGATIVE arrays of Vertex structs, defining the structure of the graph representation
+ * n - the number of variables represented within the system, equal to the number of Vertex structs stored within each graph array
+ */
 struct System {
   Vertex * graph[VERTEX_SIGN_COUNT];
   int n;
 };
 
+/*
+ * The Vertex struct contains all information about one signed occurrence of a variable, represented by a vertex within the graph.
+ *
+ * index - index of the variable
+ * sign - the sign of the variable occurrence this Vertex represents
+ * D - distance label
+ * first - pointer to the first Edge whose tail Vertex is this Vertex. The remainder of such edges are connected together in a 
+ *   singly-linked list
+ * L - pointer to the predecessor Edge between this Vertex and the Vertex's predecessor Vertex
+ * examinationCount - the number of times this Vertex has been examined by linear()
+ * traceNumber - number of the trace that crosses this Vertex, in backtrack()
+ * inQueue - whether or not this Vertex is currently present within the FIFO queue used by linear()
+ * dfsColor - the color of a Vertex during the depth-first search process used when detecting strongly-connected components
+ * finishingTime - depth-first search Vertex finishing time
+ * sccNumber - vertices within each strongly-connected component are assigned the same sccNumber as each other
+ * h - Johnson All-Pairs reweighting value
+ * rho - integral-solution variable value
+ * fibHeapNode - pointer to the FibHeapNode corresponding to this Vertex within the FibHeap priority queue data structure
+ *
+ * Sets of data members that do not need to exist at the same time as each other are organized into anonymous structs within an 
+ * anonymous union. This necessitates initializing each set of data members immediately before it is used.
+ */
 struct Vertex {
   int index;
   VertexSign sign;
@@ -56,6 +105,14 @@ struct Vertex {
   };
 };
 
+/*
+ * The Edge struct contains all information about a specific constraint, represented by an edge within the graph.
+ *
+ * weight - the weight of the edge, corresponding to the defining constant of the constraint the edge represents
+ * head - pointer to the Edge's head Vertex
+ * tail - pointer to the Edge's tail Vertex
+ * next - pointer to the next Edge in the singly-linked list of Edges with the same tail Vertex as one another
+ */
 struct Edge {
   int weight;
   Vertex * head;
@@ -63,21 +120,54 @@ struct Edge {
   Edge * next;
 };
 
+/*
+ * Queue is a simple FIFO queue, used to store pointers to Vertices to be examined in linear().
+ *
+ * newest - pointer to the most-recently-added member of the Queue
+ * oldest - pointer to the earliest-added member of the Queue
+ */
 struct Queue {
   QueueNode * newest;
   QueueNode * oldest;
 };
 
+/*
+ * QueueNode is one node within the Queue.
+ *
+ * vertex - pointer to a vertex to be examined in linear()
+ * newer - pointer to the QueueNode added to the Queue immediately after this one
+ */
 struct QueueNode {
   Vertex * vertex;
   QueueNode * newer;
 };
 
+/*
+ * FibHeap is an implementation of the Fibonacci Heap priority queue data structure, as defined in Introduction To Algorithms, 
+ * Third Edition - Cormen, Leisersen, Rivest, Stein.
+ *
+ * min - pointer to the FibHeapNode representing the Vertex with the lowest distance label D
+ * n - the number of FibHeapNodes within the overall FibHeap data structure
+ */
 struct FibHeap {
   FibHeapNode * min;
   int n;
 };
 
+/*
+ * FibHeapNode is a single node within the FibHeap, as defined in Introduction to Algorithms, Third Edition.
+ *
+ * parent - pointer to this FibHeapNode's parent FibHeapNode
+ * left - pointer to the FibHeapNode to the left of this FibHeapNode, in the circular, doubly-linked list of sibling FibHeapNodes
+ * right - pointer to the FibHeapNode to the right of this FibHeapNode, in the circular, doubly-linked list of sibling 
+ *   FibHeapNodes
+ * child - pointer to one of this FibHeapNode's child FibHeapNodes
+ * vertex - pointer to the Vertex struct that this FibHeapNode represents within the FibHeap
+ * degree - the number of children of this FibHeapNode
+ * mark - used to indicate if a FibHeapNode has lost two of its child FibHeapNodes in a row
+ * rootListTraverseSeen - boolean flag indicating whether or not this FibHeapNode has been encountered by fibHeapConsolidate() as
+ *   it traverses the root list
+ */
 struct FibHeapNode {
   FibHeapNode * parent;
   FibHeapNode * left;
@@ -123,6 +213,15 @@ static void freeSystem(System * system);
   static void diff(struct timespec * start, struct timespec * end, struct timespec * difference);
 #endif
 
+/*
+ * main()
+ * - handles file input and output
+ * - calls utvpiInterpreter's parseFile() function, which calls initializeSystem() and addConstraint() to build the graph 
+ *   representation corresponding to the constraint system in the input file
+ * - calls linear()
+ * - calls lahiri()
+ * - prints profiling information formatted for csv-file input to stdout
+ */
 int main(int argc, char * argv[]){
   #ifdef __HPC__
     struct timespec start;
@@ -248,8 +347,12 @@ int main(int argc, char * argv[]){
 
 #ifdef __HPC__
   /*
-   * Copied from https://www.guyrutenberg.com/2007/09/22/profiling-code-using-clock_gettime/
-   * and modified.
+   * diff() takes the difference of two struct timespecs
+   * Copied from https://www.guyrutenberg.com/2007/09/22/profiling-code-using-clock_gettime/ and modified.
+   *
+   * start - pointer to a struct timespec from the beginning of a time period
+   * end - pointer to a struct timespec from the end of a time period
+   * difference - pointer to an already-declared struct timespec to be filled with the time difference between start and end
    */
   static void diff(struct timespec * start, struct timespec * end, struct timespec * difference){
     if ( ( end->tv_nsec - start->tv_nsec ) < 0 ) {
@@ -263,6 +366,12 @@ int main(int argc, char * argv[]){
   }
 #endif
 
+/*
+ * fputEdge() prints the constraint equation corresponding to edge to output
+ *
+ * edge - pointer to an Edge struct to convert to a constraint equation
+ * output - FILE pointer to print the constraint equation to
+ */
 static void fputEdge(Edge * edge, FILE * output){
   if( edge->tail->index == edge->head->index ){
     char sign;
@@ -303,6 +412,14 @@ static void fputEdge(Edge * edge, FILE * output){
   }
 }
 
+/*
+ * initializeSystem() initializes an already-declared System struct, given the number of variables that the system must represent
+ *
+ * object - a void pointer pointing to an already-declared System struct
+ * n - the number of variables that the graph representation held by the System struct must represent
+ * parser - pointer to the Parser struct that utvpiInterpreter uses during the input file parsing process, so that parseError() 
+ *   can be called, if need be
+ */
 static void initializeSystem(void * object, int n, Parser * parser){
   System * system = (System *) object;
   system->n = n;
@@ -317,6 +434,12 @@ static void initializeSystem(void * object, int n, Parser * parser){
   }
 }
 
+/*
+ * setSystemForLinear() initializes Vertex struct anonymous union data members only used during the process of generating a linear
+ * solution, for all Vertices.
+ *
+ * system - pointer to the overall System struct containing the graph representation
+ */
 static void setSystemForLinear(System * system){
   for(VertexSign i = POSITIVE; i <= NEGATIVE; i++){
     for(int j = 0; j < system->n; j++){
@@ -328,6 +451,12 @@ static void setSystemForLinear(System * system){
   }
 }
 
+/*
+ * setSystemForSCC() initializes Vertex struct anonymous union data members only used during the process of determining graph 
+ * strongly-connected components, for all Vertices.
+ *
+ * system - pointer to the overall System struct containing the graph representation
+ */
 static void setSystemForSCC(System * system){
   for(VertexSign i = POSITIVE; i <= NEGATIVE; i++){
     for(int j = 0; j < system->n; j++){
@@ -338,6 +467,12 @@ static void setSystemForSCC(System * system){
   }
 }
 
+/*
+ * setSystemForJohnson() initializes Vertex struct anonymous union data members only used during the process of generating an 
+ * integral solution, for all Vertices.
+ *
+ * system - pointer to the overall System struct containing the graph representation
+ */
 static void setSystemForJohnson(System * system){
   for(VertexSign i = POSITIVE; i <= NEGATIVE; i++){
     for(int j = 0; j < system->n; j++){
@@ -348,6 +483,14 @@ static void setSystemForJohnson(System * system){
   }
 }
 
+/*
+ * addConstraint() adds a constraint to the graph representation held by the System struct.
+ *
+ * object - a void pointer pointing to an already-initialized System struct
+ * constraint - pointer to a Constraint struct describing a constraint
+ * parser - pointer to the Parser struct that utvpiInterpreter uses during the input file parsing process, so that parseError() 
+ *   can be called, if need be
+ */
 static void addConstraint(void * object, Constraint * constraint, Parser * parser){
   System * system = (System *) object;
   if( constraint->sign[1] == CONSTRAINT_NONE ){
@@ -407,6 +550,14 @@ static void addConstraint(void * object, Constraint * constraint, Parser * parse
   }
 }
 
+/*
+ * linear() implements the FIFO Label-Correcting Algorithm, as well as intermittently checking the predecessor structure for 
+ * negative cost cycles, both as defined in Network Flows - Ahuja, Magnanti, Orlin. Predecerssor structure traces occur every 
+ * sqrt( 2*n ) passes through the graph. For linearly infeasible systems, a pointer to one Edge within the detected negative cost
+ * cycle is returned. For linearly feasible systems, NULL is returned.
+ *
+ * system - pointer to the overall System struct containing the graph representation
+ */
 static Edge * linear(System * system){
   
   Queue queue;
@@ -458,6 +609,13 @@ static Edge * linear(System * system){
   return NULL;
 }
 
+/*
+ * traceSystem() implements the checking of the predecessor structure for negative cost cycles, as defined in Network Flows. If a 
+ * negative cost cycle is detected, a pointer to one Edge within the detected cycle is returned. If no negative cost cycle is 
+ * detected, all Vertex.traceNumbers are reinitialized and NULL is returned.
+ *
+ * system - pointer to the overall System struct containing the graph representation
+ */
 static Edge * traceSystem(System * system){
   int traceNumber = 1;
   for(VertexSign i = POSITIVE; i <= NEGATIVE; i++){
@@ -481,7 +639,11 @@ static Edge * traceSystem(System * system){
 }
 
 /*
- * traceNumber must not equal 0
+ * backtrack() implements a single backtrack through the predecessor structure, as defined in Network Flows. If a negative cost 
+ * cycle is detected, returns a pointer to an Edge within that cycle. Otherwise, returns NULL.
+ * 
+ * edge - pointer to an Edge to backtrack from
+ * traceNumber - integer number to leave along the predecessor structure path backtracked through; must not equal 0
  */
 static Edge * backtrack(Edge * edge, int traceNumber){
   while( edge != NULL && edge->tail->traceNumber == 0 ){
@@ -494,6 +656,12 @@ static Edge * backtrack(Edge * edge, int traceNumber){
   return NULL;
 }
 
+/*
+ * queueOffer() adds a pointer to a Vertex to the input Queue, if that Vertex is not already represented within the Queue.
+ *
+ * queue - pointer to a Queue to add a pointer to a Vertex to
+ * vertex - pointer to a Vertex to be added to the Queue
+ */
 static void queueOffer(Queue * queue, Vertex * vertex){
   if( !vertex->inQueue ){
     QueueNode * newQN = (QueueNode *) malloc( sizeof(QueueNode) );
@@ -510,6 +678,11 @@ static void queueOffer(Queue * queue, Vertex * vertex){
   }
 }
 
+/*
+ * queuePoll() removes the oldest member of the Queue and returns the pointer to a Vertex stored within that member.
+ *
+ * queue - pointer to a Queue to remove a pointer to a Vertex from
+ */
 static Vertex * queuePoll(Queue * queue){
   Vertex * output;
   if( queue->oldest != NULL ){
@@ -529,6 +702,11 @@ static Vertex * queuePoll(Queue * queue){
   return output;
 }
 
+/*
+ * freeQueue() frees the input Queue
+ *
+ * queue - pointer to the Queue to be freed
+ */
 static void freeQueue(Queue * queue){
   QueueNode * qn = queue->oldest;
   while( qn != NULL ){
@@ -540,6 +718,16 @@ static void freeQueue(Queue * queue){
   queue->oldest = NULL;
 }
 
+/*
+ * lahiri()
+ * - implements the NCD-UTVPI() algorithm from An Efficient Decision Procedure for UTVPI Constraints - Lahiri, Musuvathi
+ * - calls johnsonAllPairs(), into which the Model Generation algorithm from this paper was integrated, in order to significantly
+ *   reduce the space complexity of this implementation
+ * - returns the index of the variable causing the contradiction, if the system is found to be integrally infeasible
+ * - returns -1, if the system is found to be integrally feasible
+ *
+ * Gphi - pointer to the overall System struct containing the graph representation
+ */
 static int lahiri(System * Gphi){
   System GphiPrime;
   onlySlacklessEdges(Gphi, &GphiPrime);
@@ -561,8 +749,12 @@ static int lahiri(System * Gphi){
 }
 
 /*
- * Doesn't copy Vertex elements L, D, rho, dfsColor, discoveryTime, finishingTime, sccNumber, h, 
- * dijkstraFinalized, or fibHeapNode, because this is unnecessary for our purposes
+ * onlySlacklessEdges() copies the subgraph of original consisting only of edges (u,v) where D(v) - D(u) = w(u,v) into subgraph.
+ * Does not copy Vertex data members.
+ *
+ * original - pointer to the System struct containing the original graph representation
+ * subgraph - pointer to a declared yet uninitialized System struct, to be filled with the subgraph of original consisting only of
+ *   slackless edges
  */
 static void onlySlacklessEdges(System * original, System * subgraph){
   initializeSystem( subgraph, original->n, NULL );
@@ -585,6 +777,14 @@ static void onlySlacklessEdges(System * original, System * subgraph){
   }
 }
 
+/*
+ * stronglyConnectedComponents() finds strongly-connected components within system, and gives all Vertices within each strongly-
+ * connected component the same Vertex.sccNumber value, which will differ from that within all Vertices not within that strongly-
+ * connected component. Implements STRONGLY-CONNECTED-COMPONENTS() and DFS(), as defined in Introduction to Algorithms, Third 
+ * Edition.
+ *
+ * system - pointer to the System struct in which strongly-connected components are to be found
+ */
 static void stronglyConnectedComponents(System * system){
   int time = 0;
   int sccNumber = 0;
@@ -621,6 +821,16 @@ static void stronglyConnectedComponents(System * system){
   freeSystem( &transpose );
 }
 
+/*
+ * dfsVisit() implements DFS-VISIT(), as defined in Introduction to Algorithms, Third Edition. Also sets Vertex.sccNumber for all
+ * Vertices within a set of recurrences with the input sccNumber. This value is not useful unless this function is called on a 
+ * transposed System being examined in order of decreasing Vertex.finishingTime, as found when searching the original System, and
+ * the input sccNumber is set to be different for each set of recurrences.
+ *
+ * vertex - pointer to the Vertex to visit
+ * time - pointer to an integer value for time, a value defined as global in Introduction to Algorithms
+ * sccNumber - an integer value to label each Vertex within each strongly-connected component with
+ */
 static void dfsVisit(Vertex * vertex, int * time, int sccNumber){
   (*time)++;
   vertex->dfsColor = GRAY;
@@ -638,8 +848,10 @@ static void dfsVisit(Vertex * vertex, int * time, int sccNumber){
 }
 
 /*
- * Doesn't copy Vertex elements L, D, rho, dfsColor, discoveryTime, finishingTime, sccNumber, h, 
- * dijkstraFinalized, or fibHeapNode, because this is unnecessary for our purposes
+ * transposeSystem() fills transpose with the transpose of original. Does not copy Vertex data members.
+ *
+ * original - pointer to the System struct containing the original graph representation
+ * transpose - pointer to a declared but uninitialized System struct, to be filled with the transpose of original
  */
 static void transposeSystem(System * original, System * transpose){
   initializeSystem( transpose, original->n, NULL );
@@ -661,15 +873,27 @@ static void transposeSystem(System * original, System * transpose){
   }
 }
 
+/*
+ * vertexCompareFinishingTimes() is the comparison function used by qsort() in stronglyConnectedComponents().
+ */
 static int vertexCompareFinishingTimes(const void * vertex1, const void * vertex2){
   return (*(Vertex **)vertex1)->finishingTime - (*(Vertex **)vertex2)->finishingTime;
 }
 
 /*
- * Lahiri's Model Generation algorithm is integrated into Johnson All-Pairs, such that this function leaves Gphi with an integral 
- * solution in Vertex.rho, without generating a graphical representation of the transitive and tight closure C*, thus avoiding the
- * O(n^2) space complexity term.
- * Leaves Gphi with modified edge weights, which is fine, because Gphi's edges are no longer used after this function call.
+ * johnsonAllPairs() is an implementation of JOHNSON(), as given in Introduction to Algorithms, Third Edition, with the Model 
+ * Generation algorithm from An Efficient Decision Procedure for UTVPI Constraints - Lahiri, Musuvathi integrated directly into 
+ * it. Rather than generating and representing the transitive and tight closure C* as a graph stored in memory, C is processed by
+ * johnsonAllPairs() in the same order as C* is processed by the Model Generation algorithm. Each time an edge within C* is 
+ * discovered, it is immediately used to modify bounds, then forgotten. This reduces the asymptotic space complexity of this 
+ * implementation from O(n^2) to O(m*n), reducing the practical memory requirements significantly.
+ *
+ * The call to BELLMAN-FORD() within JOHNSON() effectively occurs before this function is called, and is handled by linear(). This
+ * function leaves Gphi with an integral solution in Vertex.rho; rho for both POSITIVE and NEGATIVE Vertices are set to the 
+ * integral value for the variable whose positive or negative occurrence is represented by that Vertex. The function leaves Gphi 
+ * with modified edge weights; Gphi's edges are no longer used after this function call.
+ *
+ * Gphi - pointer to the overall System struct containing the graph representation of C
  */
 static void johnsonAllPairs(System * Gphi){
   for(VertexSign i = POSITIVE; i <= NEGATIVE; i++){
@@ -774,6 +998,15 @@ static void johnsonAllPairs(System * Gphi){
   }
 }
 
+/*
+ * dijkstra() implements DIJKSTRA(), as given in Introduction to Algorithms, Third Edition. This implementation differs from the 
+ * algorithm presented in the book in the fact that Vertices are only added to the priority queue when their distance labels are 
+ * first updated, as opposed to all Vertices being added to the priority queue before any distance labels are updated. Any vertex 
+ * unreachable from source will be left with a D distance label of INT_MAX.
+ *
+ * system - pointer to the System struct storing the graph representation to be processed
+ * source - pointer to the source Vertex
+ */
 static void dijkstra(System * system, Vertex * source){
   for(VertexSign i = POSITIVE; i <= NEGATIVE; i++){
     for(int j = 0; j < system->n; j++){
@@ -806,6 +1039,17 @@ static void dijkstra(System * system, Vertex * source){
   
 }
 
+
+/*
+ * fibHeapInsert() implements FIB-HEAP-INSERT(), as given in Introduction to Algorithms, Third Edition. No attempt is made to 
+ * detect if an input Vertex is already present within the FibHeap. This function must only be called on a given Vertex once 
+ * during the life of the FibHeap. This function sets Vertex.fibHeapNode for the input Vertex. This value should be initialized 
+ * to NULL before the FibHeap is used. As such, it can be determined whether or not a given Vertex is already present within the
+ * FibHeap by testing whether or not Vertex.fibHeapNode != NULL.
+ *
+ * fibHeap - pointer to the FibHeap to which a Vertex is to be added
+ * vertex - pointer to the Vertex to add to the FibHeap
+ */
 static void fibHeapInsert(FibHeap * fibHeap, Vertex * vertex){
   FibHeapNode * newFHN = (FibHeapNode *) malloc( sizeof(FibHeapNode) );
   newFHN->degree = 0;
@@ -832,6 +1076,13 @@ static void fibHeapInsert(FibHeap * fibHeap, Vertex * vertex){
   fibHeap->n++;
 }
 
+/*
+ * fibHeapExtractMin() implements FIB-HEAP-EXTRACT-MIN(), as given in Introduction to Algorithms, Third Edition. Returns a pointer
+ * to the Vertex within the FibHeap with the lowest distnace label D, removing this Vertex from the FibHeap, and setting its 
+ * Vertex.fibHeapNode member to NULL. If the FibHeap is empty, returns NULL.
+ *
+ * fibHeap - pointer to the FibHeap from which a Vertex with minimal distance label D is to be removed
+ */
 static Vertex * fibHeapExtractMin(FibHeap * fibHeap){
   Vertex * output;
   if( fibHeap->min != NULL ){
@@ -872,6 +1123,12 @@ static Vertex * fibHeapExtractMin(FibHeap * fibHeap){
   return output;
 }
 
+/*
+ * fibHeapConsolidate() implements CONSOLIDATE(), as given in Introduction To Algorithms, Third Edition. Not to be called outside
+ * of FibHeap implementation.
+ *
+ * fibHeap
+ */
 static void fibHeapConsolidate(FibHeap * fibHeap){
   double phi = ( 1.0 + sqrt( 5.0 ) ) / 2.0;
   int Alength = ((int)( log( fibHeap->n ) / log( phi ) )) + 1;
@@ -925,6 +1182,14 @@ static void fibHeapConsolidate(FibHeap * fibHeap){
   }
 }
 
+/*
+ * fibHeapLink() implements FIB-HEAP-LINK(), as given in Introduction to Algorithms, Third Edition. Not to be called outside of 
+ * FibHeap implementation.
+ *
+ * fibHeap
+ * y
+ * x
+ */
 static void fibHeapLink(FibHeap * fibHeap, FibHeapNode * y, FibHeapNode * x){
   y->left->right = y->right;
   y->right->left = y->left;
@@ -945,8 +1210,16 @@ static void fibHeapLink(FibHeap * fibHeap, FibHeapNode * y, FibHeapNode * x){
 }
 
 /*
- * Will silently fail if vertex->D is actually set higher than it had been.
- * This scenario can cause the heap to violate the min-heap property, making it useless. 
+ * fibHeapDecreaseKey() implements FIB-HEAP-DECREASE-KEY(), as given in Introduction To Algorithms, Third Edition. The function 
+ * requires that the Vertex whose distance label D is decreased already exists within the FibHeap and that the distance label D is
+ * decreased prior to this function being called. The function makes no attempt to check either. It can be determined whether or 
+ * not a given Vertex is already present within the FibHeap by testing whether or not Vertex.fibHeapNode != NULL. If the Vertex 
+ * does not already exist within the FibHeap, will attempt to access NULL. If the distance label D is actually increased prior to
+ * calling this function, the FibHeap may be caused to violate the min-heap property, making it no longer useful as a priority 
+ * queue.
+ * 
+ * fibHeap - pointer to the FibHeap that must be modified to correctly place vertex
+ * vertex - pointer to the Vertex whose distance label has decreased and whose placement within the FibHeap therefore must change
  */
 static void fibHeapDecreaseKey(FibHeap * fibHeap, Vertex * vertex){
   FibHeapNode * x = vertex->fibHeapNode;
@@ -960,6 +1233,14 @@ static void fibHeapDecreaseKey(FibHeap * fibHeap, Vertex * vertex){
   }
 }
 
+/*
+ * fibHeapCut() implements CUT(), as defined in Introduction to Algorithms, Third Edition. Not to be called outside of FibHeap 
+ * implementation.
+ *
+ * fibHeap
+ * x
+ * y
+ */
 static void fibHeapCut(FibHeap * fibHeap, FibHeapNode * x, FibHeapNode * y){
   if( y->child == y->child->right ){
     y->child = NULL;
@@ -978,6 +1259,13 @@ static void fibHeapCut(FibHeap * fibHeap, FibHeapNode * x, FibHeapNode * y){
   x->mark = false;
 }
 
+/*
+ * fibHeapCascadingCut() implements CASCADING-CUT(), as defined in Introduction to Algorithms, Third Edition. Not to be called 
+ * outside of FibHeap implementation.
+ * 
+ * fibHeap
+ * y
+ */
 static void fibHeapCascadingCut(FibHeap * fibHeap, FibHeapNode * y){
   FibHeapNode * z = y->parent;
   if( z != NULL ){
@@ -991,6 +1279,11 @@ static void fibHeapCascadingCut(FibHeap * fibHeap, FibHeapNode * y){
   }
 }
 
+/*
+ * freeSystem() frees the graph representation stored within a System struct
+ *
+ * system - pointer to a System whose graph representation is to be freed
+ */
 static void freeSystem(System * system){
   for(VertexSign i = POSITIVE; i <= NEGATIVE; i++){
     for(int j = 0; j < system->n; j++){
