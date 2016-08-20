@@ -1,3 +1,19 @@
+/*
+ * bellmanFordOpt2.c
+ * The Bellman-Ford difference constraint system solver, with modified optimizations
+ *
+ * Cycle-originators are much less reliable in this version. In systems where many edges could be part of a number of different 
+ * negative cost cycles, as edges are relaxed, rather than passing cycle-originators through fully-formed and unchanging negative-
+ * cost cycles, predecessors for each edge continue to change, making this cycle-originator setup ineffective. It is only 
+ * guaranteed to work if there is only one negative cost cycle within a graph, likely not a particularly common occurrence in 
+ * real-world applications.
+ *
+ * Call with [executable] [input file] {output file}
+ * [input file] must be properly formatted to be read by utvpiInterpreter.h
+ * {output file} will contain a solution, if one exists. If the system is not feasible, a proof of infeasibility - a negative cost
+ *   cycle - will be output. If {output file} is not specified, output will be to stdout.
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -8,6 +24,15 @@ typedef struct System System;
 typedef struct Vertex Vertex;
 typedef struct Edge Edge;
 
+/*
+ * The System struct contains the graph representation used by the system solver, along with other information about the system.
+ *
+ * graph - pointer to an array of Vertex structs, defining the structure of the graph representation
+ * n - the number of variables represented within the system, equal to the number of Vertex structs stored within the graph array
+ * falsePositives - number of false positives thrown by the cycle-originator negative cycle detection mechanism
+ * mainLoopIterations - number of iterations of the main relaxation loop within bellmanFord()
+ * negativeCycleEdgeCount - number of edges within a detected negative cost cycle
+ */
 struct System {
   Vertex * graph;
   int n;
@@ -16,6 +41,17 @@ struct System {
   int negativeCycleEdgeCount;
 };
 
+/*
+ * The Vertex struct contains all information about a variable, represented by a vertex within the graph.
+ *
+ * index - index of the variable
+ * D - distance label
+ * L - pointer to the predecessor Edge between this Vertex and the Vertex's predecessor Vertex
+ * cycleOriginator - pointer to an edge serving as a cycle-originator. Cycle-originators are used to detect negative cost cycles 
+ *   before the total number of relaxation loop iterations specified by the algorithm run
+ * first - pointer to the first Edge whose tail Vertex is this Vertex. The remainder of such edges are connected together in a 
+ *   singly-linked list
+ */
 struct Vertex {
   int index;
   int D;
@@ -24,6 +60,16 @@ struct Vertex {
   Edge * first;
 };
 
+/*
+ * The Edge struct contains all information about a specific constraint, represented by an edge within the graph.
+ *
+ * weight - the weight of the edge, corresponding to the defining constant of the constraint the edge represents
+ * tail - pointer to the Edge's tail Vertex
+ * head - pointer to the Edge's head Vertex
+ * next - pointer to the next Edge in the singly-linked list of Edges with the same tail Vertex as one another
+ * backtrackSeen - boolean flag indicating whether or not this Edge has been encountered by the backtrack() function as it 
+ *   attempts to detect a negative cost cycle
+ */
 struct Edge {
   int weight;
   Vertex * tail;
@@ -40,6 +86,13 @@ static Edge * bellmanFord(System * system);
 static Edge * backtrack(Edge * edge);
 static void freeSystem(System * system);
 
+/*
+ * main()
+ * - handles file input and output
+ * - calls utvpiInterpreter's parseFile() function, which calls initializeSystem() and addConstraint() to build the graph 
+ *   representation corresponding to the constraint system in the input file
+ * - calls bellmanFord()
+ */
 int main(int argc, char * argv[]){
   if( argc != 2 && argc != 3 ){
     fprintf( stderr, "Proper use is %s [input file] {output file}.\nIf no output file is specified, output is to stdout.\n", argv[0] );
@@ -95,10 +148,24 @@ int main(int argc, char * argv[]){
   return 0;
 }
 
+/*
+ * fputEdge() prints the constraint equation corresponding to edge to output
+ *
+ * edge - pointer to an Edge struct to convert to a constraint equation
+ * output - FILE pointer to print the constraint equation to
+ */
 static void fputEdge(Edge * edge, FILE * output){
   fprintf(output, "+x%d -x%d <= %d\n", edge->head->index, edge->tail->index, edge->weight);
 }
 
+/*
+ * initializeSystem() initializes an already-declared System struct, given the number of variables that the system must represent
+ *
+ * object - a void pointer pointing to an already-declared System struct
+ * n - the number of variables that the graph representation held by the System struct must represent
+ * parser - pointer to the Parser struct that utvpiInterpreter uses during the input file parsing process, so that parseError() 
+ *   can be called, if need be
+ */
 static void initializeSystem(void * object, int n, Parser * parser){
   System * system = (System *) object;
   system->n = n;
@@ -114,6 +181,14 @@ static void initializeSystem(void * object, int n, Parser * parser){
   }
 }
 
+/*
+ * addEdge() adds a constraint to the graph representation held by the System struct.
+ *
+ * object - a void pointer pointing to an already-initialized System struct
+ * constraint - pointer to a Constraint struct describing a constraint
+ * parser - pointer to the Parser struct that utvpiInterpreter uses during the input file parsing process, so that parseError() 
+ *   can be called, if need be
+ */
 static void addEdge(void * object, Constraint * constraint, Parser * parser){
   System * system = (System *) object;
   if( constraint->sign[1] == CONSTRAINT_NONE || constraint->sign[0] == constraint->sign[1] ){
@@ -139,6 +214,15 @@ static void addEdge(void * object, Constraint * constraint, Parser * parser){
   }
 }
 
+/*
+ * bellmanFord() implements BELLMAN-FORD() and RELAX(), as defined in Introduction to Algorithms, Third Edition, with the 
+ * modification of adding cycle-originators that are reinitialized every time a Vertex's predecessor Edge changes and which are 
+ * passed through the predecessor structure each time a distance label changes without the predecessor edge changing. For linearly
+ * infeasible systems, a pointer to one Edge within the detected negative cost cycle is returned. For linearly feasible systems,
+ * NULL is returned.
+ *
+ * system - pointer to the overall System struct containing the graph representation
+ */
 static Edge * bellmanFord(System * system){
   bool anyChange = true;
   for(int i = 1; ( i <= system->n - 1 ) && anyChange; i++){
@@ -187,6 +271,13 @@ static Edge * bellmanFord(System * system){
   return NULL;
 }
 
+/*
+ * backtrack() implements a single backtrack through the predecessor structure, as defined in Network Flows - Ahuja, Magnanti, 
+ * Orlin. If a negative cost cycle is detected, returns a pointer to an Edge within that cycle. Otherwise, cleans up after itself
+ * and returns NULL.
+ * 
+ * edge - pointer to an Edge to backtrack from
+ */
 static Edge * backtrack(Edge * edge){
   Edge * input = edge;
   while( edge != NULL && edge->backtrackSeen == false ){
@@ -203,6 +294,11 @@ static Edge * backtrack(Edge * edge){
   return edge;
 }
 
+/*
+ * freeSystem() frees the graph representation stored within a System struct
+ *
+ * system - pointer to a System whose graph representation is to be freed
+ */
 static void freeSystem(System * system){
   for(int i = 0; i < system->n; i++){
     Edge * edge = system->graph[i].first;
