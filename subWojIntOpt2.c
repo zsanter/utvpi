@@ -1,7 +1,12 @@
 /*
  * subWojIntOpt2.c
  * The Subramani-Wojciechowski integral UTVPI system solver, with modified optimizations
- * Cycle-originators are much less reliable in this version
+ *
+ * Cycle-originators are much less reliable in this version. The linearly-infeasible (f0) input systems consist of a large number
+ * of negative cost edges, leading to a situation where many edges could be part of a number of different negative cost cycles. As
+ * edges are relaxed, rather than passing cycle-originators through fully-formed and unchanging negative-cost cycles, predecessors
+ * for each edge continue to change, making this cycle-originator setup ineffective. It is only guaranteed to work if there is 
+ * only one negative cost cycle within a graph, likely not a particularly common occurrence in real-world applications.
  *
  * Call with [executable] [input file] {output file}
  * [input file] must be properly formatted to be read by utvpiInterpreter.h

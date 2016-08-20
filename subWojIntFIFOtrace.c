@@ -163,7 +163,7 @@ struct Queue {
 };
 
 /*
- * QueueNode is one node within the Queue
+ * QueueNode is one node within the Queue.
  *
  * vertex - pointer to a vertex to be examined in relaxNetwork()
  * Dtype - type of distance label to be examined within vertex
@@ -669,10 +669,10 @@ static int edgeCompare(const void * edge1, const void * edge2){
 
 /*
  * relaxNetwork() implements RELAX-NETWORK() and RELAX-EDGE(), with modifications to follow the FIFO Label-Correcting Algorithm, 
- *   as well as checking the predecessor structure for negative cost cycles, both as given in Network Flows - Ahuja. The 
- *   predecessor structure is checked for negative cost cycles every sqrt( 2*n ) passes through the graph. The function returns 
- *   true for a linearly feasible system. Otherwise, false is returned and the detected negative cost cycle is placed in system->
- *   infeasibilityProof.
+ *   as well as intermittently checking the predecessor structure for negative cost cycles, both as given in Network Flows - 
+ *   Ahuja, Magnanti, Orlin. The predecessor structure is checked for negative cost cycles every sqrt( 2*n ) passes through the 
+ *   graph. The function returns true for a linearly feasible system. Otherwise, false is returned and the detected negative cost
+ *   cycle is placed in system->infeasibilityProof.
  * system - pointer to the System struct storing the overall graph representation
  */
 static bool relaxNetwork(System * system){

@@ -660,8 +660,8 @@ static int edgeCompare(const void * edge1, const void * edge2){
 
 /*
  * relaxNetwork() implements RELAX-NETWORK() and RELAX-EDGE(), with modifications to follow the FIFO Label-Correcting Algorithm, 
- *   as given in Network Flows - Ahuja. The function returns true for a linearly feasible system. Otherwise, false is returned and
- *   the detected negative cost cycle is placed in system->infeasibilityProof.
+ *   as given in Network Flows - Ahuja, Magnanti, Orlin. The function returns true for a linearly feasible system. Otherwise, 
+ *   false is returned and the detected negative cost cycle is placed in system->infeasibilityProof.
  * system - pointer to the System struct storing the overall graph representation
  */
 static bool relaxNetwork(System * system){

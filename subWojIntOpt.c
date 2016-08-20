@@ -1,8 +1,14 @@
 /*
  * subWojIntOpt.c
  * The Subramani-Wojciechowski integral UTVPI system solver with further optimization.
- * Cycle-originators are more reliable in this version.
  * Referenced in the COCOA paper.
+ *
+ * Cycle-originators are very reliable in this version, at least when it comes to the large, linearly infeasible (f0) input 
+ * systems. These systems consist of a large number of negative cost edges, leading to a situation where many edges could be part 
+ * of a number of different negative cost cycles. As edges are relaxed, cycle-originators are passed through a constantly-changing
+ * predecessor structure. If they still somehow find their way back to where they started, chances are good that there will be a 
+ * negative cycle somewhere back through the predecessor structure, even if the current edge isn't within one. This cycle-
+ * originator setup likely can not be guaranteed to work in any given situation.
  *
  * Call with [executable] [input file] {output file}
  * [input file] must be properly formatted to be read by utvpiInterpreter.h
