@@ -1,3 +1,10 @@
+/*
+ * halfIntTester.c
+ *
+ * Call with [executable]
+ * Was used to ensure that half_ints exhibited the desired behavior.
+ */
+ 
 #include "halfint.h"
 #include <stdio.h>
 #include <stdbool.h>

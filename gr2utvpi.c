@@ -1,3 +1,13 @@
+/*
+ * gr2utvpi.c
+ *
+ * Call with [executable] [input gr file] [output utvpi file]
+ * This program takes a gr file formatted as specified at http://www.dis.uniroma1.it/challenge9/format.shtml#graph and creates a 
+ * corresponding utvpi file compatible with utvpiInterpreter. This assumes that the gr file describes a difference constraint 
+ * system, where the tail node is the variable with a negative coefficient, and the head node is the variable with a positive 
+ * coefficient. The contents of comment lines in the gr file are preserved as C-style line comments.
+ */
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
@@ -93,7 +103,7 @@ void parse(Parser * parser){
       token = getToken(parser);
       if( token.type == NEWLINE ){
         fputc('\n', parser->utvpiFile);
-	newLineAdjustment(parser);
+        newLineAdjustment(parser);
       }
     } while( token.type == NEWLINE );
     switch(token.type){
@@ -135,11 +145,11 @@ void sp(Parser * parser){
       token = getToken(parser);
       if( token.type == INTEGER ){
         int arcCount = token.integerComponent;
-	token = getToken(parser);
-	if( token.type == NEWLINE || token.type == END_OF_FILE ){
-	  fprintf(parser->utvpiFile, "%i variables // %i constraints\n", nodeCount, arcCount);
-	  return;
-	}
+        token = getToken(parser);
+        if( token.type == NEWLINE || token.type == END_OF_FILE ){
+          fprintf(parser->utvpiFile, "%i variables // %i constraints\n", nodeCount, arcCount);
+          return;
+        }
       }
     }
   }
@@ -156,11 +166,11 @@ void tailNodeID(Parser * parser){
       token = getToken(parser);
       if( token.type == INTEGER ){
         int weight = token.integerComponent;
-	token = getToken(parser);
-	if( token.type == NEWLINE || token.type == END_OF_FILE ){
-	  fprintf(parser->utvpiFile, "-x%i +x%i <= %i\n", tailNode, headNode, weight);
-	  return;
-	}
+        token = getToken(parser);
+        if( token.type == NEWLINE || token.type == END_OF_FILE ){
+          fprintf(parser->utvpiFile, "-x%i +x%i <= %i\n", tailNode, headNode, weight);
+          return;
+        }
       }
     }
   }
@@ -224,7 +234,7 @@ Token getToken(Parser * parser){
       token.type = INTEGER;
       token.sign = PLUS;
       token.integerComponent = character - '0';
-      continuingInteger(parser, &token);	
+      continuingInteger(parser, &token);        
     }
   }
   if( token.type == INTEGER && token.sign == MINUS ){
