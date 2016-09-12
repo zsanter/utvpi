@@ -1,8 +1,8 @@
 /*
- * lahiriOpt.c
- * The Lahiri-Musuvathi integral UTVPI system solver, with further optimizations
+ * lahiriCO1.c
+ * The Lahiri-Musuvathi integral UTVPI system solver, with first cycle-originator arrangement
  * An Efficient Decision Procedure for UTVPI Constraints - Lahiri, Musuvathi
- * Referenced in the COCOA paper
+ * Empirical results given in the VMCAI paper
  *
  * Cycle-originators are very reliable in this version, at least when it comes to the large, linearly infeasible (f0) input 
  * systems. These systems consist of a large number of negative cost edges, leading to a situation where many edges could be part 

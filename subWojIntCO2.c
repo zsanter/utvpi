@@ -1,14 +1,12 @@
 /*
- * subWojIntOpt.c
- * The Subramani-Wojciechowski integral UTVPI system solver with further optimization.
- * Referenced in the COCOA paper.
+ * subWojIntCO2.c
+ * The Subramani-Wojciechowski integral UTVPI system solver, with second cycle-originator arrangement
  *
- * Cycle-originators are very reliable in this version, at least when it comes to the large, linearly infeasible (f0) input 
- * systems. These systems consist of a large number of negative cost edges, leading to a situation where many edges could be part 
- * of a number of different negative cost cycles. As edges are relaxed, cycle-originators are passed through a constantly-changing
- * predecessor structure. If they still somehow find their way back to where they started, chances are good that there will be a 
- * negative cycle somewhere back through the predecessor structure, even if the current edge isn't within one. This cycle-
- * originator setup likely can not be guaranteed to work in any given situation.
+ * Cycle-originators are much less reliable in this version. The linearly-infeasible (f0) input systems consist of a large number
+ * of negative cost edges, leading to a situation where many edges could be part of a number of different negative cost cycles. As
+ * edges are relaxed, rather than passing cycle-originators through fully-formed and unchanging negative-cost cycles, predecessors
+ * for each edge continue to change, making this cycle-originator setup ineffective. It is only guaranteed to work if there is 
+ * only one negative cost cycle within a graph, likely not a particularly common occurrence in real-world applications.
  *
  * Call with [executable] [input file] {output file}
  * [input file] must be properly formatted to be read by utvpiInterpreter.h
@@ -117,10 +115,8 @@ struct System {
  * L - pointer to the predecessor edge between this vertex and the vertex's predecessor vertex, for each EdgeType-color path 
  *   between the source vertex and this vertex
  * D - distance label for each EdgeType-color path between the source vertex and this vertex
- * cycleOriginator - pointer to an edge serving as a cycle-originator. Cycle-originators are set equal to the L edges after the 
- *   first iteration of edge relaxation, and then are passed down the predecessor structure, one edge at a time, each time a 
- *   distance label decreases. After a cycle-originator is passed down one edge, it is compared against the predecessor of the 
- *   same color. If they match, backtrack() is run on the edge to determine if the edge is part of a negative cost cycle.
+ * cycleOriginator - pointer to an edge serving as a cycle-originator. Cycle-originators are used to detect negative cost cycles 
+ *   before the total number of relaxation loop iterations specified by the algorithm run
  * E - pointer to the last Edge traversed on the path from x_i to x, in backtrack()
  * a - half-integral linear-solution variable value
  * Z - TEMP and FINAL integral-solution variable values
@@ -425,32 +421,37 @@ int main(int argc, char * argv[]){
  * output - FILE pointer to print the constraint equation to
  */
 static void fputEdge(Edge * edge, FILE * output){
-  char sign[2];
-  switch(edge->type){
-  case WHITE:
-    sign[0] = '+';
-    sign[1] = '+';
-    break;
-  case BLACK:
-    sign[0] = '-';
-    sign[1] = '-';
-    break;
-  case GRAY_FORWARD:
-    sign[0] = '-';
-    sign[1] = '+';
-    break;
-  case GRAY_REVERSE:
-    sign[0] = '+';
-    sign[1] = '-';
-    break;
+  if( edge == NULL ){
+    fputs("(nil)\n", output);
   }
-  if( edge->tail->index != 0 ){
-    fprintf(output, "%cx%i ", sign[0], edge->tail->index);
+  else {
+    char sign[2];
+    switch(edge->type){
+    case WHITE:
+      sign[0] = '+';
+      sign[1] = '+';
+      break;
+    case BLACK:
+      sign[0] = '-';
+      sign[1] = '-';
+      break;
+    case GRAY_FORWARD:
+      sign[0] = '-';
+      sign[1] = '+';
+      break;
+    case GRAY_REVERSE:
+      sign[0] = '+';
+      sign[1] = '-';
+      break;
+    }
+    if( edge->tail->index != 0 ){
+      fprintf(output, "%cx%i ", sign[0], edge->tail->index);
+    }
+    if( edge->head->index != 0 ){
+      fprintf(output, "%cx%i ", sign[1], edge->head->index);
+    }
+    fprintf(output, "<= %i\n", edge->weight);
   }
-  if( edge->head->index != 0 ){
-    fprintf(output, "%cx%i ", sign[1], edge->head->index);
-  }
-  fprintf(output, "<= %i\n", edge->weight);
 }
 
 /*
@@ -530,16 +531,20 @@ static void addConstraint(void * object, Constraint * constraint, Parser * parse
       if( constraint->weight < system->graph[ constraint->index[0] ].D[WHITE] ){
         system->graph[ constraint->index[0] ].D[WHITE] = constraint->weight;
         system->graph[ constraint->index[0] ].L[WHITE] = system->graph[0].first[WHITE];
+        system->graph[ constraint->index[0] ].cycleOriginator[WHITE] = system->graph[0].first[WHITE];
         system->graph[ constraint->index[0] ].D[GRAY_FORWARD] = constraint->weight;
         system->graph[ constraint->index[0] ].L[GRAY_FORWARD] = system->graph[0].first[GRAY_FORWARD];
+        system->graph[ constraint->index[0] ].cycleOriginator[GRAY_FORWARD] = system->graph[0].first[GRAY_FORWARD];
       }
     }
     else{
       if( constraint->weight < system->graph[ constraint->index[0] ].D[BLACK] ){
         system->graph[ constraint->index[0] ].D[BLACK] = constraint->weight;
         system->graph[ constraint->index[0] ].L[BLACK] = system->graph[0].first[BLACK];
+        system->graph[ constraint->index[0] ].cycleOriginator[BLACK] = system->graph[0].first[BLACK];
         system->graph[ constraint->index[0] ].D[GRAY_REVERSE] = constraint->weight;
         system->graph[ constraint->index[0] ].L[GRAY_REVERSE] = system->graph[0].first[GRAY_REVERSE];
+        system->graph[ constraint->index[0] ].cycleOriginator[GRAY_REVERSE] = system->graph[0].first[GRAY_REVERSE];
       }
     }
   }
@@ -703,10 +708,9 @@ static void removeFromAllEdgeList(System * system, Edge * edge){
 }
 
 /*
- * relaxNetwork() implements RELAX-NETWORK(), with further optimizations. This runs one relaxation loop before setting cycle-
- *   originators equal to predecessors. It then runs the relaxation loop until 
+ * relaxNetwork() implements RELAX-NETWORK(), with proof-backed optimizations. This runs the relaxation loop until 
  *   - no distance-label change occurs during an entire iteration,
- *   - a negative cost cycle is correctly identified via cycle-originator, or
+ *   - a negative cost cycle is correctly identified, or
  *   - as many iterations as could possibly be necessary for a feasible system are completed
  *   If a distance label changes after the end of the main relaxation loop, a negative cost cycle is detected. The function 
  *   returns true for a linearly feasible system. False otherwise. If at any stage a negative cost cycle is detected, it is placed
@@ -715,21 +719,11 @@ static void removeFromAllEdgeList(System * system, Edge * edge){
  */
 static bool relaxNetwork(System * system){
   //Lines 3-6 of RELAX-NETWORK() implemented in finishSystemCreation().
-  bool anyChange = false;
-  Edge * e = system->allEdgeFirst;
-  while( e != NULL ){
-    relaxEdge(system, e, &anyChange);
-    e = e->allNext;
-  }
-  for(int i = 0; i < system->vertexCount; i++){
-    for(EdgeType j = WHITE; j <= GRAY_REVERSE; j++){
-      system->graph[i].cycleOriginator[j] = system->graph[i].L[j];
-    }
-  }
-  anyChange = true;
-  for(int r = 1; r <= 2 * system->n - 1 && anyChange; r++){
+  bool anyChange = true;
+  for(int r = 1; r <= 2 * system->n && anyChange; r++){
+    //printf("Round %d\n", r);
     anyChange = false;
-    e = system->allEdgeFirst;
+    Edge * e = system->allEdgeFirst;
     while( e != NULL ){
       bool edgeFeasible = relaxEdge(system, e, &anyChange);
       if( !edgeFeasible ){
@@ -742,7 +736,7 @@ static bool relaxNetwork(System * system){
       system->mainLoopIterations = r;
     }
   }
-  e = system->allEdgeFirst;
+  Edge * e = system->allEdgeFirst;
   while( e != NULL ){
     switch( e->type ){
     case WHITE:
@@ -807,62 +801,139 @@ static bool relaxNetwork(System * system){
 }
 
 /*
- * relaxEdge() implements RELAX-EDGE(), with further optimizations. Cycle-orginator edges are passed down the predecessor
- *   structure, toward the leaves, each time a distance label decreases. If this occurs, and the cycle-originator is then equal to
- *   the predecessor, backtrack() is called to determine if the predecessor is part of a negative cost cycle. If a negative
- *   cost cycle is discovered this way, system->infeasibilityProof is filled with the negative cost cycle and false is 
- *   returned. Otherwise, true is returned.
+ * relaxEdge() implements RELAX-EDGE(), with proof-backed optimizations. If a negative cost cycle is detected, system->
+ *   infeasibilityProof is filled with the negative cost cycle and false is returned. Otherwise, true is returned.
  * system - pointer to the System struct storing the overall graph representation
  * e - pointer to the Edge to be relaxed
  * anyChange - pointer to a boolean which will be set to true if any distance label is changed during this call to relaxEdge()
  */
 static bool relaxEdge(System * system, Edge * e, bool * anyChange){
-  switch(e->type){
+  /*fputs("Relaxing ", stdout); fputEdge(e, stdout);
+  puts("Edge state before:");
+  printf("Head: x%d\n", e->head->index);
+  printf("D[WHITE] = %d\n", e->head->D[WHITE]);
+  fputs("L[WHITE] = ", stdout); fputEdge(e->head->L[WHITE], stdout);
+  fputs("cycleOriginator[WHITE] = ", stdout); fputEdge(e->head->cycleOriginator[WHITE], stdout);
+  printf("D[BLACK] = %d\n", e->head->D[BLACK]);
+  fputs("L[BLACK] = ", stdout); fputEdge(e->head->L[BLACK], stdout);
+  fputs("cycleOriginator[BLACK] = ", stdout); fputEdge(e->head->cycleOriginator[BLACK], stdout);
+  printf("D[GRAY_FORWARD] = %d\n", e->head->D[GRAY_FORWARD]);
+  fputs("L[GRAY_FORWARD] = ", stdout); fputEdge(e->head->L[GRAY_FORWARD], stdout);
+  fputs("cycleOriginator[GRAY_FORWARD] = ", stdout); fputEdge(e->head->cycleOriginator[GRAY_FORWARD], stdout);
+  printf("D[GRAY_REVERSE] = %d\n", e->head->D[GRAY_REVERSE]);
+  fputs("L[GRAY_REVERSE] = ", stdout); fputEdge(e->head->L[GRAY_REVERSE], stdout);
+  fputs("cycleOriginator[GRAY_REVERSE] = ", stdout); fputEdge(e->head->cycleOriginator[GRAY_REVERSE], stdout);
+  printf("Tail: x%d\n", e->tail->index);
+  printf("D[WHITE] = %d\n", e->tail->D[WHITE]);
+  fputs("L[WHITE] = ", stdout); fputEdge(e->tail->L[WHITE], stdout);
+  fputs("cycleOriginator[WHITE] = ", stdout); fputEdge(e->tail->cycleOriginator[WHITE], stdout);
+  printf("D[BLACK] = %d\n", e->tail->D[BLACK]);
+  fputs("L[BLACK] = ", stdout); fputEdge(e->tail->L[BLACK], stdout);
+  fputs("cycleOriginator[BLACK] = ", stdout); fputEdge(e->tail->cycleOriginator[BLACK], stdout);
+  printf("D[GRAY_FORWARD] = %d\n", e->tail->D[GRAY_FORWARD]);
+  fputs("L[GRAY_FORWARD] = ", stdout); fputEdge(e->tail->L[GRAY_FORWARD], stdout);
+  fputs("cycleOriginator[GRAY_FORWARD] = ", stdout); fputEdge(e->tail->cycleOriginator[GRAY_FORWARD], stdout);
+  printf("D[GRAY_REVERSE] = %d\n", e->tail->D[GRAY_REVERSE]);
+  fputs("L[GRAY_REVERSE] = ", stdout); fputEdge(e->tail->L[GRAY_REVERSE], stdout);
+  fputs("cycleOriginator[GRAY_REVERSE] = ", stdout); fputEdge(e->tail->cycleOriginator[GRAY_REVERSE], stdout);*/
+  switch( e->type ){
   case WHITE:
     if( e->head->D[GRAY_REVERSE] + e->weight < e->tail->D[WHITE] ){
+      Edge * priorL = e->tail->L[WHITE];
       e->tail->D[WHITE] = e->head->D[GRAY_REVERSE] + e->weight;
       e->tail->L[WHITE] = e->reverse;
-      e->tail->cycleOriginator[WHITE] = e->head->cycleOriginator[GRAY_REVERSE];
-      if( e->reverse == e->tail->cycleOriginator[WHITE] ){
+      if( e->tail->index == 0 ){
+        //puts("1");
         bool falsePositive = backtrack(system, e->head, GRAY_REVERSE, e->reverse);
         if( !falsePositive ){
           return false;
         }
       }
+      else if( priorL != e->reverse ){
+        e->tail->cycleOriginator[WHITE] = e->reverse;
+      }
+      else {
+        e->tail->cycleOriginator[WHITE] = e->head->cycleOriginator[GRAY_REVERSE];
+        if( e->reverse == e->tail->cycleOriginator[WHITE] ){
+          bool falsePositive = backtrack(system, e->head, GRAY_REVERSE, e->reverse);
+          if( !falsePositive ){
+            return false;
+          }
+        }
+      }
       *anyChange = true;
     }
     if( e->head->D[BLACK] + e->weight < e->tail->D[GRAY_FORWARD] ){
+      Edge * priorL = e->tail->L[GRAY_FORWARD];
       e->tail->D[GRAY_FORWARD] = e->head->D[BLACK] + e->weight;
       e->tail->L[GRAY_FORWARD] = e->reverse;
-      e->tail->cycleOriginator[GRAY_FORWARD] = e->head->cycleOriginator[BLACK];
-      if( e->reverse == e->tail->cycleOriginator[GRAY_FORWARD] ){
+      if( e->tail->index == 0 ){
+        //puts("2");
         bool falsePositive = backtrack(system, e->head, BLACK, e->reverse);
         if( !falsePositive ){
           return false;
         }
       }
+      else if( priorL != e->reverse ){
+        e->tail->cycleOriginator[GRAY_FORWARD] = e->reverse;
+      }
+      else {
+        e->tail->cycleOriginator[GRAY_FORWARD] = e->head->cycleOriginator[BLACK];
+        if( e->reverse == e->tail->cycleOriginator[GRAY_FORWARD] ){
+          bool falsePositive = backtrack(system, e->head, BLACK, e->reverse);
+          if( !falsePositive ){
+            return false;
+          }
+        }
+      }
       *anyChange = true;
     }
     if( e->tail->D[GRAY_REVERSE] + e->weight < e->head->D[WHITE] ){
+      Edge * priorL = e->head->L[WHITE];
       e->head->D[WHITE] = e->tail->D[GRAY_REVERSE] + e->weight;
       e->head->L[WHITE] = e;
-      e->head->cycleOriginator[WHITE] = e->tail->cycleOriginator[GRAY_REVERSE];
-      if( e == e->head->cycleOriginator[WHITE] ){
+      if( e->head->index == 0 ){
+        //puts("3");
         bool falsePositive = backtrack(system, e->tail, GRAY_REVERSE, e);
         if( !falsePositive ){
           return false;
         }
       }
+      else if( priorL != e ){
+        e->head->cycleOriginator[WHITE] = e;
+      }
+      else {
+        e->head->cycleOriginator[WHITE] = e->tail->cycleOriginator[GRAY_REVERSE];
+        if( e == e->head->cycleOriginator[WHITE] ){
+          bool falsePositive = backtrack(system, e->tail, GRAY_REVERSE, e);
+          if( !falsePositive ){
+            return false;
+          }
+        }
+      }
       *anyChange = true;
     }
     if( e->tail->D[BLACK] + e->weight < e->head->D[GRAY_FORWARD] ){
+      Edge * priorL = e->head->L[GRAY_FORWARD];
       e->head->D[GRAY_FORWARD] = e->tail->D[BLACK] + e->weight;
       e->head->L[GRAY_FORWARD] = e;
-      e->head->cycleOriginator[GRAY_FORWARD] = e->tail->cycleOriginator[BLACK];
-      if( e == e->head->cycleOriginator[GRAY_FORWARD] ){
+      if( e->head->index == 0 ){
+        //puts("4");
         bool falsePositive = backtrack(system, e->tail, BLACK, e);
         if( !falsePositive ){
           return false;
+        }
+      }
+      else if( priorL != e ){
+        e->head->cycleOriginator[GRAY_FORWARD] = e;
+      }
+      else {
+        e->head->cycleOriginator[GRAY_FORWARD] = e->tail->cycleOriginator[BLACK];
+        if( e == e->head->cycleOriginator[GRAY_FORWARD] ){
+          bool falsePositive = backtrack(system, e->tail, BLACK, e);
+          if( !falsePositive ){
+            return false;
+          }
         }
       }
       *anyChange = true;
@@ -870,49 +941,101 @@ static bool relaxEdge(System * system, Edge * e, bool * anyChange){
     break;
   case BLACK:
     if( e->head->D[GRAY_FORWARD] + e->weight < e->tail->D[BLACK] ){
+      Edge * priorL = e->tail->L[BLACK];
       e->tail->D[BLACK] = e->head->D[GRAY_FORWARD] + e->weight;
       e->tail->L[BLACK] = e->reverse;
-      e->tail->cycleOriginator[BLACK] = e->head->cycleOriginator[GRAY_FORWARD];
-      if( e->reverse == e->tail->cycleOriginator[BLACK] ){
+      if( e->tail->index == 0 ){
+        //puts("5");
         bool falsePositive = backtrack(system, e->head, GRAY_FORWARD, e->reverse);
         if( !falsePositive ){
           return false;
         }
       }
+      else if( priorL != e->reverse ){
+        e->tail->cycleOriginator[BLACK] = e->reverse;
+      }
+      else {
+        e->tail->cycleOriginator[BLACK] = e->head->cycleOriginator[GRAY_FORWARD];
+        if( e->reverse == e->tail->cycleOriginator[BLACK] ){
+          bool falsePositive = backtrack(system, e->head, GRAY_FORWARD, e->reverse);
+          if( !falsePositive ){
+            return false;
+          }
+        }
+      }
       *anyChange = true;
     }
     if( e->head->D[WHITE] + e->weight < e->tail->D[GRAY_REVERSE] ){
+      Edge * priorL = e->tail->L[GRAY_REVERSE];
       e->tail->D[GRAY_REVERSE] = e->head->D[WHITE] + e->weight;
       e->tail->L[GRAY_REVERSE] = e->reverse;
-      e->tail->cycleOriginator[GRAY_REVERSE] = e->head->cycleOriginator[WHITE];
-      if( e->reverse == e->tail->cycleOriginator[GRAY_REVERSE] ){
+      if( e->tail->index == 0 ){
+        //puts("6");
         bool falsePositive = backtrack(system, e->head, WHITE, e->reverse);
         if( !falsePositive ){
           return false;
         }
       }
+      else if( priorL != e->reverse ){
+        e->tail->cycleOriginator[GRAY_REVERSE] = e->reverse;
+      }
+      else {
+        e->tail->cycleOriginator[GRAY_REVERSE] = e->head->cycleOriginator[WHITE];
+        if( e->reverse == e->tail->cycleOriginator[GRAY_REVERSE] ){
+          bool falsePositive = backtrack(system, e->head, WHITE, e->reverse);
+          if( !falsePositive ){
+            return false;
+          }
+        }
+      }
       *anyChange = true;
     }
     if( e->tail->D[GRAY_FORWARD] + e->weight < e->head->D[BLACK] ){
+      Edge * priorL = e->head->L[BLACK];
       e->head->D[BLACK] = e->tail->D[GRAY_FORWARD] + e->weight;
       e->head->L[BLACK] = e;
-      e->head->cycleOriginator[BLACK] = e->tail->cycleOriginator[GRAY_FORWARD];
-      if( e == e->head->cycleOriginator[BLACK] ){
+      if( e->head->index == 0 ){
+        //puts("7");
         bool falsePositive = backtrack(system, e->tail, GRAY_FORWARD, e);
         if( !falsePositive ){
           return false;
         }
       }
+      else if( priorL != e ){
+        e->head->cycleOriginator[BLACK] = e;
+      }
+      else {
+        e->head->cycleOriginator[BLACK] = e->tail->cycleOriginator[GRAY_FORWARD];
+        if( e == e->head->cycleOriginator[BLACK] ){
+          bool falsePositive = backtrack(system, e->tail, GRAY_FORWARD, e);
+          if( !falsePositive ){
+            return false;
+          }
+        }
+      }
       *anyChange = true;
     }
     if( e->tail->D[WHITE] + e->weight < e->head->D[GRAY_REVERSE] ){
+      Edge * priorL = e->head->L[GRAY_REVERSE];
       e->head->D[GRAY_REVERSE] = e->tail->D[WHITE] + e->weight;
       e->head->L[GRAY_REVERSE] = e;
-      e->head->cycleOriginator[GRAY_REVERSE] = e->tail->cycleOriginator[WHITE];
-      if( e == e->head->cycleOriginator[GRAY_REVERSE] ){
+      if( e->head->index == 0 ){
+        //puts("8");
         bool falsePositive = backtrack(system, e->tail, WHITE, e);
         if( !falsePositive ){
           return false;
+        }
+      }
+      else if( priorL != e ){
+        e->head->cycleOriginator[GRAY_REVERSE] = e;
+      }
+      else {
+        e->head->cycleOriginator[GRAY_REVERSE] = e->tail->cycleOriginator[WHITE];
+        if( e == e->head->cycleOriginator[GRAY_REVERSE] ){
+          bool falsePositive = backtrack(system, e->tail, WHITE, e);
+          if( !falsePositive ){
+            return false;
+          }
         }
       }
       *anyChange = true;
@@ -920,49 +1043,101 @@ static bool relaxEdge(System * system, Edge * e, bool * anyChange){
     break;
   case GRAY_FORWARD:
     if( e->head->D[GRAY_REVERSE] + e->weight < e->tail->D[GRAY_REVERSE] ){
+      Edge * priorL = e->tail->L[GRAY_REVERSE];
       e->tail->D[GRAY_REVERSE] = e->head->D[GRAY_REVERSE] + e->weight;
       e->tail->L[GRAY_REVERSE] = e->reverse;
-      e->tail->cycleOriginator[GRAY_REVERSE] = e->head->cycleOriginator[GRAY_REVERSE];
-      if( e->reverse == e->tail->cycleOriginator[GRAY_REVERSE] ){
+      if( e->tail->index == 0 ){
+        //puts("9");
         bool falsePositive = backtrack(system, e->head, GRAY_REVERSE, e->reverse);
         if( !falsePositive ){
           return false;
         }
       }
+      else if( priorL != e->reverse ){
+        e->tail->cycleOriginator[GRAY_REVERSE] = e->reverse;
+      }
+      else {
+        e->tail->cycleOriginator[GRAY_REVERSE] = e->head->cycleOriginator[GRAY_REVERSE];
+        if( e->reverse == e->tail->cycleOriginator[GRAY_REVERSE] ){
+          bool falsePositive = backtrack(system, e->head, GRAY_REVERSE, e->reverse);
+          if( !falsePositive ){
+            return false;
+          }
+        }
+      }
       *anyChange = true;
     }
     if( e->head->D[BLACK] + e->weight < e->tail->D[BLACK] ){
+      Edge * priorL = e->tail->L[BLACK];
       e->tail->D[BLACK] = e->head->D[BLACK] + e->weight;
       e->tail->L[BLACK] = e->reverse;
-      e->tail->cycleOriginator[BLACK] = e->head->cycleOriginator[BLACK];
-      if( e->reverse == e->tail->cycleOriginator[BLACK] ){
+      if( e->tail->index == 0 ){
+        //puts("10");
         bool falsePositive = backtrack(system, e->head, BLACK, e->reverse);
         if( !falsePositive ){
           return false;
         }
       }
+      else if( priorL != e->reverse ){
+        e->tail->cycleOriginator[BLACK] = e->reverse;
+      }
+      else {
+        e->tail->cycleOriginator[BLACK] = e->head->cycleOriginator[BLACK];
+        if( e->reverse == e->tail->cycleOriginator[BLACK] ){
+          bool falsePositive = backtrack(system, e->head, BLACK, e->reverse);
+          if( !falsePositive ){
+            return false;
+          }
+        }
+      }
       *anyChange = true;
     }
     if( e->tail->D[GRAY_FORWARD] + e->weight < e->head->D[GRAY_FORWARD] ){
+      Edge * priorL = e->head->L[GRAY_FORWARD];
       e->head->D[GRAY_FORWARD] = e->tail->D[GRAY_FORWARD] + e->weight;
       e->head->L[GRAY_FORWARD] = e;
-      e->head->cycleOriginator[GRAY_FORWARD] = e->tail->cycleOriginator[GRAY_FORWARD];
-      if( e == e->head->cycleOriginator[GRAY_FORWARD] ){
+      if( e->head->index == 0 ){
+        //puts("11");
         bool falsePositive = backtrack(system, e->tail, GRAY_FORWARD, e);
         if( !falsePositive ){
           return false;
         }
       }
+      else if( priorL != e ){
+        e->head->cycleOriginator[GRAY_FORWARD] = e;
+      }
+      else {
+        e->head->cycleOriginator[GRAY_FORWARD] = e->tail->cycleOriginator[GRAY_FORWARD];
+        if( e == e->head->cycleOriginator[GRAY_FORWARD] ){
+          bool falsePositive = backtrack(system, e->tail, GRAY_FORWARD, e);
+          if( !falsePositive ){
+            return false;
+          }
+        }
+      }
       *anyChange = true;
     }
     if( e->tail->D[WHITE] + e->weight < e->head->D[WHITE] ){
+      Edge * priorL = e->head->L[WHITE];
       e->head->D[WHITE] = e->tail->D[WHITE] + e->weight;
       e->head->L[WHITE] = e;
-      e->head->cycleOriginator[WHITE] = e->tail->cycleOriginator[WHITE];
-      if( e == e->head->cycleOriginator[WHITE] ){
+      if( e->head->index == 0 ){
+        //puts("12");
         bool falsePositive = backtrack(system, e->tail, WHITE, e);
         if( !falsePositive ){
           return false;
+        }
+      }
+      else if( priorL != e ){
+        e->head->cycleOriginator[WHITE] = e;
+      }
+      else {
+        e->head->cycleOriginator[WHITE] = e->tail->cycleOriginator[WHITE];
+        if( e == e->head->cycleOriginator[WHITE] ){
+          bool falsePositive = backtrack(system, e->tail, WHITE, e);
+          if( !falsePositive ){
+            return false;
+          }
         }
       }
       *anyChange = true;
@@ -970,60 +1145,139 @@ static bool relaxEdge(System * system, Edge * e, bool * anyChange){
     break;
   case GRAY_REVERSE:
     if( e->head->D[GRAY_FORWARD] + e->weight < e->tail->D[GRAY_FORWARD] ){
+      Edge * priorL = e->tail->L[GRAY_FORWARD];
       e->tail->D[GRAY_FORWARD] = e->head->D[GRAY_FORWARD] + e->weight;
       e->tail->L[GRAY_FORWARD] = e->reverse;
-      e->tail->cycleOriginator[GRAY_FORWARD] = e->head->cycleOriginator[GRAY_FORWARD];
-      if( e->reverse == e->tail->cycleOriginator[GRAY_FORWARD] ){
+      if( e->tail->index == 0 ){
+        //puts("13");
         bool falsePositive = backtrack(system, e->head, GRAY_FORWARD, e->reverse);
         if( !falsePositive ){
           return false;
         }
       }
+      else if( priorL != e->reverse ){
+        e->tail->cycleOriginator[GRAY_FORWARD] = e->reverse;
+      }
+      else {
+        e->tail->cycleOriginator[GRAY_FORWARD] = e->head->cycleOriginator[GRAY_FORWARD];
+        if( e->reverse == e->tail->cycleOriginator[GRAY_FORWARD] ){
+          bool falsePositive = backtrack(system, e->head, GRAY_FORWARD, e->reverse);
+          if( !falsePositive ){
+            return false;
+          }
+        }
+      }
       *anyChange = true;
     }
     if( e->head->D[WHITE] + e->weight < e->tail->D[WHITE] ){
+      Edge * priorL = e->tail->L[WHITE];
       e->tail->D[WHITE] = e->head->D[WHITE] + e->weight;
       e->tail->L[WHITE] = e->reverse;
-      e->tail->cycleOriginator[WHITE] = e->head->cycleOriginator[WHITE];
-      if( e->reverse == e->tail->cycleOriginator[WHITE] ){
+      if( e->tail->index == 0 ){
+        //puts("14");
         bool falsePositive = backtrack(system, e->head, WHITE, e->reverse);
         if( !falsePositive ){
           return false;
         }
       }
+      else if( priorL != e->reverse ){
+        e->tail->cycleOriginator[WHITE] = e->reverse;
+      }
+      else {
+        e->tail->cycleOriginator[WHITE] = e->head->cycleOriginator[WHITE];
+        if( e->reverse == e->tail->cycleOriginator[WHITE] ){
+          bool falsePositive = backtrack(system, e->head, WHITE, e->reverse);
+          if( !falsePositive ){
+            return false;
+          }
+        }
+      }
       *anyChange = true;
     }
     if( e->tail->D[GRAY_REVERSE] + e->weight < e->head->D[GRAY_REVERSE] ){
+      Edge * priorL = e->head->L[GRAY_REVERSE];
       e->head->D[GRAY_REVERSE] = e->tail->D[GRAY_REVERSE] + e->weight;
       e->head->L[GRAY_REVERSE] = e;
-      e->head->cycleOriginator[GRAY_REVERSE] = e->tail->cycleOriginator[GRAY_REVERSE];
-      if( e == e->head->cycleOriginator[GRAY_REVERSE] ){
+      if( e->head->index == 0 ){
+        //puts("15");
         bool falsePositive = backtrack(system, e->tail, GRAY_REVERSE, e);
         if( !falsePositive ){
           return false;
         }
       }
+      else if( priorL != e ){
+        e->head->cycleOriginator[GRAY_REVERSE] = e;
+      }
+      else {
+        e->head->cycleOriginator[GRAY_REVERSE] = e->tail->cycleOriginator[GRAY_REVERSE];
+        if( e == e->head->cycleOriginator[GRAY_REVERSE] ){
+          bool falsePositive = backtrack(system, e->tail, GRAY_REVERSE, e);
+          if( !falsePositive ){
+            return false;
+          }
+        }
+      }
       *anyChange = true;
     }
     if( e->tail->D[BLACK] + e->weight < e->head->D[BLACK] ){
+      Edge * priorL = e->head->L[BLACK];
       e->head->D[BLACK] = e->tail->D[BLACK] + e->weight;
       e->head->L[BLACK] = e;
-      e->head->cycleOriginator[BLACK] = e->tail->cycleOriginator[BLACK];
-      if( e == e->head->cycleOriginator[BLACK] ){
+      if( e->head->index == 0 ){
+        //puts("16");
         bool falsePositive = backtrack(system, e->tail, BLACK, e);
         if( !falsePositive ){
           return false;
         }
       }
+      else if( priorL != e ){
+        e->head->cycleOriginator[BLACK] = e;
+      }
+      else {
+        e->head->cycleOriginator[BLACK] = e->tail->cycleOriginator[BLACK];
+        if( e == e->head->cycleOriginator[BLACK] ){
+          bool falsePositive = backtrack(system, e->tail, BLACK, e);
+          if( !falsePositive ){
+            return false;
+          }
+        }
+      }
       *anyChange = true;
     }
   }
+  /*puts("Edge state after:");
+  printf("Head: x%d\n", e->head->index);
+  printf("D[WHITE] = %d\n", e->head->D[WHITE]);
+  fputs("L[WHITE] = ", stdout); fputEdge(e->head->L[WHITE], stdout);
+  fputs("cycleOriginator[WHITE] = ", stdout); fputEdge(e->head->cycleOriginator[WHITE], stdout);
+  printf("D[BLACK] = %d\n", e->head->D[BLACK]);
+  fputs("L[BLACK] = ", stdout); fputEdge(e->head->L[BLACK], stdout);
+  fputs("cycleOriginator[BLACK] = ", stdout); fputEdge(e->head->cycleOriginator[BLACK], stdout);
+  printf("D[GRAY_FORWARD] = %d\n", e->head->D[GRAY_FORWARD]);
+  fputs("L[GRAY_FORWARD] = ", stdout); fputEdge(e->head->L[GRAY_FORWARD], stdout);
+  fputs("cycleOriginator[GRAY_FORWARD] = ", stdout); fputEdge(e->head->cycleOriginator[GRAY_FORWARD], stdout);
+  printf("D[GRAY_REVERSE] = %d\n", e->head->D[GRAY_REVERSE]);
+  fputs("L[GRAY_REVERSE] = ", stdout); fputEdge(e->head->L[GRAY_REVERSE], stdout);
+  fputs("cycleOriginator[GRAY_REVERSE] = ", stdout); fputEdge(e->head->cycleOriginator[GRAY_REVERSE], stdout);
+  printf("Tail: x%d\n", e->tail->index);
+  printf("D[WHITE] = %d\n", e->tail->D[WHITE]);
+  fputs("L[WHITE] = ", stdout); fputEdge(e->tail->L[WHITE], stdout);
+  fputs("cycleOriginator[WHITE] = ", stdout); fputEdge(e->tail->cycleOriginator[WHITE], stdout);
+  printf("D[BLACK] = %d\n", e->tail->D[BLACK]);
+  fputs("L[BLACK] = ", stdout); fputEdge(e->tail->L[BLACK], stdout);
+  fputs("cycleOriginator[BLACK] = ", stdout); fputEdge(e->tail->cycleOriginator[BLACK], stdout);
+  printf("D[GRAY_FORWARD] = %d\n", e->tail->D[GRAY_FORWARD]);
+  fputs("L[GRAY_FORWARD] = ", stdout); fputEdge(e->tail->L[GRAY_FORWARD], stdout);
+  fputs("cycleOriginator[GRAY_FORWARD] = ", stdout); fputEdge(e->tail->cycleOriginator[GRAY_FORWARD], stdout);
+  printf("D[GRAY_REVERSE] = %d\n", e->tail->D[GRAY_REVERSE]);
+  fputs("L[GRAY_REVERSE] = ", stdout); fputEdge(e->tail->L[GRAY_REVERSE], stdout);
+  fputs("cycleOriginator[GRAY_REVERSE] = ", stdout); fputEdge(e->tail->cycleOriginator[GRAY_REVERSE], stdout);*/
   return true;
 }
 
 /*
- * backtrack() implements BACKTRACK() and GET-CYCLE(), with modifications to handle false-positives generated by cycle-
- *   originators. If the predecessor structure is backtracked through, up to the source node, indicated with a NULL predecessor,
+ * backtrack() implements BACKTRACK() and GET-CYCLE(), with modifications to handle false positives generated by cycle-
+ *   originators. If the predecessor structure is backtracked through, up to the source node, indicated with a NULL predecessor, 
  *   the E arrays are reinitialized, and true is returned. Otherwise, system->infeasibilityProof is filled with a negative cost 
  *   cycle and false is returned.
  * system - pointer to the System struct storing the overall graph representation

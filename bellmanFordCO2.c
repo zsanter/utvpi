@@ -1,6 +1,6 @@
 /*
- * bellmanFordOpt2.c
- * The Bellman-Ford difference constraint system solver, with modified optimizations
+ * bellmanFordCO2.c
+ * The Bellman-Ford difference constraint system solver, with second cycle-originator arrangement
  *
  * Cycle-originators are much less reliable in this version. In systems where many edges could be part of a number of different 
  * negative cost cycles, as edges are relaxed, rather than passing cycle-originators through fully-formed and unchanging negative-

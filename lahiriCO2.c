@@ -1,6 +1,6 @@
 /*
- * lahiriOpt2.c
- * The Lahiri-Musuvathi integral UTVPI system solver, with modified optimizations
+ * lahiriCO2.c
+ * The Lahiri-Musuvathi integral UTVPI system solver, with second cycle-originator arrangement
  * An Efficient Decision Procedure for UTVPI Constraints - Lahiri, Musuvathi
  *
  * Cycle-originators are much less reliable in this version. The linearly-infeasible (f0) input systems consist of a large number
