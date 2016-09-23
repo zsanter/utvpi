@@ -608,7 +608,7 @@ static ConstraintRefList * lahiri(System * Gphi){
  * GphiPrime - pointer to the system struct containing only the slackless edges from Gphi
  * infeasibleVertexIndex - integer representing the index of the variable causing the contradiction
  */
-static ConstraintRefList * generateProof(System * Gphi, System * GphiPrime, int infeasibleVertexIndex){
+/*static ConstraintRefList * generateProof(System * Gphi, System * GphiPrime, int infeasibleVertexIndex){
   ConstraintRefList * proof = generateConstraintRefList();
   int k = Gphi->graph[NEGATIVE][infeasibleVertexIndex].D - Gphi->graph[POSITIVE][infeasibleVertexIndex].D;
   
@@ -659,6 +659,64 @@ static ConstraintRefList * generateProof(System * Gphi, System * GphiPrime, int 
     constraintRefListAppend(proof, constraint);
     edge = edge->tail->L;
   }
+  return proof;
+}*/
+
+static ConstraintRefList * generateProof(System * Gphi, System * GphiPrime, int infeasibleVertexIndex){
+  ConstraintRefList * proof = generateConstraintRefList();
+  int k = Gphi->graph[NEGATIVE][infeasibleVertexIndex].D - Gphi->graph[POSITIVE][infeasibleVertexIndex].D;
+  
+  Constraint * constraint;
+  Edge * edge;
+  
+  for(VertexSign i = POSITIVE; i <= NEGATIVE; i++){
+    for(int j = 0; j < GphiPrime->n; j++){
+      GphiPrime->graph[i][j].dfsColor = WHITE;
+    }
+  }
+  int time = 0;
+  GphiPrime->graph[NEGATIVE][infeasibleVertexIndex].L = NULL;
+  dfsVisit( &GphiPrime->graph[NEGATIVE][infeasibleVertexIndex], &time, 0, &GphiPrime->graph[POSITIVE][infeasibleVertexIndex] );
+  edge = GphiPrime->graph[POSITIVE][infeasibleVertexIndex].L;
+  while( edge != NULL ){
+    constraint = (Constraint *) malloc( sizeof(Constraint) );
+    edgeToConstraint(edge, constraint);
+    constraintRefListPrepend(proof, constraint);
+    edge = edge->tail->L;
+  }
+  
+  constraint = (Constraint *) malloc( sizeof(Constraint) );
+  constraint->sign[0] = CONSTRAINT_PLUS;
+  constraint->index[0] = infeasibleVertexIndex + 1;
+  constraint->sign[1] = CONSTRAINT_NONE;
+  constraint->index[1] = 0;
+  constraint->weight = (-k-1)/2;
+  constraintRefListPrepend(proof, constraint);
+  
+  for(VertexSign i = POSITIVE; i <= NEGATIVE; i++){
+    for(int j = 0; j < GphiPrime->n; j++){
+      GphiPrime->graph[i][j].dfsColor = WHITE;
+    }
+  }
+  time = 0;
+  GphiPrime->graph[POSITIVE][infeasibleVertexIndex].L = NULL;
+  dfsVisit( &GphiPrime->graph[POSITIVE][infeasibleVertexIndex], &time, 0, &GphiPrime->graph[NEGATIVE][infeasibleVertexIndex] );
+  edge = GphiPrime->graph[NEGATIVE][infeasibleVertexIndex].L;
+  while( edge != NULL ){
+    constraint = (Constraint *) malloc( sizeof(Constraint) );
+    edgeToConstraint(edge, constraint);
+    constraintRefListPrepend(proof, constraint);
+    edge = edge->tail->L;
+  }
+  
+  constraint = (Constraint *) malloc( sizeof(Constraint) );
+  constraint->sign[0] = CONSTRAINT_MINUS;
+  constraint->index[0] = infeasibleVertexIndex + 1;
+  constraint->sign[1] = CONSTRAINT_NONE;
+  constraint->index[1] = 0;
+  constraint->weight = (k-1)/2;
+  constraintRefListPrepend(proof, constraint);
+  
   return proof;
 }
 
