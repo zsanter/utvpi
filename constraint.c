@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include "constraint.h"
 
 void fputConstraint(Constraint * constraint, FILE * output){
@@ -29,7 +30,7 @@ ConstraintRefList * generateConstraintRefList(){
  * crl - pointer to a ConstraintRefList to append a Constraint pointer to
  * constraint - pointer to a constraint, which will be added to the end of crl
  */
-void constraintRefListAppend(constraintRefList * crl, Constraint * constraint){
+void constraintRefListAppend(ConstraintRefList * crl, Constraint * constraint){
   ConstraintRefListNode * newCRLN = (ConstraintRefListNode *) malloc( sizeof(ConstraintRefListNode) );
   newCRLN->constraint = constraint;
   newCRLN->next = NULL;

@@ -58,13 +58,14 @@ struct ConstraintRefList {
  * next - pointer to the next ConstraintRefListNode within the ConstraintRefList
  */
 struct ConstraintRefListNode {
-  Constraint * contraint;
+  Constraint * constraint;
   ConstraintRefListNode * next;
 };
 
-static ConstraintRefList * generateConstraintRefList();
-static void constraintRefListAppend(ConstraintRefList * crl, Constraint * constraint);
-static void constraintRefListPrepend(ConstraintRefList * crl, Constraint * constraint);
-static void freeConstraintRefList(ConstraintRefList * crl);
+void fputConstraint(Constraint * constraint, FILE * output);
+ConstraintRefList * generateConstraintRefList();
+void constraintRefListAppend(ConstraintRefList * crl, Constraint * constraint);
+void constraintRefListPrepend(ConstraintRefList * crl, Constraint * constraint);
+void freeConstraintRefList(ConstraintRefList * crl);
 
 #endif

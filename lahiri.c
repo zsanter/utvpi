@@ -622,7 +622,7 @@ static ConstraintRefList * generateProof(System * Gphi, System * GphiPrime, int 
   
   for(VertexSign i = POSITIVE; i <= NEGATIVE; i++){
     for(int j = 0; j < GphiPrime->n; j++){
-      GphiPrime->graph[i][j].DFScolor = WHITE;
+      GphiPrime->graph[i][j].dfsColor = WHITE;
     }
   }
   int time = 0;
@@ -753,7 +753,7 @@ static bool dfsVisit(Vertex * vertex, int * time, int sccNumber, Vertex * destin
   Edge * edge = vertex->first;
   while( edge != NULL ){
     if( edge->head->dfsColor == WHITE ){
-      edge->head->L = vertex;
+      edge->head->L = edge;
       bool destinationFound = dfsVisit( edge->head, time, sccNumber, destination );
       if( destinationFound ){
         return true;
