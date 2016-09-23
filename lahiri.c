@@ -644,6 +644,11 @@ static ConstraintRefList * generateProof(System * Gphi, System * GphiPrime, int 
   constraint->weight = (-k-1)/2;
   constraintRefListAppend(proof, constraint);
   
+  for(VertexSign i = POSITIVE; i <= NEGATIVE; i++){
+    for(int j = 0; j < GphiPrime->n; j++){
+      GphiPrime->graph[i][j].dfsColor = WHITE;
+    }
+  }
   time = 0;
   GphiPrime->graph[NEGATIVE][infeasibleVertexIndex].L = NULL;
   dfsVisit( &GphiPrime->graph[NEGATIVE][infeasibleVertexIndex], &time, 0, &GphiPrime->graph[POSITIVE][infeasibleVertexIndex] );
