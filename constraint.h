@@ -10,6 +10,10 @@
 #ifndef _CONSTRAINT_H
 #define _CONSTRAINT_H
 
+#include <stdio.h>
+
+#define VARIABLES_PER_CONSTRAINT 2
+
 /*
  * CONSTRAINT_PLUS and CONSTRAINT_MINUS represent positive and negative variable signs. CONSTRAINT_NONE represents that a variable
  * is not present, i.e. that the other variable within the Constraint struct is the only variable present within an absolute 
@@ -21,15 +25,46 @@ typedef enum ConstraintSign {
   CONSTRAINT_NONE,
 } ConstraintSign;
 
+typedef struct Constraint Constraint;
+typedef struct ConstraintRefList ConstraintRefList;
+typedef struct ConstraintRefListNode ConstraintRefListNode;
+
 /*
  * sign[i] and index[i] represent all information about variable i, and weight gives the weight of the constraint. By convention,
  * absolute constraints, consisting of only a single variable and a weight, have sign[1] == CONSTRAINT_NONE, and index[1] == 0.
  * The single variable should be represented by sign[0] and index[0].
  */
-typedef struct Constraint {
-  ConstraintSign sign[2];
-  int index[2];
+struct Constraint {
+  ConstraintSign sign[VARIABLES_PER_CONSTRAINT];
+  int index[VARIABLES_PER_CONSTRAINT];
   int weight;
-} Constraint;
+};
+
+/*
+ * The ConstraintRefList is a way to reference a list of Constraints
+ *
+ * first - pointer to the first ConstraintRefListNode within the ConstraintRefList
+ * last - pointer to the last ConstraintRefListNode within the ConstraintRefList
+ */
+struct ConstraintRefList {
+  ConstraintRefListNode * first;
+  ConstraintRefListNode * last;
+};
+
+/*
+ * The ConstraintRefListNode is one node within the ConstraintRefList
+ *
+ * constraint - pointer to a Constraint
+ * next - pointer to the next ConstraintRefListNode within the ConstraintRefList
+ */
+struct ConstraintRefListNode {
+  Constraint * contraint;
+  ConstraintRefListNode * next;
+};
+
+static ConstraintRefList * generateConstraintRefList();
+static void constraintRefListAppend(ConstraintRefList * crl, Constraint * constraint);
+static void constraintRefListPrepend(ConstraintRefList * crl, Constraint * constraint);
+static void freeConstraintRefList(ConstraintRefList * crl);
 
 #endif
