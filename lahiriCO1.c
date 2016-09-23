@@ -169,15 +169,17 @@ struct FibHeapNode {
 
 int main(int argc, char * argv[]);
 static void fputEdge(Edge * edge, FILE * output);
+static void edgeToConstraint(Edge * edge, Constraint * constraint);
 static void initializeSystem(void * object, int n, Parser * parser);
 static void setSystemForJohnson(System * system);
 static void addConstraint(void * object, Constraint * constraint, Parser * parser);
 static Edge * bellmanFord(System * system);
 static Edge * backtrack(Edge * edge);
-static int lahiri(System * Gphi);
+static ConstraintRefList * lahiri(System * Gphi);
+static ConstraintRefList * generateProof(System * Gphi, System * GphiPrime, int infeasibleVertexIndex);
 static void onlySlacklessEdges(System * original, System * subgraph);
 static void stronglyConnectedComponents(System * system);
-static void dfsVisit(Vertex * vertex, int * time, int sccNumber);
+static bool dfsVisit(Vertex * vertex, int * time, int sccNumber, Vertex * destination);
 static void transposeSystem(System * original, System * transpose);
 static int vertexCompareFinishingTimes(const void * vertex1, const void * vertex2);
 static void johnsonAllPairs(System * Gphi);
@@ -274,13 +276,16 @@ int main(int argc, char * argv[]){
     }
     fprintf( output, "\n%d false positives\n", system.falsePositives );
     fprintf( output, "%d main loop iterations\n", system.mainLoopIterations );
-    int infeasibleVertexIndex = lahiri(&system);
-    if( infeasibleVertexIndex >= 0 ){
+    ConstraintRefList * infeasibilityProof = lahiri(&system);
+    if( infeasibilityProof != NULL ){
       f = 1;
       fputs("\nSystem is not integrally feasible.\nProof:\n", output);
-      int k = system.graph[NEGATIVE][infeasibleVertexIndex].D - system.graph[POSITIVE][infeasibleVertexIndex].D;
-      fprintf(output, "-x%d <= %d\n", infeasibleVertexIndex + 1, (k-1)/2 );
-      fprintf(output, "+x%d <= %d\n", infeasibleVertexIndex + 1, (-k-1)/2 );
+      ConstraintRefListNode * crln = infeasibilityProof->first;
+      while( crln != NULL ){
+        fputConstraint(crln->constraint, output);
+        crln = crln->next;
+      }
+      freeConstraintRefList( infeasibilityProof );
     }
     else {
       f = 2;
@@ -362,42 +367,57 @@ int main(int argc, char * argv[]){
  * output - FILE pointer to print the constraint equation to
  */
 static void fputEdge(Edge * edge, FILE * output){
+  Constraint constraint;
+  edgeToConstraint(edge, &constraint);
+  fputConstraint(&constraint, output);
+}
+
+/*
+ * edgeToConstraint() fills in the referenced Constraint struct with the constraint represented by the referenced Edge.
+ *
+ * edge - pointer to an Edge to be interpreted as a constraint
+ * constraint - pointer to a Constraint to be filled with the constraint represented by edge
+ */
+static void edgeToConstraint(Edge * edge, Constraint * constraint){
   if( edge->tail->index == edge->head->index ){
-    char sign;
     switch( edge->tail->sign ){
     case POSITIVE:
-      sign = '-';
+      constraint->sign[0] = CONSTRAINT_MINUS;
       break;
     case NEGATIVE:
-      sign = '+';
+      constraint->sign[0] = CONSTRAINT_PLUS;
     }
-    fprintf(output, "%cx%d <= %d\n", sign, edge->tail->index, (edge->weight)/2);
+    constraint->index[0] = edge->tail->index;
+    constraint->sign[1] = CONSTRAINT_NONE;
+    constraint->index[1] = 0;
+    constraint->weight = (edge->weight)/2;
   }
   else{
-    char sign[2];
     if( edge->tail->sign == edge->head->sign ){
       switch( edge->tail->sign ){
       case POSITIVE:
-        sign[0] = '-';
-        sign[1] = '+';
+        constraint->sign[0] = CONSTRAINT_MINUS;
+        constraint->sign[1] = CONSTRAINT_PLUS;
         break;
       case NEGATIVE:
-        sign[0] = '+';
-        sign[1] = '-';
+        constraint->sign[0] = CONSTRAINT_PLUS;
+        constraint->sign[1] = CONSTRAINT_MINUS;
       }
     }
     else{
       switch( edge->tail->sign ){
       case POSITIVE:
-        sign[0] = '-';
-        sign[1] = '-';
+        constraint->sign[0] = CONSTRAINT_MINUS;
+        constraint->sign[1] = CONSTRAINT_MINUS;
         break;
       case NEGATIVE:
-        sign[0] = '+';
-        sign[1] = '+';
+        constraint->sign[0] = CONSTRAINT_PLUS;
+        constraint->sign[1] = CONSTRAINT_PLUS;
       }
     }
-    fprintf(output, "%cx%d %cx%d <= %d\n", sign[0], edge->tail->index, sign[1], edge->head->index, edge->weight);
+    constraint->index[0] = edge->tail->index;
+    constraint->index[1] = edge->head->index;
+    constraint->weight = edge->weight;
   }
 }
 
@@ -613,29 +633,97 @@ static Edge * backtrack(Edge * edge){
  * - implements the NCD-UTVPI() algorithm from An Efficient Decision Procedure for UTVPI Constraints - Lahiri, Musuvathi
  * - calls johnsonAllPairs(), into which the Model Generation algorithm from this paper was integrated, in order to significantly
  *   reduce the space complexity of this implementation
- * - returns the index of the variable causing the contradiction, if the system is found to be integrally infeasible
- * - returns -1, if the system is found to be integrally feasible
+ * - if the system is found to be integrally infeasible, returns a pointer to a ConstraintRefList storing a proof of this
+ * - otherwise, returns NULL
  *
  * Gphi - pointer to the overall System struct containing the graph representation
  */
-static int lahiri(System * Gphi){
+static ConstraintRefList * lahiri(System * Gphi){
   System GphiPrime;
   onlySlacklessEdges(Gphi, &GphiPrime);
   stronglyConnectedComponents(&GphiPrime);
-  int output = -1;
-  for(int i = 0; i < Gphi->n && output < 0; i++){
+  int infeasibleVertexIndex = -1;
+  for(int i = 0; i < Gphi->n && infeasibleVertexIndex < 0; i++){
     if( GphiPrime.graph[POSITIVE][i].sccNumber == GphiPrime.graph[NEGATIVE][i].sccNumber
         && ( Gphi->graph[POSITIVE][i].D - Gphi->graph[NEGATIVE][i].D ) % 2 != 0 ){
-      output = i;
+      infeasibleVertexIndex = i;
     }
   }
-  freeSystem( &GphiPrime );
-  if( output >= 0 ){
-    return output;
+  if( infeasibleVertexIndex >= 0 ){
+    ConstraintRefList * infeasibilityProof = generateProof(Gphi, &GphiPrime, infeasibleVertexIndex);
+    freeSystem( &GphiPrime );
+    return infeasibilityProof;
   }
+  freeSystem( &GphiPrime );
   setSystemForJohnson( Gphi );
   johnsonAllPairs( Gphi );
-  return output;
+  return NULL;
+}
+
+/*
+ * generateProof() generates a proof of integral infeasibility, as defined in An Efficient Decision Procedure for UTVPI 
+ * Constraints - Lahiri, Musuvathi. Returns a pointer to a ConstraintRefList storing this proof.
+ *
+ * Gphi - pointer to the System struct containing the original graph representation
+ * GphiPrime - pointer to the system struct containing only the slackless edges from Gphi
+ * infeasibleVertexIndex - integer representing the index of the variable causing the contradiction
+ */
+static ConstraintRefList * generateProof(System * Gphi, System * GphiPrime, int infeasibleVertexIndex){
+  ConstraintRefList * proof = generateConstraintRefList();
+  int k = Gphi->graph[NEGATIVE][infeasibleVertexIndex].D - Gphi->graph[POSITIVE][infeasibleVertexIndex].D;
+  
+  Constraint * constraint;
+  Edge * edge;
+  
+  for(VertexSign i = POSITIVE; i <= NEGATIVE; i++){
+    for(int j = 0; j < GphiPrime->n; j++){
+      GphiPrime->graph[i][j].dfsColor = WHITE;
+    }
+  }
+  int time = 0;
+  GphiPrime->graph[NEGATIVE][infeasibleVertexIndex].L = NULL;
+  dfsVisit( &GphiPrime->graph[NEGATIVE][infeasibleVertexIndex], &time, 0, &GphiPrime->graph[POSITIVE][infeasibleVertexIndex] );
+  edge = GphiPrime->graph[POSITIVE][infeasibleVertexIndex].L;
+  while( edge != NULL ){
+    constraint = (Constraint *) malloc( sizeof(Constraint) );
+    edgeToConstraint(edge, constraint);
+    constraintRefListPrepend(proof, constraint);
+    edge = edge->tail->L;
+  }
+  
+  constraint = (Constraint *) malloc( sizeof(Constraint) );
+  constraint->sign[0] = CONSTRAINT_PLUS;
+  constraint->index[0] = infeasibleVertexIndex + 1;
+  constraint->sign[1] = CONSTRAINT_NONE;
+  constraint->index[1] = 0;
+  constraint->weight = (-k-1)/2;
+  constraintRefListPrepend(proof, constraint);
+  
+  for(VertexSign i = POSITIVE; i <= NEGATIVE; i++){
+    for(int j = 0; j < GphiPrime->n; j++){
+      GphiPrime->graph[i][j].dfsColor = WHITE;
+    }
+  }
+  time = 0;
+  GphiPrime->graph[POSITIVE][infeasibleVertexIndex].L = NULL;
+  dfsVisit( &GphiPrime->graph[POSITIVE][infeasibleVertexIndex], &time, 0, &GphiPrime->graph[NEGATIVE][infeasibleVertexIndex] );
+  edge = GphiPrime->graph[NEGATIVE][infeasibleVertexIndex].L;
+  while( edge != NULL ){
+    constraint = (Constraint *) malloc( sizeof(Constraint) );
+    edgeToConstraint(edge, constraint);
+    constraintRefListPrepend(proof, constraint);
+    edge = edge->tail->L;
+  }
+  
+  constraint = (Constraint *) malloc( sizeof(Constraint) );
+  constraint->sign[0] = CONSTRAINT_MINUS;
+  constraint->index[0] = infeasibleVertexIndex + 1;
+  constraint->sign[1] = CONSTRAINT_NONE;
+  constraint->index[1] = 0;
+  constraint->weight = (k-1)/2;
+  constraintRefListPrepend(proof, constraint);
+  
+  return proof;
 }
 
 /*
@@ -681,7 +769,7 @@ static void stronglyConnectedComponents(System * system){
   for(VertexSign i = POSITIVE; i <= NEGATIVE; i++){
     for(int j = 0; j < system->n; j++){
       if( system->graph[i][j].dfsColor == WHITE ){
-        dfsVisit( &system->graph[i][j], &time, sccNumber );
+        dfsVisit( &system->graph[i][j], &time, sccNumber, NULL );
       }
     }
   }
@@ -699,7 +787,7 @@ static void stronglyConnectedComponents(System * system){
   time = 0;
   for(int i = vertexSortArrayLength - 1; i >= 0; i--){
     if( vertexSortArray[i]->dfsColor == WHITE ){
-      dfsVisit( vertexSortArray[i], &time, sccNumber );
+      dfsVisit( vertexSortArray[i], &time, sccNumber, NULL );
       sccNumber++;
     }
   }
@@ -715,26 +803,37 @@ static void stronglyConnectedComponents(System * system){
  * dfsVisit() implements DFS-VISIT(), as defined in Introduction to Algorithms, Third Edition. Also sets Vertex.sccNumber for all
  * Vertices within a set of recurrences with the input sccNumber. This value is not useful unless this function is called on a 
  * transposed System being examined in order of decreasing Vertex.finishingTime, as found when searching the original System, and
- * the input sccNumber is set to be different for each set of recurrences.
+ * the input sccNumber is set to be different for each set of recurrences. Additionally, the set of recurrences of this function 
+ * will stop and return as soon as the destination Vertex is found. If this destination Vertex is found, the function returns 
+ * true. Otherwise, returns false.
  *
  * vertex - pointer to the Vertex to visit
  * time - pointer to an integer value for time, a value defined as global in Introduction to Algorithms
  * sccNumber - an integer value to label each Vertex within each strongly-connected component with
+ * destination - pointer to a Vertex to be found. Set NULL if all Vertices must be found.
  */
-static void dfsVisit(Vertex * vertex, int * time, int sccNumber){
+static bool dfsVisit(Vertex * vertex, int * time, int sccNumber, Vertex * destination){
+  if( vertex == destination ){
+    return true;
+  }
   (*time)++;
   vertex->dfsColor = GRAY;
   vertex->sccNumber = sccNumber;
   Edge * edge = vertex->first;
   while( edge != NULL ){
     if( edge->head->dfsColor == WHITE ){
-      dfsVisit( edge->head, time, sccNumber );
+      edge->head->L = edge;
+      bool destinationFound = dfsVisit( edge->head, time, sccNumber, destination );
+      if( destinationFound ){
+        return true;
+      }
     }
     edge = edge->next;
   }
   vertex->dfsColor = BLACK;
   (*time)++;
   vertex->finishingTime = *time;
+  return false;
 }
 
 /*
