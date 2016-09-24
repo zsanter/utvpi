@@ -88,14 +88,18 @@ struct Vertex {
   union {
     struct {
       Edge * L;
-      int examinationCount;
-      int traceNumber;
-      bool inQueue;
-    };
-    struct {
-      DFScolor dfsColor;
-      int finishingTime;
-      int sccNumber;
+      union {
+        struct {
+          int examinationCount;
+          int traceNumber;
+          bool inQueue;
+        };
+        struct {
+          DFScolor dfsColor;
+          int finishingTime;
+          int sccNumber;
+        };
+      };
     };
     struct {
       int h;
@@ -480,6 +484,7 @@ static void setSystemForLinear(System * system){
 static void setSystemForSCC(System * system){
   for(VertexSign i = POSITIVE; i <= NEGATIVE; i++){
     for(int j = 0; j < system->n; j++){
+      system->graph[i][j].L = NULL;
       system->graph[i][j].dfsColor = WHITE;
       system->graph[i][j].finishingTime = 0;
       system->graph[i][j].sccNumber = 0;
