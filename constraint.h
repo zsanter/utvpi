@@ -5,6 +5,8 @@
  * else. It is expected that inequality system solvers will translate Constraints into their own internal representations and can
  * translate their own internal representations back into Constraints for returning proofs of infeasibility, or for any other
  * purpose.
+ *
+ * Also includes a basic list structure and associated functionality to store multiple Constraints.
  */
 
 #ifndef _CONSTRAINT_H
@@ -62,10 +64,40 @@ struct ConstraintRefListNode {
   ConstraintRefListNode * next;
 };
 
+/*
+ * fputConstraint() prints the constraint equation corresponding to constraint to output
+ *
+ * constraint - pointer to a Constraint struct to print as a constraint equation
+ * output - FILE pointer to print the constraint equation to
+ */
 void fputConstraint(Constraint * constraint, FILE * output);
+
+/*
+ * generateConstraintRefList() allocates and initializes a ConstraintRefList, returning a pointer to it.
+ */
 ConstraintRefList * generateConstraintRefList();
+
+/*
+ * constraintRefListAppend() adds a Constraint pointer to the end of a ConstraintRefList.
+ *
+ * crl - pointer to a ConstraintRefList to append a Constraint pointer to
+ * constraint - pointer to a constraint, which will be added to the end of crl
+ */
 void constraintRefListAppend(ConstraintRefList * crl, Constraint * constraint);
+
+/*
+ * constraintRefListPrepend() adds a constraint pointer to the beginning of a ConstraintRefList.
+ *
+ * crl - pointer to a ConstraintRefList to prepend with a Constraint pointer
+ * constraint - pointer to a Constraint, which will be added to the beginning of crl
+ */
 void constraintRefListPrepend(ConstraintRefList * crl, Constraint * constraint);
+
+/*
+ * freeConstraintRefList() frees the input constraintRefList, as well as referenced Constraints.
+ *
+ * crl - pointer to the ConstraintRefList to be freed
+ */
 void freeConstraintRefList(ConstraintRefList * crl);
 
 #endif
