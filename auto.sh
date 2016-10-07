@@ -55,10 +55,10 @@ date=`date +%Y-%m-%d`
 
 csvFile="empirical/${date}_${programNoExt}_Stuckey_${modify}_${f}.csv"
 
-# For use with non-Opt* implementations:
+# For use with non-CO* implementations:
 echo "input file,variables,constraints,f,setup,linear,integer,cleanup,total,user,system,maximum resident set size (kB)" > "${csvFile}"
 
-# For use with Opt* implementations:
+# For use with CO* implementations:
 #echo "input file,variables,constraints,f,false positives,main loop iterations,negative cycle length,setup,linear,integer,cleanup,total,user,system,maximum resident set size (kB)" > "${csvFile}"
 
 for variables in "${variablesArray[@]}" ; do
