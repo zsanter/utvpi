@@ -891,8 +891,8 @@ static bool traceSystem(System * system){
         }
         traceNumber++;
       }
-      else if( system->graph[i].L[GRAY_FORWARD] != NULL ){
-        bool noNegCycle = backtrack(system, &system->graph[i], GRAY_FORWARD, system->graph[i].L[GRAY_FORWARD], traceNumber);
+      else if( system->graph[i].L[GRAY_REVERSE] != NULL ){
+        bool noNegCycle = backtrack(system, &system->graph[i], GRAY_REVERSE, system->graph[i].L[GRAY_REVERSE], traceNumber);
         if( !noNegCycle ){
           return false;
         }
