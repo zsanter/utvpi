@@ -846,7 +846,11 @@ static bool relaxEdge(System * system, Edge * e, bool * anyChange){
         //puts("1");
         bool falsePositive = backtrack(system, e->head, GRAY_REVERSE, e->reverse);
         if( !falsePositive ){
+          puts("abscon");
           return false;
+        }
+        else{
+          puts("false abscon");
         }
       }
       else if( priorL != e->reverse ){
@@ -871,7 +875,11 @@ static bool relaxEdge(System * system, Edge * e, bool * anyChange){
         //puts("2");
         bool falsePositive = backtrack(system, e->head, BLACK, e->reverse);
         if( !falsePositive ){
+          puts("abscon");
           return false;
+        }
+        else{
+          puts("false abscon");
         }
       }
       else if( priorL != e->reverse ){
@@ -896,7 +904,11 @@ static bool relaxEdge(System * system, Edge * e, bool * anyChange){
         //puts("3");
         bool falsePositive = backtrack(system, e->tail, GRAY_REVERSE, e);
         if( !falsePositive ){
+          puts("abscon");
           return false;
+        }
+        else{
+          puts("false abscon");
         }
       }
       else if( priorL != e ){
@@ -921,7 +933,11 @@ static bool relaxEdge(System * system, Edge * e, bool * anyChange){
         //puts("4");
         bool falsePositive = backtrack(system, e->tail, BLACK, e);
         if( !falsePositive ){
+          puts("abscon");
           return false;
+        }
+        else{
+          puts("false abscon");
         }
       }
       else if( priorL != e ){
@@ -948,7 +964,11 @@ static bool relaxEdge(System * system, Edge * e, bool * anyChange){
         //puts("5");
         bool falsePositive = backtrack(system, e->head, GRAY_FORWARD, e->reverse);
         if( !falsePositive ){
+          puts("abscon");
           return false;
+        }
+        else{
+          puts("false abscon");
         }
       }
       else if( priorL != e->reverse ){
@@ -973,7 +993,11 @@ static bool relaxEdge(System * system, Edge * e, bool * anyChange){
         //puts("6");
         bool falsePositive = backtrack(system, e->head, WHITE, e->reverse);
         if( !falsePositive ){
+          puts("abscon");
           return false;
+        }
+        else{
+          puts("false abscon");
         }
       }
       else if( priorL != e->reverse ){
@@ -998,7 +1022,11 @@ static bool relaxEdge(System * system, Edge * e, bool * anyChange){
         //puts("7");
         bool falsePositive = backtrack(system, e->tail, GRAY_FORWARD, e);
         if( !falsePositive ){
+          puts("abscon");
           return false;
+        }
+        else{
+          puts("false abscon");
         }
       }
       else if( priorL != e ){
@@ -1023,7 +1051,11 @@ static bool relaxEdge(System * system, Edge * e, bool * anyChange){
         //puts("8");
         bool falsePositive = backtrack(system, e->tail, WHITE, e);
         if( !falsePositive ){
+          puts("abscon");
           return false;
+        }
+        else{
+          puts("false abscon");
         }
       }
       else if( priorL != e ){
@@ -1050,7 +1082,11 @@ static bool relaxEdge(System * system, Edge * e, bool * anyChange){
         //puts("9");
         bool falsePositive = backtrack(system, e->head, GRAY_REVERSE, e->reverse);
         if( !falsePositive ){
+          puts("abscon");
           return false;
+        }
+        else{
+          puts("false abscon");
         }
       }
       else if( priorL != e->reverse ){
@@ -1075,7 +1111,11 @@ static bool relaxEdge(System * system, Edge * e, bool * anyChange){
         //puts("10");
         bool falsePositive = backtrack(system, e->head, BLACK, e->reverse);
         if( !falsePositive ){
+          puts("abscon");
           return false;
+        }
+        else{
+          puts("false abscon");
         }
       }
       else if( priorL != e->reverse ){
@@ -1100,7 +1140,11 @@ static bool relaxEdge(System * system, Edge * e, bool * anyChange){
         //puts("11");
         bool falsePositive = backtrack(system, e->tail, GRAY_FORWARD, e);
         if( !falsePositive ){
+          puts("abscon");
           return false;
+        }
+        else{
+          puts("false abscon");
         }
       }
       else if( priorL != e ){
@@ -1125,7 +1169,11 @@ static bool relaxEdge(System * system, Edge * e, bool * anyChange){
         //puts("12");
         bool falsePositive = backtrack(system, e->tail, WHITE, e);
         if( !falsePositive ){
+          puts("abscon");
           return false;
+        }
+        else{
+          puts("false abscon");
         }
       }
       else if( priorL != e ){
@@ -1152,7 +1200,11 @@ static bool relaxEdge(System * system, Edge * e, bool * anyChange){
         //puts("13");
         bool falsePositive = backtrack(system, e->head, GRAY_FORWARD, e->reverse);
         if( !falsePositive ){
+          puts("abscon");
           return false;
+        }
+        else{
+          puts("false abscon");
         }
       }
       else if( priorL != e->reverse ){
@@ -1177,7 +1229,11 @@ static bool relaxEdge(System * system, Edge * e, bool * anyChange){
         //puts("14");
         bool falsePositive = backtrack(system, e->head, WHITE, e->reverse);
         if( !falsePositive ){
+          puts("abscon");
           return false;
+        }
+        else{
+          puts("false abscon");
         }
       }
       else if( priorL != e->reverse ){
@@ -1202,7 +1258,11 @@ static bool relaxEdge(System * system, Edge * e, bool * anyChange){
         //puts("15");
         bool falsePositive = backtrack(system, e->tail, GRAY_REVERSE, e);
         if( !falsePositive ){
+          puts("abscon");
           return false;
+        }
+        else{
+          puts("false abscon");
         }
       }
       else if( priorL != e ){
@@ -1227,7 +1287,11 @@ static bool relaxEdge(System * system, Edge * e, bool * anyChange){
         //puts("16");
         bool falsePositive = backtrack(system, e->tail, BLACK, e);
         if( !falsePositive ){
+          puts("abscon");
           return false;
+        }
+        else{
+          puts("false abscon");
         }
       }
       else if( priorL != e ){
