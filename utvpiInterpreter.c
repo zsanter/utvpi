@@ -1,7 +1,7 @@
 #include <ctype.h>
 #include "utvpiInterpreter.h"
 
-typedef enum TokenType{
+typedef enum TokenType {
   SIGN,
   VARIABLE,
   LESS_THAN_OR_EQUAL,
@@ -27,6 +27,8 @@ struct Parser {
   long int fileLineOffset;
   int line;
   int column;
+  int characterStore;
+  bool characterStored;
   bool inMiddleOfBlockComment;
   bool completedSuccessfully;
 };
@@ -59,9 +61,9 @@ static void myungetc(int character, Parser * parser);
 
 bool parseFile(FILE * constraintFile,
         void * object,
-        void (* initializeSystem)(void * object, int n, Parser * parser), 
+        void (* initializeSystem)(void * object, int n, Parser * parser),
         void (* addConstraint)(void * object, Constraint * constraint, Parser * parser)){
-  
+
   Parser parser;
   parser.constraintFile = constraintFile;
   parser.object = object;
@@ -71,6 +73,8 @@ bool parseFile(FILE * constraintFile,
   parser.fileLineOffset = ftell( constraintFile );
   parser.line = 1;
   parser.column = 0;
+  parser.characterStore = 0;
+  parser.isCharacterStored = false;
   parser.inMiddleOfBlockComment = false;
   parser.completedSuccessfully = true;
 
@@ -120,7 +124,7 @@ static void parseConstraints(Parser * parser){
     constraint.sign[1] = CONSTRAINT_NONE;
     constraint.index[1] = 0;
     constraint.weight = 0;
-    
+
     do {
       token = getToken(parser);
       if( token.type == NEWLINE ){
@@ -341,7 +345,7 @@ static Token getToken(Parser * parser){
   if( token.type == INTEGER && token.sign == CONSTRAINT_MINUS ){
     token.integerComponent *= -1;
     token.sign = CONSTRAINT_PLUS;
-  } 
+  }
   return token;
 }
 
@@ -383,7 +387,7 @@ static void variablesKeyword(Parser * parser, Token * token){
   }
   if( !matches ){
     token->type = UNDEFINED;
-    myungetc( character, parser );    
+    myungetc( character, parser );
   }
 }
 
@@ -410,17 +414,25 @@ static void continuingInteger(Parser * parser, Token * token){
 
 static int myfgetc(Parser * parser){
   parser->column++;
-  return fgetc(parser->constraintFile);
-}
-
-static void myungetc(int character, Parser * parser){
-  if(character != EOF){
-    parser->column--;
-    fseek(parser->constraintFile, -1, SEEK_CUR);
+  if( parser->characterStored ){
+    parser->characterStored = false;
+    return parser->characterStore;
+  }
+  else {
+    return fgetc(parser->constraintFile);
   }
 }
 
-void parseError(Parser * parser, const char * message){  
+static void myungetc(int character, Parser * parser){
+  if( parser->characterStored ){
+    fputs("failure\n", stderr);
+  }
+  parser->column--;
+  parser->characterStore = character;
+  parser->characterStored = true;
+}
+
+void parseError(Parser * parser, const char * message){
   parser->completedSuccessfully = false;
   fputs("Constraint System Error:\n", stderr);
   fprintf(stderr, "  Line %i Column %i\n", parser->line, parser->column);
