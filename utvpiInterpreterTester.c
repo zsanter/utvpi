@@ -35,7 +35,7 @@ void main(int argc, char * argv[]){
 }
 
 static void initializeSystem(void * object, int n, Parser * parser){
-  printf("%i variables\n", vertexCount);
+  printf("%i variables\n", n);
 }
 
 static void addEdge(void * object, Constraint * constraint, Parser * parser){

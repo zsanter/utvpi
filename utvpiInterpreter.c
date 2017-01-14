@@ -74,7 +74,7 @@ bool parseFile(FILE * constraintFile,
   parser.line = 1;
   parser.column = 0;
   parser.characterStore = 0;
-  parser.isCharacterStored = false;
+  parser.characterStored = false;
   parser.inMiddleOfBlockComment = false;
   parser.completedSuccessfully = true;
 
