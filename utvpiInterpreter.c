@@ -433,6 +433,7 @@ static void myungetc(int character, Parser * parser){
 }
 
 void parseError(Parser * parser, const char * message){
+  parser->characterStored = false;
   parser->completedSuccessfully = false;
   fputs("Constraint System Error:\n", stderr);
   fprintf(stderr, "  Line %i Column %i\n", parser->line, parser->column);
