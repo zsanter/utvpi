@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdbool.h>
+#include "utvpiInterpreter.h"
 
 bool parseFileDelayedSysGen(FILE * constraintFile,
     void * object,

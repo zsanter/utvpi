@@ -1,6 +1,4 @@
-/**/
-
-#include "utvpiInterpreter.h"
+#include "delay.h"
 
 typedef struct Delayer {
   ConstraintRefList * constraints;
