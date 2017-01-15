@@ -6,9 +6,9 @@ if [[ ! -f "${program}" ]] ; then
   exit 1
 fi
 
-"${program}" "variables" "f2"
-"${program}" "constraints" "f2"
-"${program}" "variables" "f1"
-"${program}" "constraints" "f1"
-"${program}" "variables" "f0"
-"${program}" "constraints" "f0"
+./auto.sh "${program}" "variables" "f2"
+./auto.sh "${program}" "constraints" "f2"
+./auto.sh "${program}" "variables" "f1"
+./auto.sh "${program}" "constraints" "f1"
+./auto.sh "${program}" "variables" "f0"
+./auto.sh "${program}" "constraints" "f0"
