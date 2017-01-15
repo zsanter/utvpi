@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <stdbool.h>
 #include "constraint.h"
 
 /*
@@ -25,10 +26,7 @@ void fputConstraint(Constraint * constraint, FILE * output){
  * generateConstraintRefList() allocates and initializes a ConstraintRefList, returning a pointer to it.
  */
 ConstraintRefList * generateConstraintRefList(){
-  ConstraintRefList * newCRL = (ConstraintRefList *) malloc( sizeof(ConstraintRefList) );
-  newCRL->first = NULL;
-  newCRL->last = NULL;
-  return newCRL;
+  return (ConstraintRefList *) generateVoidRefList();
 }
 
 /*
@@ -38,16 +36,7 @@ ConstraintRefList * generateConstraintRefList(){
  * constraint - pointer to a constraint, which will be added to the end of crl
  */
 void constraintRefListAppend(ConstraintRefList * crl, Constraint * constraint){
-  ConstraintRefListNode * newCRLN = (ConstraintRefListNode *) malloc( sizeof(ConstraintRefListNode) );
-  newCRLN->constraint = constraint;
-  newCRLN->next = NULL;
-  if( crl->first == NULL ){
-    crl->first = newCRLN;
-  }
-  else {
-    crl->last->next = newCRLN;
-  }
-  crl->last = newCRLN;
+  voidRefListAppend((VoidRefList *) crl, (void *) constraint);
 }
 
 /*
@@ -57,14 +46,32 @@ void constraintRefListAppend(ConstraintRefList * crl, Constraint * constraint){
  * constraint - pointer to a Constraint, which will be added to the beginning of crl
  */
 void constraintRefListPrepend(ConstraintRefList * crl, Constraint * constraint){
-  ConstraintRefListNode * newCRLN = (ConstraintRefListNode *) malloc( sizeof(ConstraintRefListNode) );
-  newCRLN->constraint = constraint;
-  newCRLN->next = crl->first;
-  crl->first = newCRLN;
-  if( crl->last == NULL ){
-    crl->last = newCRLN;
-  }
+  voidRefListPrepend((VoidRefLIst *) crl, (void *) constraint);
 }
+
+/*
+ * constraintRefListNext() allows for the ConstraintRefList to be iterated through. Each call to this function returns another
+ * element within the ConstraintRefList, until the end of the list is reached, when NULL is returned. New elements should not be
+ * added to the ConstraintRefList while this process is ongoing. Reaching the end of the list resets the internal iterator which
+ * enables this process. If iteration through the list ends before the list has been fully traversed,
+ * constraintRefListIteratorReset() should be called.
+ *
+ * crl - the ConstraintRefLIst to be iterated through
+ */
+Constraint * constraintRefListNext(ConstraintRefList * crl){
+  return (Constraint *) voidRefListNext((VoidRefList *) crl);
+}
+
+/*
+ * constraintRefListIteratorReset() resets the ConstraintRefList's internal iterator after a partial traverse of the
+ * ConstraintRefLIst has been conducted using constraintRefListNext().
+ *
+ * crl - the ConstraintRefList
+ */
+void constraintRefListIteratorReset(ConstraintRefList * crl){
+  voidRefListIteratorReset((VoidRefList *) crl);
+}
+
 
 /*
  * freeConstraintRefList() frees the input constraintRefList, as well as referenced Constraints.
@@ -72,14 +79,5 @@ void constraintRefListPrepend(ConstraintRefList * crl, Constraint * constraint){
  * crl - pointer to the ConstraintRefList to be freed
  */
 void freeConstraintRefList(ConstraintRefList * crl){
-  if( crl != NULL ){
-    ConstraintRefListNode * crln = crl->first;
-    while( crln != NULL ){
-      ConstraintRefListNode * oldCRLN = crln;
-      crln = crln->next;
-      free( oldCRLN->constraint );
-      free( oldCRLN );
-    }
-    free( crl );
-  }
+  freeVoidRefLIst((VoidRefList *) crl, true);
 }

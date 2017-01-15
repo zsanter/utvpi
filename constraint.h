@@ -1,7 +1,7 @@
 /*
  * constraint.h
  *
- * A standard representation of UTVPI constraints, portable across inequality system solvers, input file parsers, and anything 
+ * A standard representation of UTVPI constraints, portable across inequality system solvers, input file parsers, and anything
  * else. It is expected that inequality system solvers will translate Constraints into their own internal representations and can
  * translate their own internal representations back into Constraints for returning proofs of infeasibility, or for any other
  * purpose.
@@ -13,12 +13,13 @@
 #define _CONSTRAINT_H
 
 #include <stdio.h>
+#include "voidRefList.h"
 
 #define VARIABLES_PER_CONSTRAINT 2
 
 /*
  * CONSTRAINT_PLUS and CONSTRAINT_MINUS represent positive and negative variable signs. CONSTRAINT_NONE represents that a variable
- * is not present, i.e. that the other variable within the Constraint struct is the only variable present within an absolute 
+ * is not present, i.e. that the other variable within the Constraint struct is the only variable present within an absolute
  * constraint.
  */
 typedef enum ConstraintSign {
@@ -28,8 +29,7 @@ typedef enum ConstraintSign {
 } ConstraintSign;
 
 typedef struct Constraint Constraint;
-typedef struct ConstraintRefList ConstraintRefList;
-typedef struct ConstraintRefListNode ConstraintRefListNode;
+typedef VoidRefLIst ConstraintRefList;
 
 /*
  * sign[i] and index[i] represent all information about variable i, and weight gives the weight of the constraint. By convention,
@@ -40,28 +40,6 @@ struct Constraint {
   ConstraintSign sign[VARIABLES_PER_CONSTRAINT];
   int index[VARIABLES_PER_CONSTRAINT];
   int weight;
-};
-
-/*
- * The ConstraintRefList is a way to reference a list of Constraints
- *
- * first - pointer to the first ConstraintRefListNode within the ConstraintRefList
- * last - pointer to the last ConstraintRefListNode within the ConstraintRefList
- */
-struct ConstraintRefList {
-  ConstraintRefListNode * first;
-  ConstraintRefListNode * last;
-};
-
-/*
- * The ConstraintRefListNode is one node within the ConstraintRefList
- *
- * constraint - pointer to a Constraint
- * next - pointer to the next ConstraintRefListNode within the ConstraintRefList
- */
-struct ConstraintRefListNode {
-  Constraint * constraint;
-  ConstraintRefListNode * next;
 };
 
 /*
@@ -92,6 +70,25 @@ void constraintRefListAppend(ConstraintRefList * crl, Constraint * constraint);
  * constraint - pointer to a Constraint, which will be added to the beginning of crl
  */
 void constraintRefListPrepend(ConstraintRefList * crl, Constraint * constraint);
+
+/*
+ * constraintRefListNext() allows for the ConstraintRefList to be iterated through. Each call to this function returns another
+ * element within the ConstraintRefList, until the end of the list is reached, when NULL is returned. New elements should not be
+ * added to the ConstraintRefList while this process is ongoing. Reaching the end of the list resets the internal iterator which
+ * enables this process. If iteration through the list ends before the list has been fully traversed,
+ * constraintRefListIteratorReset() should be called.
+ *
+ * crl - the ConstraintRefLIst to be iterated through
+ */
+Constraint * constraintRefListNext(ConstraintRefList * crl);
+
+/*
+ * constraintRefListIteratorReset() resets the ConstraintRefList's internal iterator after a partial traverse of the
+ * ConstraintRefLIst has been conducted using constraintRefListNext().
+ *
+ * crl - the ConstraintRefList
+ */
+void constraintRefListIteratorReset(ConstraintRefList * crl);
 
 /*
  * freeConstraintRefList() frees the input constraintRefList, as well as referenced Constraints.
