@@ -1,7 +1,5 @@
 /**/
 
-#include <stdio.h>
-#include <stdbool.h>
 #include "utvpiInterpreter.h"
 
 typedef struct Delayer {
