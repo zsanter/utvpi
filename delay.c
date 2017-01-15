@@ -1,4 +1,5 @@
 #include "delay.h"
+#include <stdlib.h>
 
 typedef struct Delayer {
   ConstraintRefList * constraints;
@@ -37,7 +38,7 @@ bool parseFileDelayedSysGen(FILE * constraintFile,
   delayer.constraints = generateConstraintRefList();
   delayer.n = 0;
 
-  bool parseSuccesful = parseFile(constraintFile, delayer, delayedInitializeSystem, delayedAddConstraint);
+  bool parseSuccessful = parseFile(constraintFile, &delayer, delayedInitializeSystem, delayedAddConstraint);
   if( !parseSuccessful ){
     freeConstraintRefList( delayer.constraints );
     return false;
@@ -49,7 +50,7 @@ bool parseFileDelayedSysGen(FILE * constraintFile,
       addConstraint(object, constraint, NULL);
       constraint = constraintRefListNext( delayer.constraints );
     }
-    freeConstraintRefList( constraints );
+    freeConstraintRefList( delayer.constraints );
     return true;
   }
 }
@@ -69,5 +70,5 @@ void delayedAddConstraint(void * object, Constraint * constraint, Parser * parse
   heapConstraint->index[1] = constraint->index[1];
   heapConstraint->weight = constraint->weight;
 
-  constraintRefListPrepend(delayer.constraints, heapConstraint);
+  constraintRefListPrepend(delayer->constraints, heapConstraint);
 }
