@@ -282,7 +282,7 @@ int main(int argc, char * argv[]){
       Constraint * constraint = constraintRefListNext( infeasibilityProof );
       while( constraint != NULL ){
         fputConstraint(constraint, output);
-        constraint = constraintRefListNext( infeasibilityProof );;
+        constraint = constraintRefListNext( infeasibilityProof );
       }
       freeConstraintRefList( infeasibilityProof );
     }

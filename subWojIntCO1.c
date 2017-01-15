@@ -23,7 +23,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <time.h>
-#include "utvpiInterpreter.h"
+#include "delay.h"
 #include "halfint.h"
 
 /*
@@ -104,6 +104,11 @@ struct System {
   Edge * additionsFirst;
   EdgeRefList * infeasibilityProof;
   IntegerTree * T;
+  #ifdef __HPC__
+    struct timespec beforeLinear;
+  #else
+    clock_t beforeLinear;
+  #endif
   int falsePositives;
   int mainLoopIterations;
   int negativeCycleEdgeCount;
@@ -273,19 +278,13 @@ int main(int argc, char * argv[]){
     }
   }
   System system;
-  bool parseSuccessful = parseFile(input, &system, initializeSystem, addConstraint);
+  bool parseSuccessful = parseFileDelayedSysGen(input, &system, initializeSystem, addConstraint);
   fclose(input);
   if( !parseSuccessful ){
     fprintf( stderr, "Parsing of \"%s\" failed.\n", argv[1] );
     exit(1);
   }
   finishSystemCreation(&system);
-  #ifdef __HPC__
-    struct timespec beforeLinear;
-    clock_gettime(CLOCK_MONOTONIC_RAW, &beforeLinear);
-  #else
-    clock_t beforeLinear = clock();
-  #endif
   int f;
   bool linearlyFeasible = relaxNetwork(&system);
   #ifdef __HPC__
@@ -353,10 +352,10 @@ int main(int argc, char * argv[]){
   printf("%d,", system.negativeCycleEdgeCount);
   #ifdef __HPC__
     struct timespec setup;
-    diff(&start, &beforeLinear, &setup);
+    diff(&start, &system.beforeLinear, &setup);
     printf("%d.%09d,", (int)setup.tv_sec, (int)setup.tv_nsec);
     struct timespec linear;
-    diff(&beforeLinear, &beforeIntegral, &linear);
+    diff(&system.beforeLinear, &beforeIntegral, &linear);
     printf("%d.%09d,", (int)linear.tv_sec, (int)linear.tv_nsec);
     struct timespec integral;
     diff(&beforeIntegral, &beforeCleanup, &integral);
@@ -365,14 +364,14 @@ int main(int argc, char * argv[]){
     diff(&beforeCleanup, &end, &cleanup);
     printf("%d.%09d,", (int)cleanup.tv_sec, (int)cleanup.tv_nsec);
     struct timespec total;
-    diff(&start, &end, &total);
+    diff(&system.beforeLinear, &end, &total);
     printf("%d.%09d,", (int)total.tv_sec, (int)total.tv_nsec);
   #else
-    printf("%f,", ((double)(beforeLinear - start))/CLOCKS_PER_SEC);
-    printf("%f,", ((double)(beforeIntegral - beforeLinear))/CLOCKS_PER_SEC);
+    printf("%f,", ((double)(system.beforeLinear - start))/CLOCKS_PER_SEC);
+    printf("%f,", ((double)(beforeIntegral - system.beforeLinear))/CLOCKS_PER_SEC);
     printf("%f,", ((double)(beforeCleanup - beforeIntegral))/CLOCKS_PER_SEC);
     printf("%f,", ((double)(end - beforeCleanup))/CLOCKS_PER_SEC);
-    printf("%f,", ((double)(end - start))/CLOCKS_PER_SEC);
+    printf("%f,", ((double)(end - system.beforeIntegral))/CLOCKS_PER_SEC);
   #endif
   return 0;
 }
@@ -441,6 +440,11 @@ static void fputEdge(Edge * edge, FILE * output){
  */
 static void initializeSystem(void * object, int n, Parser * parser){
   System * system = (System *) object;
+  #ifdef __HPC__
+    clock_gettime(CLOCK_MONOTONIC_RAW, &system->beforeLinear);
+  #else
+    system->beforeLinear = clock();
+  #endif
   system->vertexCount = n + 1;
   system->graph = (Vertex *) malloc( sizeof(Vertex) * system->vertexCount );
   system->n = n;
