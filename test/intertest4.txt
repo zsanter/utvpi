@@ -1,6 +1,6 @@
 /*
  * Testing modification to allow
- * for inteerpretation of modified
+ * for interpretation of modified
  * Stuckey .utv files.
  */
 
