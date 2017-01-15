@@ -29,7 +29,7 @@ typedef enum ConstraintSign {
 } ConstraintSign;
 
 typedef struct Constraint Constraint;
-typedef VoidRefLIst ConstraintRefList;
+typedef struct VoidRefLIst ConstraintRefList;
 
 /*
  * sign[i] and index[i] represent all information about variable i, and weight gives the weight of the constraint. By convention,

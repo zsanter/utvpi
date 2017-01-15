@@ -46,7 +46,7 @@ void constraintRefListAppend(ConstraintRefList * crl, Constraint * constraint){
  * constraint - pointer to a Constraint, which will be added to the beginning of crl
  */
 void constraintRefListPrepend(ConstraintRefList * crl, Constraint * constraint){
-  voidRefListPrepend((VoidRefLIst *) crl, (void *) constraint);
+  voidRefListPrepend((VoidRefList *) crl, (void *) constraint);
 }
 
 /*
@@ -79,5 +79,5 @@ void constraintRefListIteratorReset(ConstraintRefList * crl){
  * crl - pointer to the ConstraintRefList to be freed
  */
 void freeConstraintRefList(ConstraintRefList * crl){
-  freeVoidRefLIst((VoidRefList *) crl, true);
+  freeVoidRefList((VoidRefList *) crl, true);
 }

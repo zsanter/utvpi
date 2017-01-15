@@ -58,4 +58,6 @@ void voidRefListIteratorReset(VoidRefList * vrl);
  * vrl - pointer to the VoidRefList to be freed
  * freeMemberPointers - true if data stored in the list should be f reed, along with the list itself. False, otherwise.
  */
-void freevoidRefList(VoidRefList * vrl, bool freeMemberPointers);
+void freeVoidRefList(VoidRefList * vrl, bool freeMemberPointers);
+
+#endif

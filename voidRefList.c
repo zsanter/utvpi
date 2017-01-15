@@ -1,4 +1,5 @@
 #include "voidRefList.h"
+#include <stdlib.h>
 
 typedef struct VoidRefListNode VoidRefListNode;
 
@@ -109,10 +110,10 @@ void voidRefListIteratorReset(VoidRefList * vrl){
  * freeVoidRefList() frees the input VoidRefList, as well as referenced pointers, if so desired.
  *
  * vrl - pointer to the VoidRefList to be freed
- * freeMemberPointers - true if data stored in the list should be f reed, along with the list itself. False, otherwise.
+ * freeMemberPointers - true if data stored in the list should be freed, along with the list itself. False, otherwise.
  */
-void freeConstraintRefList(ConstraintRefList * crl, bool freeMemberPointers){
-  if( crl != NULL ){
+void freeVoidRefList(VoidRefList * vrl, bool freeMemberPointers){
+  if( vrl != NULL ){
     VoidRefListNode * vrln = vrl->first;
     while( vrln != NULL ){
       VoidRefListNode * oldVRLN = vrln;
