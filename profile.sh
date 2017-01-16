@@ -12,3 +12,4 @@ fi
 ./auto.sh "${program}" "constraints" "f1"
 ./auto.sh "${program}" "variables" "f0"
 ./auto.sh "${program}" "constraints" "f0"
+echo "profile complete"
