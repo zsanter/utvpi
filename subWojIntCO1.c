@@ -371,7 +371,7 @@ int main(int argc, char * argv[]){
     printf("%f,", ((double)(beforeIntegral - system.beforeLinear))/CLOCKS_PER_SEC);
     printf("%f,", ((double)(beforeCleanup - beforeIntegral))/CLOCKS_PER_SEC);
     printf("%f,", ((double)(end - beforeCleanup))/CLOCKS_PER_SEC);
-    printf("%f,", ((double)(end - system.beforeIntegral))/CLOCKS_PER_SEC);
+    printf("%f,", ((double)(end - system.beforeLinear))/CLOCKS_PER_SEC);
   #endif
   return 0;
 }
