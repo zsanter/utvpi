@@ -177,6 +177,7 @@ static void initializeSystem(void * object, int n, Parser * parser){
     system->graph[i].index = i+1;
     system->graph[i].D = 0;
     system->graph[i].L = NULL;
+    system->graph[i].cycleOriginator = NULL;
     system->graph[i].first = NULL;
   }
 }
